@@ -1,4 +1,5 @@
 import { additionalSports } from './additionalSports';
+import { additionalQuizPlayers } from './additionalQuizPlayers';
 
 export type RankedItem = { name: string; detail: string; stat: string; badge: string };
 export type Player = RankedItem & { team: string };
@@ -9,6 +10,7 @@ export type Sport = {
   accent: string;
   teams: RankedItem[];
   players: Player[];
+  quizPlayers?: Player[];
 };
 
 const footballTeams: RankedItem[] = [
@@ -30,7 +32,7 @@ const footballPlayers: Player[] = [
 const makeItems = (items: string[][]): RankedItem[] => items.map(([name, detail, stat, badge]) => ({ name, detail, stat, badge }));
 const makePlayers = (items: string[][]): Player[] => items.map(([name, detail, stat, badge, team]) => ({ name, detail, stat, badge, team }));
 
-export const sports: Sport[] = [
+const rankedSports: Sport[] = [
   { id: 'football', name: 'Football', icon: '⚽', accent: '#b7f34a', teams: footballTeams, players: footballPlayers },
   { id: 'basketball', name: 'Basketball', icon: '🏀', accent: '#ff8a3d', teams: makeItems([
     ['Boston Celtics', 'NBA · All-time record', '18 championships', 'BOS'], ['Los Angeles Lakers', 'NBA · All-time record', '17 championships', 'LAL'],
@@ -60,3 +62,8 @@ export const sports: Sport[] = [
   ]) },
   ...additionalSports,
 ];
+
+export const sports: Sport[] = rankedSports.map((sport) => ({
+  ...sport,
+  quizPlayers: [...sport.players, ...(additionalQuizPlayers[sport.id] ?? [])],
+}));

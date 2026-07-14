@@ -14,13 +14,14 @@ export function SportsQuiz({ sport }: { sport: Sport }) {
   const [score, setScore] = useState(0);
   const [answer, setAnswer] = useState<string>();
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
-  const player = sport.players[round % sport.players.length];
+  const quizPlayers = sport.quizPlayers ?? sport.players;
+  const player = quizPlayers[round % quizPlayers.length];
   const mode = rules[difficulty];
   const choices = useMemo(() => {
-    const alternatives = sport.players.filter((item) => item.name !== player.name);
+    const alternatives = quizPlayers.filter((item) => item.name !== player.name);
     const rotated = [...alternatives.slice(round), ...alternatives.slice(0, round)];
     return [player, ...rotated.slice(0, mode.choices - 1)].sort(() => .5 - Math.random());
-  }, [mode.choices, player, round, sport]);
+  }, [mode.choices, player, quizPlayers, round]);
 
   function choose(name: string) {
     if (answer) return;
