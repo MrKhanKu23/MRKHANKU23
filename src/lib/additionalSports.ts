@@ -82,4 +82,17 @@ export const additionalSports: Sport[] = [
     ['Tijana Bošković', 'Opposite · Serbia', 'Left-handed power', 'TB', 'Serbia'], ['Zhu Ting', 'Outside hitter · China', 'Complete attacker', 'ZT', 'China'],
     ['Melissa Vargas', 'Opposite · Türkiye', 'Dominant server', 'MV', 'Türkiye'], ['Gabriela Guimarães', 'Outside hitter · Brazil', 'All-around leader', 'GG', 'Brazil'],
   ]) },
+  { id: 'track-sprint', name: 'Track Sprint', icon: '🏃', accent: '#c8ff3d', teams: teams([
+    ['United States', '100m · 200m · 400m', 'Sprint powerhouse', 'USA'], ['Jamaica', '100m · 200m', 'Global sprint legacy', 'JAM'],
+    ['Botswana', '200m · 400m', 'Rising sprint nation', 'BOT'], ['Great Britain', '100m · 200m · relays', 'Deep relay tradition', 'GBR'],
+    ['Canada', '100m · 200m · relays', 'Olympic sprint pedigree', 'CAN'], ['South Africa', '200m · 400m', 'One-lap strength', 'RSA'],
+    ['Bahamas', '200m · 400m', '400m excellence', 'BAH'], ['Trinidad and Tobago', '100m · 200m', 'Caribbean speed', 'TTO'],
+    ['Dominican Republic', '400m · mixed relay', 'One-lap specialists', 'DOM'], ['Nigeria', '100m · 200m · relays', 'African sprint tradition', 'NGR'],
+  ]), players: players([
+    ['Noah Lyles', '100m · 200m · USA', 'Elite top-end speed', 'NL', 'United States'], ['Letsile Tebogo', '100m · 200m · Botswana', 'Smooth sprint mechanics', 'LT', 'Botswana'],
+    ['Marcell Jacobs', '100m · Italy', 'Explosive acceleration', 'MJ', 'Italy'], ['Kishane Thompson', '100m · Jamaica', 'Powerful starter', 'KT', 'Jamaica'],
+    ['Wayde van Niekerk', '200m · 400m · South Africa', '400m world-record holder', 'WVN', 'South Africa'], ['Kirani James', '400m · Grenada', 'One-lap legend', 'KJ', 'Grenada'],
+    ['Sydney McLaughlin-Levrone', '400m · USA', 'Elite one-lap speed', 'SML', 'United States'], ['Sha’Carri Richardson', '100m · 200m · USA', 'Explosive finisher', 'SR', 'United States'],
+    ['Shericka Jackson', '100m · 200m · Jamaica', '200m specialist', 'SJ', 'Jamaica'], ['Marileidy Paulino', '400m · Dominican Republic', 'One-lap champion', 'MP', 'Dominican Republic'],
+  ]) },
 ];
