@@ -1,3 +1,5 @@
+import { additionalSports } from './additionalSports';
+
 export type RankedItem = { name: string; detail: string; stat: string; badge: string };
 export type Player = RankedItem & { team: string };
 export type Sport = {
@@ -54,4 +56,5 @@ export const sports: Sport[] = [
     ['Coco Gauff', 'Right-handed · USA', 'Speed and defense', 'CG', 'United States'], ['Aryna Sabalenka', 'Right-handed · Belarus', 'Power hitter', 'AS', 'Independent'],
     ['Iga Świątek', 'Right-handed · Poland', 'Clay specialist', 'IS', 'Poland'], ['Jasmine Paolini', 'Right-handed · Italy', 'Relentless competitor', 'JP', 'Italy'],
   ]) },
+  ...additionalSports,
 ];
