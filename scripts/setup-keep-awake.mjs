@@ -64,10 +64,18 @@ try {
 }
 
 const env = parseEnv(envSource);
-const supabaseUrl = env.VITE_SUPABASE_URL?.replace(/\/$/, '');
+let supabaseUrl;
+try {
+  const parsedUrl = new URL(env.VITE_SUPABASE_URL);
+  if (parsedUrl.protocol === 'https:' && /^[a-z0-9-]+\.supabase\.co$/i.test(parsedUrl.hostname)) {
+    supabaseUrl = parsedUrl.origin;
+  }
+} catch {
+  // The validation below reports a safe error without echoing the value.
+}
 const publicKey = env.VITE_SUPABASE_ANON_KEY;
 
-if (!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(supabaseUrl || '')) {
+if (!supabaseUrl) {
   fail('VITE_SUPABASE_URL is missing or invalid');
 }
 if (!publicKey) fail('VITE_SUPABASE_ANON_KEY is missing');
