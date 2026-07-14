@@ -4,7 +4,7 @@ type Props = { sport: Sport; sports: Sport[]; query: string; onQuery: (value: st
 
 export function SearchHero({ sport, sports, query, onQuery, onSport }: Props) {
   return <header className="hero" style={{ '--accent': sport.accent } as React.CSSProperties}>
-    <nav><a className="brand" href="#top"><span>SP</span>ORTDEX</a><span className="live"><i /> CURATED EDITION</span></nav>
+    <nav><a className="brand" href="#top"><span>SP</span>ORTDEX</a><span className="live"><i /> ALL-TIME EDITION</span></nav>
     <div className="hero-copy">
       <p className="kicker">YOUR SPORTS KNOWLEDGE HUB</p>
       <h1>Know the game.<br /><em>Own the stats.</em></h1>

@@ -40,9 +40,9 @@ export default function App() {
       <section className="dashboard">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">CURATED POWER RANKINGS</p>
+            <p className="eyebrow">ALL-TIME RECORD BOOK</p>
             <h2>{sport.icon} {sport.name} hub</h2>
-            <p>Explore the elite, compare the numbers, then test your knowledge.</p>
+            <p>Ranked by major titles, championships, medals and official records.</p>
           </div>
           <button className="quiz-button" onClick={() => setQuizOpen((open) => !open)}>
             {quizOpen ? 'Close quiz' : '⚡ Play the quiz'}
