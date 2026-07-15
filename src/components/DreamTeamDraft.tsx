@@ -12,6 +12,10 @@ const rosterSizes: Record<string, number> = {
 
 const footballNations = ['Spain', 'Italy', 'France', 'Argentina', 'Portugal', 'Germany', 'Netherlands', 'Brazil', 'Morocco', 'England', 'Norway', 'Cape Verde', 'Japan'];
 const footballNationSet = new Set(footballNations);
+const eliteFootballRatings = new Set([
+  'Lionel Messi', 'Cristiano Ronaldo', 'Pelé', 'Johan Cruyff', 'Michel Platini',
+  'Marco van Basten', 'Ronaldo Nazário', 'Garrincha', 'Cafu',
+]);
 
 function nationality(player: Player) {
   const parts = player.detail.split('·');
@@ -70,6 +74,12 @@ function weightedSample(players: Player[], count: number, ratings: Map<string, n
   return selected;
 }
 
+function playerRating(player: Player, index: number, poolSize: number, sportId: string) {
+  const baseRating = player.rating ?? 100 - Math.round(index * 20 / Math.max(poolSize - 1, 1));
+  if (sportId === 'football' && baseRating >= 96 && !eliteFootballRatings.has(player.name)) return 95;
+  return baseRating;
+}
+
 export function DreamTeamDraft({ sport }: { sport: Sport }) {
   const allPlayers = sport.draftPlayers ?? sport.quizPlayers ?? sport.players;
   const pool = sport.id === 'football' ? allPlayers.filter((player) => footballNationSet.has(nationality(player))) : allPlayers;
@@ -82,7 +92,7 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
   const slots = lineupSlots[sport.id] ?? [];
   const round = drafted.length;
   const complete = round >= teamSize;
-  const ratings = useMemo(() => new Map(pool.map((player, index) => [player.name, player.rating ?? 100 - Math.round(index * 20 / Math.max(pool.length - 1, 1))])), [pool]);
+  const ratings = useMemo(() => new Map(pool.map((player, index) => [player.name, playerRating(player, index, pool.length, sport.id)])), [pool, sport.id]);
   const nationOrder = useMemo(() => {
     const nations = [...new Set(pool.map(nationality))];
     for (let index = nations.length - 1; index > 0; index -= 1) {
