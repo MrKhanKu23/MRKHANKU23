@@ -7,9 +7,13 @@ const rosterSizes: Record<string, number> = {
   'american-football': 5, ufc: 5, swimming: 4, volleyball: 6, 'track-sprint': 4,
 };
 
+const footballNations = ['Spain', 'Italy', 'France', 'Argentina', 'Portugal', 'Germany', 'Netherlands', 'Brazil', 'Morocco', 'England'];
+const footballNationSet = new Set(footballNations);
+
 function nationality(player: Player) {
   const parts = player.detail.split('·');
-  return parts[parts.length - 1]?.trim() ?? player.team;
+  const rawNationality = parts[parts.length - 1]?.trim() ?? player.team;
+  return rawNationality.split('/').map((value) => value.trim()).find((value) => footballNationSet.has(value)) ?? rawNationality;
 }
 
 function careerBounds(player: Player) {
@@ -23,7 +27,8 @@ function overlaps(player: Player, decade: number) {
 }
 
 export function DreamTeamDraft({ sport }: { sport: Sport }) {
-  const pool = sport.draftPlayers ?? sport.quizPlayers ?? sport.players;
+  const allPlayers = sport.draftPlayers ?? sport.quizPlayers ?? sport.players;
+  const pool = sport.id === 'football' ? allPlayers.filter((player) => footballNationSet.has(nationality(player))) : allPlayers;
   const teamSize = rosterSizes[sport.id] ?? 5;
   const [drafted, setDrafted] = useState<Player[]>([]);
   const round = drafted.length;
