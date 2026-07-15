@@ -6,6 +6,7 @@ import { DreamTeamDraft } from './components/DreamTeamDraft';
 import { AccountPanel } from './components/AccountPanel';
 import { sports, type Sport } from './lib/sportsData';
 import { loadSportsCatalog } from './lib/sportdexDb';
+import './components/BlueWhiteTheme.css';
 
 export default function App() {
   const [catalog, setCatalog] = useState<Sport[]>(sports);
