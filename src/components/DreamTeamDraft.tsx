@@ -74,6 +74,10 @@ function randomFromSeed(seed: number) {
   return value - Math.floor(value);
 }
 
+function randomAllowance(maximum: number) {
+  return Math.floor(Math.random() * maximum) + 1;
+}
+
 function weightedSample(players: Player[], count: number, ratings: Map<string, number>, seed: number) {
   const available = [...players];
   const selected: Player[] = [];
@@ -136,6 +140,10 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
   const [assigned, setAssigned] = useState<Record<string, Player>>({});
   const [firstTeam, setFirstTeam] = useState<{ drafted: Player[]; assigned: Record<string, Player>; average: number }>();
   const [draftSeed, setDraftSeed] = useState(() => Date.now());
+  const [choiceSeed, setChoiceSeed] = useState(() => Date.now() + 1);
+  const [nationOffset, setNationOffset] = useState(0);
+  const [rerolls, setRerolls] = useState(() => randomAllowance(10));
+  const [refreshes, setRefreshes] = useState(() => randomAllowance(8));
   const [saveMessage, setSaveMessage] = useState('');
   const headToHead = sport.id === 'tennis' || sport.id === 'ufc';
   const slots = lineupSlots[sport.id] ?? [];
@@ -150,12 +158,12 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
     }
     return nations;
   }, [draftSeed, pool]);
-  const scoutingNation = nationOrder[round % nationOrder.length];
+  const scoutingNation = nationOrder[(round + nationOffset) % nationOrder.length];
   const nationPlayers = pool.filter((player) => nationality(player) === scoutingNation);
-  const anchor = nationPlayers[Math.abs(draftSeed + round * 13) % nationPlayers.length];
+  const anchor = nationPlayers[Math.abs(draftSeed + round * 13 + nationOffset * 31) % nationPlayers.length];
   const anchorBounds = careerBounds(anchor);
   const anchorDecades = Array.from({ length: Math.floor(anchorBounds.end / 10) - Math.floor(anchorBounds.start / 10) + 1 }, (_, index) => (Math.floor(anchorBounds.start / 10) + index) * 10);
-  const decade = anchorDecades[Math.abs(draftSeed + round * 7) % anchorDecades.length];
+  const decade = anchorDecades[Math.abs(draftSeed + round * 7 + nationOffset) % anchorDecades.length];
   const choices = useMemo(() => {
     const used = new Set([...drafted, ...(firstTeam?.drafted ?? [])].map((player) => player.name));
     const unused = pool.filter((player) => !used.has(player.name) && allowedSlots(player, sport.id, slots).some((slot) => !assigned[slot]));
@@ -165,11 +173,11 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
     const selections: Player[] = [];
     const addWeighted = (group: Player[], salt: number) => {
       const remaining = group.filter((player) => !selections.some((pick) => pick.name === player.name));
-      selections.push(...weightedSample(remaining, 4 - selections.length, ratings, draftSeed + round * 997 + salt));
+      selections.push(...weightedSample(remaining, 4 - selections.length, ratings, choiceSeed + round * 997 + salt));
     };
     addWeighted(exact, 11); addWeighted(sameNation, 23); addWeighted(sameEra, 37); addWeighted(unused, 53);
     return selections.slice(0, 4);
-  }, [assigned, decade, draftSeed, drafted, firstTeam, pool, ratings, round, scoutingNation, slots, sport.id]);
+  }, [assigned, choiceSeed, decade, drafted, firstTeam, pool, ratings, round, scoutingNation, slots, sport.id]);
   const average = drafted.length ? Math.round(drafted.reduce((total, player) => total + (ratings.get(player.name) ?? 80), 0) / drafted.length) : 0;
   const teamNumber = firstTeam ? 2 : 1;
 
@@ -187,6 +195,23 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
     setPendingSlot(undefined);
     setAssigned({});
     setDraftSeed(Date.now());
+    setChoiceSeed(Date.now() + 1);
+    setNationOffset(0);
+    setRerolls(randomAllowance(10));
+    setRefreshes(randomAllowance(8));
+  }
+
+  function rerollBrief() {
+    if (!rerolls || pending) return;
+    setRerolls((value) => value - 1);
+    setNationOffset((value) => value + 1);
+    setChoiceSeed(Date.now() + rerolls * 101);
+  }
+
+  function refreshPlayers() {
+    if (!refreshes || pending) return;
+    setRefreshes((value) => value - 1);
+    setChoiceSeed(Date.now() + refreshes * 211);
   }
 
   function roster(team: Player[], lineup: Record<string, Player>) {
@@ -230,12 +255,12 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
     <div className="drafted-roster">{drafted.map((player) => <article key={player.name}><span>{player.badge}</span><div><b>{player.name}</b><small>{Object.entries(assigned).find(([, pick]) => pick.name === player.name)?.[0]} · {player.years}</small></div><strong>{ratings.get(player.name)}</strong></article>)}</div>
     <button className="restart-draft" onClick={() => saveTeams([{ players: drafted, overall: average }])}>Save Dream Team</button>
     {saveMessage && <p className="draft-save-message">{saveMessage}</p>}
-    <button className="restart-draft" onClick={() => { setDrafted([]); setPending(undefined); setPendingSlot(undefined); setAssigned({}); setDraftSeed(Date.now()); }}>Draft another team</button>
+    <button className="restart-draft" onClick={resetCurrentTeam}>Draft another team</button>
   </section>;
 
   return <section className="draft-game">
     <div className="draft-header"><div><p className="eyebrow">{headToHead ? `TEAM ${teamNumber} · ` : ''}ROUND {round + 1} OF {teamSize}</p><h3>{headToHead ? `Build Team ${teamNumber}` : 'Build the greatest team'}</h3></div><div className="draft-score"><span>{headToHead ? `TEAM ${teamNumber}` : 'TEAM'}</span><strong>{average || '—'}</strong></div></div>
-    <div className="scouting-brief"><div className="brief-copy"><span>THIS ROUND'S NATIONALITY + ERA</span><strong>{scoutingNation}</strong><i /> <strong>{decade}s</strong><p>{pending ? `${pending.name}${pendingSlot ? ` · ${pendingSlot}` : ' · choose a position below'}` : 'Choose a player, then place them in the lineup.'}</p></div><button className="top-roll" disabled={!pending || !pendingSlot} onClick={confirmPick}>{round + 1 === teamSize ? 'Complete team →' : 'Roll next round ↻'}</button></div>
+    <div className="scouting-brief"><div className="brief-copy"><span>THIS ROUND'S NATIONALITY + ERA</span><strong>{scoutingNation}</strong><i /> <strong>{decade}s</strong><p>{pending ? `${pending.name}${pendingSlot ? ` · ${pendingSlot}` : ' · choose a position below'}` : 'Choose a player, then place them in the lineup.'}</p></div><div className="brief-actions"><button className="scout-control" disabled={!rerolls || Boolean(pending)} onClick={rerollBrief}>Reroll brief <b>{rerolls}</b></button><button className="scout-control" disabled={!refreshes || Boolean(pending)} onClick={refreshPlayers}>Refresh players <b>{refreshes}</b></button><button className="top-roll" disabled={!pending || !pendingSlot} onClick={confirmPick}>{round + 1 === teamSize ? 'Complete team →' : 'Roll next round ↻'}</button></div></div>
     {!pending && <div className="draft-choices">{choices.map((player) => <button key={player.name} onClick={() => { setPending(player); setPendingSlot(undefined); }}>
       <div className="draft-rating"><strong>{ratings.get(player.name)}</strong><small>OVR</small></div>
       <span className="draft-years">{player.years}</span><span className="position-tag">{position(player, sport.id)}</span><h4>{player.name}</h4><p>{nationality(player)}</p><em>🏆 {player.stat}</em><b>Select player →</b>

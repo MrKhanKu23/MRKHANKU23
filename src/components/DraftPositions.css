@@ -42,8 +42,15 @@
   cursor: not-allowed;
 }
 
+.brief-actions { display: flex; align-items: center; gap: 8px; }
+.scout-control { padding: 11px 13px; border: 1px solid color-mix(in srgb, var(--accent) 45%, #343a31); border-radius: 6px; background: #191d17; color: #c8cec3; font-size: 11px; font-weight: 700; }
+.scout-control b { display: inline-grid; min-width: 20px; height: 20px; margin-left: 5px; place-items: center; border-radius: 10px; background: var(--accent); color: #111; font-size: 10px; }
+.scout-control:disabled { opacity: .35; cursor: not-allowed; }
+
 @media (max-width: 600px) {
   .scouting-brief { align-items: stretch; flex-direction: column; }
+  .brief-actions { align-items: stretch; flex-direction: column; }
+  .scout-control { width: 100%; }
   .top-roll { width: 100%; }
 }
 
