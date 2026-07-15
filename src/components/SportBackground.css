@@ -70,6 +70,11 @@
 }
 
 .sport-background[data-sport="football"], .sport-app[data-sport="football"] { --sport-base: #0b1b12; }
+.sport-background[data-sport="football"] {
+  background-image: linear-gradient(90deg, rgba(7,16,10,.96) 0%, rgba(7,16,10,.76) 48%, rgba(7,16,10,.35) 100%), url('/backgrounds/football-legends-v2.png');
+  background-position: center;
+  background-size: cover;
+}
 .sport-background[data-sport="football"] .sport-scene {
   background: repeating-linear-gradient(90deg, transparent 0 18%, rgba(183,243,74,.1) 18% 20%);
 }
@@ -126,7 +131,10 @@
   background: repeating-radial-gradient(ellipse at left, transparent 0 15%, rgba(200,255,61,.11) 15.5% 17%);
 }
 
+.sport-legends { position:absolute;z-index:3;right:max(24px,calc((100vw - 1180px)/2));top:175px;width:min(31vw,370px);display:grid;gap:12px;pointer-events:none }.sport-legends article{display:flex;align-items:center;gap:14px;padding:15px 17px;border:1px solid color-mix(in srgb,var(--accent) 30%,#394036);border-radius:10px;background:color-mix(in srgb,var(--sport-base) 72%,transparent);box-shadow:0 15px 35px #0006;backdrop-filter:blur(9px);transform:translateX(calc(var(--legend-shift, 0) * 1px))}.sport-legends article:nth-child(2){margin-left:42px}.sport-legends article>span{width:42px;height:42px;display:grid;place-items:center;border-radius:50%;background:var(--accent);color:#111;font:800 12px 'Space Grotesk'}.sport-legends article div{display:flex;min-width:0;flex-direction:column}.sport-legends small{color:#92998e;font-size:8px;font-weight:700;letter-spacing:1.5px}.sport-legends strong{overflow:hidden;color:#fff;font:700 clamp(16px,2vw,22px) 'Space Grotesk';text-overflow:ellipsis;white-space:nowrap}.sport-background:has(.sport-legends) .sport-scene{right:8%;opacity:.1}
+
 @media (max-width: 850px) {
   .sport-scene { right: -80px; top: 150px; width: 330px; opacity: .12; }
+  .sport-legends{position:relative;right:auto;top:auto;width:100%;margin-top:26px}.sport-legends article:nth-child(2){margin-left:22px}
   .sport-app .dashboard::before { inset: 16px 10px 30px; }
 }
