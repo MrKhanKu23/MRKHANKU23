@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { Sport } from '../lib/sportsData';
 import { saveQuizScore } from '../lib/sportdexDb';
+import { loadPlayerImage } from '../lib/playerImages';
 import './SportsQuiz.css';
 
 type Difficulty = 'easy' | 'medium' | 'hard';
@@ -29,15 +30,26 @@ export function SportsQuiz({ sport }: { sport: Sport }) {
   const [quizSeed, setQuizSeed] = useState(() => Date.now());
   const [finished, setFinished] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
+  const [playerImage, setPlayerImage] = useState<string>();
   const playerPool = sport.draftPlayers ?? sport.quizPlayers ?? sport.players;
   const quizPlayers = useMemo(() => seededShuffle(playerPool, quizSeed), [playerPool, quizSeed]);
   const player = quizPlayers[round % quizPlayers.length];
   const mode = rules[difficulty];
+  const detailParts = player.detail.split('·');
+  const role = detailParts[0]?.trim();
+  const playerNationality = detailParts.slice(1).join('·').trim() || player.team;
   const choices = useMemo(() => {
     const alternatives = quizPlayers.filter((item) => item.name !== player.name);
     const rotated = [...alternatives.slice(round), ...alternatives.slice(0, round)];
     return seededShuffle([player, ...rotated.slice(0, mode.choices - 1)], quizSeed + round * 997);
   }, [mode.choices, player, quizPlayers, quizSeed, round]);
+
+  useEffect(() => {
+    let current = true;
+    setPlayerImage(undefined);
+    loadPlayerImage(player.name).then((source) => { if (current) setPlayerImage(source); });
+    return () => { current = false; };
+  }, [player.name]);
 
   function choose(name: string) {
     if (answer) return;
@@ -68,8 +80,9 @@ export function SportsQuiz({ sport }: { sport: Sport }) {
     <div className="difficulty" aria-label="Quiz difficulty">
       {(Object.keys(rules) as Difficulty[]).map((level) => <button key={level} className={difficulty === level ? 'active' : ''} onClick={() => changeDifficulty(level)}>{rules[level].label}</button>)}
     </div>
-    <div className="mystery career-years" style={{ background: sport.accent }}><small>CAREER</small>{player.years}</div>
-    <p className="eyebrow">GUESS THE STAR · {mode.label.toUpperCase()}</p><h3>{player.detail}</h3>
+    <div className={`mystery quiz-player-icon ${answer === player.name && playerImage ? 'revealed' : ''}`} style={{ background: sport.accent }}>{answer === player.name && playerImage ? <img src={playerImage} alt={player.name} /> : <strong>?</strong>}</div>
+    <p className="eyebrow">GUESS THE STAR · {mode.label.toUpperCase()}</p><h3>{role}</h3>
+    <p className="quiz-player-meta"><span>{playerNationality}</span><b>{player.years}</b></p>
     <p className="clue">{mode.showTeam ? `Represented by ${player.team}` : 'Team hidden — use the record alone'}</p>
     <div className="choices">{choices.map((choice) => <button key={choice.name} className={answer ? (choice.name === player.name ? 'correct' : choice.name === answer ? 'wrong' : '') : ''} onClick={() => choose(choice.name)}>{choice.name}</button>)}</div>
     {answer && <button className="next" onClick={next}>{round + 1 === quizLength ? 'Finish quiz →' : 'Next challenge →'}</button>}
