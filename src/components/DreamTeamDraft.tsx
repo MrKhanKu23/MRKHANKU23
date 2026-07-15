@@ -81,13 +81,26 @@ function weightedSample(players: Player[], count: number, ratings: Map<string, n
   return selected;
 }
 
+function lowerTierRating(player: Player, baseRating: number) {
+  const honours = player.stat.toLowerCase();
+  const skillPoints = Math.max(0, Math.min(4, Math.round((baseRating - 80) / 5)));
+  let trophyPoints = 0;
+  if (honours.includes('ballon d’or')) trophyPoints += 3;
+  if (honours.includes('world cup')) trophyPoints += 3;
+  const europeanTitles = Number(honours.match(/(\d+)\s+(?:champions league|european cup)/)?.[1] ?? 0);
+  if (honours.includes('champions league') || honours.includes('european cup')) trophyPoints += Math.max(1, Math.min(4, europeanTitles));
+  if (honours.includes('league title') || honours.includes('premier league') || honours.includes('serie a') || honours.includes('bundesliga')) trophyPoints += 2;
+  if (honours.includes('euro') || honours.includes('copa américa') || honours.includes('copa america')) trophyPoints += 2;
+  if (honours.includes('cup') || honours.includes('domestic')) trophyPoints += 1;
+  return Math.min(89, 80 + skillPoints + Math.min(5, trophyPoints));
+}
+
 function playerRating(player: Player, index: number, poolSize: number, sportId: string) {
   const baseRating = player.rating ?? 100 - Math.round(index * 20 / Math.max(poolSize - 1, 1));
   if (sportId !== 'football') return baseRating;
   if (baseRating >= 96 && eliteFootballRatings.has(player.name)) return baseRating;
-  const eliteCappedRating = Math.min(baseRating, 95);
-  if (eliteCappedRating >= 90 && !highFootballRatings.has(player.name)) return 89;
-  return eliteCappedRating;
+  if (baseRating >= 90 && highFootballRatings.has(player.name)) return Math.min(baseRating, 95);
+  return lowerTierRating(player, baseRating);
 }
 
 export function DreamTeamDraft({ sport }: { sport: Sport }) {
