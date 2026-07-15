@@ -40,7 +40,7 @@ export function SearchHero({ sport, sports, query, onQuery, onSport }: Props) {
     </div>
     <div className="sport-scene" aria-hidden="true"><span>{sport.icon}</span></div>
     <aside className="sport-legends" aria-label={`${sport.name} legends`}>
-      {legends.map((legend, index) => <article key={legend} style={{ '--legend-photo': `url("${legendPhoto(legend)}")` } as React.CSSProperties}><span>{String(index + 1).padStart(2, '0')}</span><div><small>{sport.name.toUpperCase()} LEGEND</small><strong>{legend}</strong></div></article>)}
+      {legends.map((legend) => <article key={legend} aria-label={legend} title={legend} style={{ '--legend-photo': `url("${legendPhoto(legend)}")` } as React.CSSProperties} />)}
     </aside>
     <div className="hero-number">10</div>
   </header>;

@@ -126,10 +126,10 @@
   background: repeating-radial-gradient(ellipse at left, transparent 0 15%, rgba(200,255,61,.11) 15.5% 17%);
 }
 
-.sport-legends { position:absolute;z-index:3;right:max(24px,calc((100vw - 1180px)/2));top:145px;width:min(34vw,410px);display:grid;gap:14px;pointer-events:none }.sport-legends article{position:relative;isolation:isolate;min-height:150px;display:flex;align-items:flex-end;gap:14px;overflow:hidden;padding:18px;border:1px solid color-mix(in srgb,var(--accent) 38%,#394036);border-radius:13px;background-image:linear-gradient(90deg,rgba(5,7,5,.9),rgba(5,7,5,.2)),var(--legend-photo);background-position:center 24%;background-size:cover;box-shadow:0 18px 42px #0008}.sport-legends article:nth-child(2){margin-left:42px}.sport-legends article>span{width:42px;height:42px;display:grid;flex:0 0 auto;place-items:center;border-radius:50%;background:var(--accent);color:#111;font:800 12px 'Space Grotesk'}.sport-legends article div{display:flex;min-width:0;flex-direction:column;text-shadow:0 2px 8px #000}.sport-legends small{color:#d0d5cc;font-size:8px;font-weight:700;letter-spacing:1.5px}.sport-legends strong{overflow:hidden;color:#fff;font:700 clamp(18px,2vw,25px) 'Space Grotesk';text-overflow:ellipsis;white-space:nowrap}.sport-background:has(.sport-legends) .sport-scene{right:8%;opacity:.08}
+.sport-legends{position:absolute;z-index:1;inset:0 0 0 auto;width:48%;display:grid;grid-template-columns:1fr 1fr;overflow:hidden;pointer-events:none}.sport-legends::before{content:'';position:absolute;z-index:2;inset:0;background:linear-gradient(90deg,var(--sport-base) 0%,color-mix(in srgb,var(--sport-base) 76%,transparent) 23%,transparent 68%),linear-gradient(0deg,var(--sport-base),transparent 32%);pointer-events:none}.sport-legends article{min-width:0;background-image:var(--legend-photo);background-position:center top;background-size:cover;filter:saturate(.78) contrast(1.08)}.sport-legends article+article{border-left:2px solid color-mix(in srgb,var(--accent) 34%,transparent)}.sport-background:has(.sport-legends) .sport-scene{display:none}
 
 @media (max-width: 850px) {
   .sport-scene { right: -80px; top: 150px; width: 330px; opacity: .12; }
-  .sport-legends{position:relative;right:auto;top:auto;width:100%;margin-top:26px}.sport-legends article:nth-child(2){margin-left:22px}
+  .sport-legends{width:58%;opacity:.48}.sport-legends::before{background:linear-gradient(90deg,var(--sport-base),transparent 60%),linear-gradient(0deg,var(--sport-base),transparent 45%)}
   .sport-app .dashboard::before { inset: 16px 10px 30px; }
 }
