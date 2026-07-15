@@ -8,7 +8,7 @@ import { lineupSlots, type LineupSlot } from '../lib/lineupSlots';
 
 const rosterSizes: Record<string, number> = {
   football: 11, basketball: 5, tennis: 2, f1: 2, baseball: 9,
-  'american-football': 11, ufc: 2, swimming: 4, volleyball: 6, 'track-sprint': 4,
+  'american-football': 11, ufc: 2, swimming: 2, volleyball: 6, 'track-sprint': 4,
 };
 
 const footballNations = ['Spain', 'Italy', 'France', 'Argentina', 'Portugal', 'Germany', 'Netherlands', 'Brazil', 'Morocco', 'England', 'Norway', 'Cape Verde', 'Japan'];

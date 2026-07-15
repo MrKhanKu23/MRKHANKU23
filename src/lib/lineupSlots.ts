@@ -13,7 +13,7 @@ export const lineupSlots: Record<string, LineupSlot[]> = {
   baseball: ['P','C','1B','2B','3B','SS','LF','CF','RF'].map((id, index) => ({ id, label: id, row: Math.floor(index / 3) + 1 })),
   'american-football': ['QB','RB','WR1','WR2','WR3','TE','LT','LG','C','RG','RT'].map((id, index) => ({ id, label: id, row: Math.floor(index / 4) + 1 })),
   ufc: [{ id: 'RED', label: 'Red corner', row: 1 }, { id: 'BLUE', label: 'Blue corner', row: 1 }],
-  swimming: ['LEG1','LEG2','LEG3','LEG4'].map((id) => ({ id, label: id.replace('LEG', 'Leg '), row: 1 })),
+  swimming: [{ id: 'SW1', label: 'Swimmer 1', row: 1 }, { id: 'SW2', label: 'Swimmer 2', row: 1 }],
   volleyball: [{ id: 'S', label: 'Setter', row: 1 }, { id: 'OPP', label: 'Opposite', row: 1 }, { id: 'OH1', label: 'Outside 1', row: 2 }, { id: 'OH2', label: 'Outside 2', row: 2 }, { id: 'MB1', label: 'Middle 1', row: 3 }, { id: 'MB2', label: 'Middle 2', row: 3 }],
   'track-sprint': ['LEG1','LEG2','LEG3','LEG4'].map((id) => ({ id, label: id.replace('LEG', 'Leg '), row: 1 })),
 };
