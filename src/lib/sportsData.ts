@@ -27,7 +27,7 @@ const footballTeams: RankedItem[] = [
 
 const footballPlayers: Player[] = [
   ['Lionel Messi', 'Forward · Argentina', '8 Ballon d’Or awards', 'LM', 'Argentina'], ['Cristiano Ronaldo', 'Forward · Portugal', '5 Ballon d’Or awards', 'CR', 'Portugal'],
-  ['Pelé', 'Forward · Brazil', '3 World Cup titles', 'PE', 'Brazil'], ['Diego Maradona', 'Playmaker · Argentina', '1986 World Cup winner', 'DM', 'Argentina'],
+  ['Pelé', 'Forward · Brazil', '3 World Cup titles', 'PE', 'Brazil'], ['Diego Maradona', 'Attacking Midfielder · Argentina', '1986 World Cup winner', 'DM', 'Argentina'],
   ['Johan Cruyff', 'Forward · Netherlands', '3 Ballon d’Or awards', 'JC', 'Netherlands'], ['Franz Beckenbauer', 'Defender · Germany', '2 Ballon d’Or awards', 'FB', 'Germany'],
   ['Alfredo Di Stéfano', 'Forward · Argentina/Spain', '5 European Cups', 'ADS', 'Real Madrid'], ['Ronaldo Nazário', 'Forward · Brazil', '2 Ballon d’Or awards', 'R9', 'Brazil'],
   ['Zinedine Zidane', 'Midfielder · France', 'World Cup and Euro winner', 'ZZ', 'France'], ['Michel Platini', 'Midfielder · France', '3 Ballon d’Or awards', 'MP', 'France'],

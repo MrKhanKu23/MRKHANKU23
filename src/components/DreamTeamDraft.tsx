@@ -18,7 +18,8 @@ function nationality(player: Player) {
 }
 
 function position(player: Player) {
-  return player.detail.split('·')[0].trim();
+  const role = player.detail.split('·')[0].trim();
+  return role.toLowerCase().includes('midfielder') ? 'Midfielder' : role;
 }
 
 function careerBounds(player: Player) {

@@ -4,7 +4,7 @@ const makePlayers = (rows: string[][]): Player[] => rows.map(([name, detail, sta
 
 export const additionalQuizPlayers: Record<string, Player[]> = {
   football: makePlayers([
-    ['Ronaldinho', 'Playmaker · Brazil', '2005 Ballon d’Or', 'R10', 'Brazil'], ['Paolo Maldini', 'Defender · Italy', '5 European Cups', 'PM', 'AC Milan'],
+    ['Ronaldinho', 'Attacking Midfielder · Brazil', '2005 Ballon d’Or', 'R10', 'Brazil'], ['Paolo Maldini', 'Defender · Italy', '5 European Cups', 'PM', 'AC Milan'],
     ['Garrincha', 'Winger · Brazil', '2 World Cup titles', 'GAR', 'Brazil'], ['Xavi Hernández', 'Midfielder · Spain', 'World Cup and 2 Euros', 'XH', 'Barcelona'],
     ['Andrés Iniesta', 'Midfielder · Spain', '2010 World Cup winner', 'AI', 'Barcelona'], ['Gerd Müller', 'Forward · Germany', '68 goals in 62 caps', 'GM', 'Bayern Munich'],
   ]),
