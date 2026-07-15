@@ -113,6 +113,14 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
   }, [assigned, decade, draftSeed, drafted, pool, ratings, round, scoutingNation, slots, sport.id]);
   const average = drafted.length ? Math.round(drafted.reduce((total, player) => total + (ratings.get(player.name) ?? 80), 0) / drafted.length) : 0;
 
+  function confirmPick() {
+    if (!pending || !pendingSlot) return;
+    setDrafted((team) => [...team, pending]);
+    setAssigned((lineup) => ({ ...lineup, [pendingSlot]: pending }));
+    setPending(undefined);
+    setPendingSlot(undefined);
+  }
+
   if (complete) return <section className="draft-game draft-result">
     <p className="eyebrow">MULTI-NATION · MULTI-ERA DRAFT COMPLETE</p><h3>Your {sport.name} dream team</h3>
     <div className="team-rating"><span>TEAM RATING</span><strong>{average}</strong><small>/100</small></div>
@@ -122,13 +130,12 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
 
   return <section className="draft-game">
     <div className="draft-header"><div><p className="eyebrow">ROUND {round + 1} OF {teamSize}</p><h3>Build the greatest team</h3></div><div className="draft-score"><span>TEAM</span><strong>{average || '—'}</strong></div></div>
-    <div className="scouting-brief"><span>THIS ROUND'S NATIONALITY + ERA</span><strong>{scoutingNation}</strong><i /> <strong>{decade}s</strong><p>This combination changes after each roll. Choices prioritize athletes matching both, then the same nation or era.</p></div>
+    <div className="scouting-brief"><div className="brief-copy"><span>THIS ROUND'S NATIONALITY + ERA</span><strong>{scoutingNation}</strong><i /> <strong>{decade}s</strong><p>{pending ? `${pending.name}${pendingSlot ? ` · ${pendingSlot}` : ' · choose a position below'}` : 'Choose a player, then place them in the lineup.'}</p></div><button className="top-roll" disabled={!pending || !pendingSlot} onClick={confirmPick}>{round + 1 === teamSize ? 'Complete team →' : 'Roll next round ↻'}</button></div>
     <div className="draft-choices">{choices.map((player) => <button key={player.name} className={pending ? (pending.name === player.name ? 'draft-selected' : 'draft-dimmed') : ''} onClick={() => { setPending(player); setPendingSlot(undefined); }}>
       <div className="draft-rating"><strong>{ratings.get(player.name)}</strong><small>OVR</small></div>
       <span className="draft-years">{player.years}</span><span className="position-tag">{position(player, sport.id)}</span><h4>{player.name}</h4><p>{nationality(player)}</p><em>🏆 {player.stat}</em><b>{pending?.name === player.name ? '✓ Selected' : 'Select player →'}</b>
     </button>)}</div>
     {pending && <LineupPicker slots={slots} assigned={assigned} pending={pending} selected={pendingSlot} allowed={allowedSlots(pending, sport.id, slots).filter((slot) => !assigned[slot])} onSelect={setPendingSlot} />}
-    {pending && <div className="roll-panel"><div><span>YOUR PICK</span><strong>{pending.name}{pendingSlot ? ` · ${pendingSlot}` : ' · choose a position'}</strong></div><button disabled={!pendingSlot} onClick={() => { if (!pendingSlot) return; setDrafted((team) => [...team, pending]); setAssigned((lineup) => ({ ...lineup, [pendingSlot]: pending })); setPending(undefined); setPendingSlot(undefined); }}>{round + 1 === teamSize ? 'Complete team →' : 'Roll next round ↻'}</button></div>}
     <div className="roster-progress">{Array.from({ length: teamSize }, (_, index) => <span key={index} className={index < drafted.length ? 'filled' : ''}>{drafted[index]?.badge ?? index + 1}</span>)}</div>
   </section>;
 }
