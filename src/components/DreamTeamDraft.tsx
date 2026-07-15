@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { Player, Sport } from '../lib/sportsData';
 import './DreamTeamDraft.css';
+import './DreamTeamComparison.css';
 import './DraftPositions.css';
 import { LineupPicker } from './LineupPicker';
 import { lineupSlots, type LineupSlot } from '../lib/lineupSlots';
@@ -127,12 +128,14 @@ function playerRating(player: Player, index: number, poolSize: number, sportId: 
 export function DreamTeamDraft({ sport }: { sport: Sport }) {
   const allPlayers = sport.draftPlayers ?? sport.quizPlayers ?? sport.players;
   const pool = sport.id === 'football' ? allPlayers.filter((player) => footballNationSet.has(nationality(player))) : allPlayers;
-  const teamSize = rosterSizes[sport.id] ?? 5;
+  const teamSize = sport.id === 'ufc' ? 1 : rosterSizes[sport.id] ?? 5;
   const [drafted, setDrafted] = useState<Player[]>([]);
   const [pending, setPending] = useState<Player>();
   const [pendingSlot, setPendingSlot] = useState<string>();
   const [assigned, setAssigned] = useState<Record<string, Player>>({});
+  const [firstTeam, setFirstTeam] = useState<{ drafted: Player[]; assigned: Record<string, Player>; average: number }>();
   const [draftSeed, setDraftSeed] = useState(() => Date.now());
+  const headToHead = sport.id === 'tennis' || sport.id === 'ufc';
   const slots = lineupSlots[sport.id] ?? [];
   const round = drafted.length;
   const complete = round >= teamSize;
@@ -152,7 +155,7 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
   const anchorDecades = Array.from({ length: Math.floor(anchorBounds.end / 10) - Math.floor(anchorBounds.start / 10) + 1 }, (_, index) => (Math.floor(anchorBounds.start / 10) + index) * 10);
   const decade = anchorDecades[Math.abs(draftSeed + round * 7) % anchorDecades.length];
   const choices = useMemo(() => {
-    const used = new Set(drafted.map((player) => player.name));
+    const used = new Set([...drafted, ...(firstTeam?.drafted ?? [])].map((player) => player.name));
     const unused = pool.filter((player) => !used.has(player.name) && allowedSlots(player, sport.id, slots).some((slot) => !assigned[slot]));
     const exact = unused.filter((player) => nationality(player) === scoutingNation && overlaps(player, decade));
     const sameNation = unused.filter((player) => nationality(player) === scoutingNation && !exact.includes(player));
@@ -164,8 +167,9 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
     };
     addWeighted(exact, 11); addWeighted(sameNation, 23); addWeighted(sameEra, 37); addWeighted(unused, 53);
     return selections.slice(0, 4);
-  }, [assigned, decade, draftSeed, drafted, pool, ratings, round, scoutingNation, slots, sport.id]);
+  }, [assigned, decade, draftSeed, drafted, firstTeam, pool, ratings, round, scoutingNation, slots, sport.id]);
   const average = drafted.length ? Math.round(drafted.reduce((total, player) => total + (ratings.get(player.name) ?? 80), 0) / drafted.length) : 0;
+  const teamNumber = firstTeam ? 2 : 1;
 
   function confirmPick() {
     if (!pending || !pendingSlot) return;
@@ -173,6 +177,39 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
     setAssigned((lineup) => ({ ...lineup, [pendingSlot]: pending }));
     setPending(undefined);
     setPendingSlot(undefined);
+  }
+
+  function resetCurrentTeam() {
+    setDrafted([]);
+    setPending(undefined);
+    setPendingSlot(undefined);
+    setAssigned({});
+    setDraftSeed(Date.now());
+  }
+
+  function roster(team: Player[], lineup: Record<string, Player>) {
+    return <div className="drafted-roster">{team.map((player) => <article key={player.name}><span>{player.badge}</span><div><b>{player.name}</b><small>{Object.entries(lineup).find(([, pick]) => pick.name === player.name)?.[0]} · {player.years}</small></div><strong>{ratings.get(player.name)}</strong></article>)}</div>;
+  }
+
+  if (complete && headToHead && !firstTeam) return <section className="draft-game draft-result">
+    <p className="eyebrow">TEAM 1 COMPLETE</p><h3>Your first {sport.name} team</h3>
+    <div className="team-rating"><span>TEAM 1 OVR</span><strong>{average}</strong><small>/100</small></div>
+    {roster(drafted, assigned)}
+    <button className="restart-draft" onClick={() => { setFirstTeam({ drafted: [...drafted], assigned: { ...assigned }, average }); resetCurrentTeam(); }}>Draft Team 2 →</button>
+  </section>;
+
+  if (complete && headToHead && firstTeam) {
+    const difference = firstTeam.average - average;
+    const verdict = difference === 0 ? 'The teams are evenly matched' : difference > 0 ? `Team 1 is better by ${difference} OVR` : `Team 2 is better by ${Math.abs(difference)} OVR`;
+    return <section className="draft-game draft-result">
+      <p className="eyebrow">HEAD-TO-HEAD COMPLETE</p><h3>{verdict}</h3>
+      <div className="team-comparison">
+        <div className={difference >= 0 ? 'comparison-team winner' : 'comparison-team'}><span>TEAM 1</span><strong>{firstTeam.average}</strong><small> OVR</small>{roster(firstTeam.drafted, firstTeam.assigned)}</div>
+        <div className="comparison-versus">VS</div>
+        <div className={difference <= 0 ? 'comparison-team winner' : 'comparison-team'}><span>TEAM 2</span><strong>{average}</strong><small> OVR</small>{roster(drafted, assigned)}</div>
+      </div>
+      <button className="restart-draft" onClick={() => { setFirstTeam(undefined); resetCurrentTeam(); }}>Draft two new teams</button>
+    </section>;
   }
 
   if (complete) return <section className="draft-game draft-result">
@@ -183,7 +220,7 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
   </section>;
 
   return <section className="draft-game">
-    <div className="draft-header"><div><p className="eyebrow">ROUND {round + 1} OF {teamSize}</p><h3>Build the greatest team</h3></div><div className="draft-score"><span>TEAM</span><strong>{average || '—'}</strong></div></div>
+    <div className="draft-header"><div><p className="eyebrow">{headToHead ? `TEAM ${teamNumber} · ` : ''}ROUND {round + 1} OF {teamSize}</p><h3>{headToHead ? `Build Team ${teamNumber}` : 'Build the greatest team'}</h3></div><div className="draft-score"><span>{headToHead ? `TEAM ${teamNumber}` : 'TEAM'}</span><strong>{average || '—'}</strong></div></div>
     <div className="scouting-brief"><div className="brief-copy"><span>THIS ROUND'S NATIONALITY + ERA</span><strong>{scoutingNation}</strong><i /> <strong>{decade}s</strong><p>{pending ? `${pending.name}${pendingSlot ? ` · ${pendingSlot}` : ' · choose a position below'}` : 'Choose a player, then place them in the lineup.'}</p></div><button className="top-roll" disabled={!pending || !pendingSlot} onClick={confirmPick}>{round + 1 === teamSize ? 'Complete team →' : 'Roll next round ↻'}</button></div>
     {!pending && <div className="draft-choices">{choices.map((player) => <button key={player.name} onClick={() => { setPending(player); setPendingSlot(undefined); }}>
       <div className="draft-rating"><strong>{ratings.get(player.name)}</strong><small>OVR</small></div>
