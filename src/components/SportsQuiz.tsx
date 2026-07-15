@@ -25,7 +25,7 @@ export function SportsQuiz({ sport }: { sport: Sport }) {
   const [answer, setAnswer] = useState<string>();
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
   const [quizSeed, setQuizSeed] = useState(() => Date.now());
-  const playerPool = sport.quizPlayers ?? sport.players;
+  const playerPool = sport.draftPlayers ?? sport.quizPlayers ?? sport.players;
   const quizPlayers = useMemo(() => seededShuffle(playerPool, quizSeed), [playerPool, quizSeed]);
   const player = quizPlayers[round % quizPlayers.length];
   const mode = rules[difficulty];
