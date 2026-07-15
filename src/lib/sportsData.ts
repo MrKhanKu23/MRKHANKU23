@@ -45,11 +45,11 @@ const rankedSports: Sport[] = [
     ['Detroit Pistons', 'NBA · All-time record', '3 championships', 'DET'], ['Miami Heat', 'NBA · All-time record', '3 championships', 'MIA'],
     ['New York Knicks', 'NBA · All-time record', '2 championships', 'NYK'], ['Houston Rockets', 'NBA · All-time record', '2 championships', 'HOU'],
   ]), players: makePlayers([
-    ['Bill Russell', 'Center · USA', '11 NBA championships', 'BR', 'Boston Celtics'], ['Michael Jordan', 'Guard · USA', '6 Finals MVP awards', 'MJ', 'Chicago Bulls'],
-    ['LeBron James', 'Forward · USA', 'NBA scoring record', 'LJ', 'Los Angeles Lakers'], ['Kareem Abdul-Jabbar', 'Center · USA', '6 MVP awards', 'KAJ', 'Los Angeles Lakers'],
-    ['Wilt Chamberlain', 'Center · USA', '100 points in one game', 'WC', 'Philadelphia 76ers'], ['Magic Johnson', 'Guard · USA', '5 NBA championships', 'MJ', 'Los Angeles Lakers'],
-    ['Kobe Bryant', 'Guard · USA', '5 NBA championships', 'KB', 'Los Angeles Lakers'], ['Tim Duncan', 'Forward · USA', '5 NBA championships', 'TD', 'San Antonio Spurs'],
-    ['Larry Bird', 'Forward · USA', '3 MVP awards', 'LB', 'Boston Celtics'], ['Stephen Curry', 'Guard · USA', 'NBA 3-point record', 'SC', 'Golden State Warriors'],
+    ['Bill Russell', 'Center · USA', '11 NBA championships', 'BR', 'Boston Celtics'], ['Michael Jordan', 'Shooting Guard · USA', '6 Finals MVP awards', 'MJ', 'Chicago Bulls'],
+    ['LeBron James', 'Small Forward · USA', 'NBA scoring record', 'LJ', 'Los Angeles Lakers'], ['Kareem Abdul-Jabbar', 'Center · USA', '6 MVP awards', 'KAJ', 'Los Angeles Lakers'],
+    ['Wilt Chamberlain', 'Center · USA', '100 points in one game', 'WC', 'Philadelphia 76ers'], ['Magic Johnson', 'Point Guard · USA', '5 NBA championships', 'MJ', 'Los Angeles Lakers'],
+    ['Kobe Bryant', 'Shooting Guard · USA', '5 NBA championships', 'KB', 'Los Angeles Lakers'], ['Tim Duncan', 'Power Forward · USA', '5 NBA championships', 'TD', 'San Antonio Spurs'],
+    ['Larry Bird', 'Small Forward · USA', '3 MVP awards', 'LB', 'Boston Celtics'], ['Stephen Curry', 'Point Guard · USA', 'NBA 3-point record', 'SC', 'Golden State Warriors'],
   ]) },
   { id: 'tennis', name: 'Tennis', icon: '🎾', accent: '#ffd44a', teams: makeItems([
     ['United States', 'Davis Cup · All-time record', '32 titles', 'USA'], ['Australia', 'Davis Cup · All-time record', '28 titles', 'AUS'],

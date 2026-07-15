@@ -38,6 +38,7 @@ function nationality(player: Player) {
 
 function position(player: Player, sportId = '') {
   const role = player.detail.split('·')[0].trim();
+  if (sportId === 'basketball') return ({ 'Point Guard': 'PG', 'Shooting Guard': 'SG', 'Small Forward': 'SF', 'Power Forward': 'PF', Center: 'C' } as Record<string, string>)[role] ?? role;
   if (sportId !== 'football') return role.toLowerCase().includes('midfielder') ? 'CM' : role;
   if (role === 'Goalkeeper') return 'GK';
   if (role.toLowerCase().includes('defender')) return 'DEF';
@@ -47,6 +48,7 @@ function position(player: Player, sportId = '') {
 }
 
 function allowedSlots(player: Player, sportId: string, slots: LineupSlot[]) {
+  if (sportId === 'basketball') return [position(player, sportId)];
   if (sportId !== 'football') return slots.map((slot) => slot.id);
   const role = player.detail.split('·')[0].trim().toLowerCase();
   if (role.includes('goalkeeper')) return ['GK'];

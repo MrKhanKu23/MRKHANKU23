@@ -10,8 +10,8 @@ export const additionalQuizPlayers: Record<string, Player[]> = {
   ]),
   basketball: makePlayers([
     ['Shaquille O’Neal', 'Center · USA', '4 NBA championships', 'SO', 'Los Angeles Lakers'], ['Hakeem Olajuwon', 'Center · Nigeria/USA', '2 Finals MVP awards', 'HO', 'Houston Rockets'],
-    ['Oscar Robertson', 'Guard · USA', 'Triple-double pioneer', 'OR', 'Milwaukee Bucks'], ['Kevin Durant', 'Forward · USA', '2 Finals MVP awards', 'KD', 'Golden State Warriors'],
-    ['Julius Erving', 'Forward · USA', 'ABA and NBA icon', 'JE', 'Philadelphia 76ers'], ['Moses Malone', 'Center · USA', '3 MVP awards', 'MM', 'Philadelphia 76ers'],
+    ['Oscar Robertson', 'Point Guard · USA', 'Triple-double pioneer', 'OR', 'Milwaukee Bucks'], ['Kevin Durant', 'Small Forward · USA', '2 Finals MVP awards', 'KD', 'Golden State Warriors'],
+    ['Julius Erving', 'Small Forward · USA', 'ABA and NBA icon', 'JE', 'Philadelphia 76ers'], ['Moses Malone', 'Center · USA', '3 MVP awards', 'MM', 'Philadelphia 76ers'],
   ]),
   tennis: makePlayers([
     ['Björn Borg', 'Baseliner · Sweden', '11 major singles titles', 'BB', 'Sweden'], ['Rod Laver', 'All-court · Australia', '11 major singles titles', 'RL', 'Australia'],
