@@ -26,11 +26,34 @@ function overlaps(player: Player, decade: number) {
   return start <= decade + 9 && end >= decade;
 }
 
+function randomFromSeed(seed: number) {
+  const value = Math.sin(seed) * 10000;
+  return value - Math.floor(value);
+}
+
+function weightedSample(players: Player[], count: number, ratings: Map<string, number>, seed: number) {
+  const available = [...players];
+  const selected: Player[] = [];
+  while (available.length && selected.length < count) {
+    const weights = available.map((player) => Math.pow(101 - (ratings.get(player.name) ?? 80), 1.45));
+    const total = weights.reduce((sum, weight) => sum + weight, 0);
+    let target = randomFromSeed(seed + selected.length * 97) * total;
+    let index = 0;
+    for (; index < weights.length - 1; index += 1) {
+      target -= weights[index];
+      if (target <= 0) break;
+    }
+    selected.push(available.splice(index, 1)[0]);
+  }
+  return selected;
+}
+
 export function DreamTeamDraft({ sport }: { sport: Sport }) {
   const allPlayers = sport.draftPlayers ?? sport.quizPlayers ?? sport.players;
   const pool = sport.id === 'football' ? allPlayers.filter((player) => footballNationSet.has(nationality(player))) : allPlayers;
   const teamSize = rosterSizes[sport.id] ?? 5;
   const [drafted, setDrafted] = useState<Player[]>([]);
+  const [draftSeed, setDraftSeed] = useState(() => Date.now());
   const round = drafted.length;
   const complete = round >= teamSize;
   const ratings = useMemo(() => new Map(pool.map((player, index) => [player.name, player.rating ?? 100 - Math.round(index * 20 / Math.max(pool.length - 1, 1))])), [pool]);
@@ -46,16 +69,21 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
     const exact = unused.filter((player) => nationality(player) === scoutingNation && overlaps(player, decade));
     const sameNation = unused.filter((player) => nationality(player) === scoutingNation && !exact.includes(player));
     const sameEra = unused.filter((player) => overlaps(player, decade) && !exact.includes(player));
-    const ordered = [...exact, ...sameNation, ...sameEra, ...unused];
-    return ordered.filter((player, index) => ordered.findIndex((item) => item.name === player.name) === index).slice(0, 4);
-  }, [decade, drafted, pool, scoutingNation]);
+    const selections: Player[] = [];
+    const addWeighted = (group: Player[], salt: number) => {
+      const remaining = group.filter((player) => !selections.some((pick) => pick.name === player.name));
+      selections.push(...weightedSample(remaining, 4 - selections.length, ratings, draftSeed + round * 997 + salt));
+    };
+    addWeighted(exact, 11); addWeighted(sameNation, 23); addWeighted(sameEra, 37); addWeighted(unused, 53);
+    return selections.slice(0, 4);
+  }, [decade, draftSeed, drafted, pool, ratings, round, scoutingNation]);
   const average = drafted.length ? Math.round(drafted.reduce((total, player) => total + (ratings.get(player.name) ?? 80), 0) / drafted.length) : 0;
 
   if (complete) return <section className="draft-game draft-result">
     <p className="eyebrow">DRAFT COMPLETE</p><h3>Your {sport.name} dream team</h3>
     <div className="team-rating"><span>TEAM RATING</span><strong>{average}</strong><small>/100</small></div>
     <div className="drafted-roster">{drafted.map((player) => <article key={player.name}><span>{player.badge}</span><div><b>{player.name}</b><small>{player.years}</small></div><strong>{ratings.get(player.name)}</strong></article>)}</div>
-    <button className="restart-draft" onClick={() => setDrafted([])}>Draft another team</button>
+    <button className="restart-draft" onClick={() => { setDrafted([]); setDraftSeed(Date.now()); }}>Draft another team</button>
   </section>;
 
   return <section className="draft-game">
