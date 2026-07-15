@@ -16,6 +16,13 @@ const eliteFootballRatings = new Set([
   'Lionel Messi', 'Cristiano Ronaldo', 'Pelé', 'Johan Cruyff', 'Michel Platini',
   'Marco van Basten', 'Ronaldo Nazário', 'Garrincha', 'Cafu',
 ]);
+const highFootballRatings = new Set([
+  'Alfredo Di Stéfano', 'Franz Beckenbauer', 'Paolo Maldini', 'Xavi Hernández', 'Andrés Iniesta', 'Gerd Müller',
+  'Iker Casillas', 'Sergio Ramos', 'Sergio Busquets', 'Raúl González', 'Carles Puyol', 'Xabi Alonso',
+  'Franco Baresi', 'Andrea Pirlo', 'Alessandro Nesta', 'Karim Benzema', 'Didier Deschamps',
+  'Javier Mascherano', 'Pepe', 'Deco', 'Manuel Neuer', 'Toni Kroos', 'Thomas Müller',
+  'Karl-Heinz Rummenigge', 'Ruud Gullit', 'Frank Rijkaard', 'Ronald Koeman', 'Roberto Carlos', 'Paul Scholes',
+]);
 
 function nationality(player: Player) {
   const parts = player.detail.split('·');
@@ -76,8 +83,11 @@ function weightedSample(players: Player[], count: number, ratings: Map<string, n
 
 function playerRating(player: Player, index: number, poolSize: number, sportId: string) {
   const baseRating = player.rating ?? 100 - Math.round(index * 20 / Math.max(poolSize - 1, 1));
-  if (sportId === 'football' && baseRating >= 96 && !eliteFootballRatings.has(player.name)) return 95;
-  return baseRating;
+  if (sportId !== 'football') return baseRating;
+  if (baseRating >= 96 && eliteFootballRatings.has(player.name)) return baseRating;
+  const eliteCappedRating = Math.min(baseRating, 95);
+  if (eliteCappedRating >= 90 && !highFootballRatings.has(player.name)) return 89;
+  return eliteCappedRating;
 }
 
 export function DreamTeamDraft({ sport }: { sport: Sport }) {
