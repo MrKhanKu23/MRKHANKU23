@@ -72,11 +72,20 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
   const complete = round >= teamSize;
   const ratings = useMemo(() => new Map(pool.map((player, index) => [player.name, player.rating ?? 100 - Math.round(index * 20 / Math.max(pool.length - 1, 1))])), [pool]);
   const usedPositions = new Set(drafted.map((player) => position(player, sport.id)));
-  const anchor = pool[Math.abs(draftSeed + round * 13) % pool.length];
+  const nationOrder = useMemo(() => {
+    const nations = [...new Set(pool.map(nationality))];
+    for (let index = nations.length - 1; index > 0; index -= 1) {
+      const swapIndex = Math.floor(randomFromSeed(draftSeed + index * 71) * (index + 1));
+      [nations[index], nations[swapIndex]] = [nations[swapIndex], nations[index]];
+    }
+    return nations;
+  }, [draftSeed, pool]);
+  const scoutingNation = nationOrder[round % nationOrder.length];
+  const nationPlayers = pool.filter((player) => nationality(player) === scoutingNation);
+  const anchor = nationPlayers[Math.abs(draftSeed + round * 13) % nationPlayers.length];
   const anchorBounds = careerBounds(anchor);
   const anchorDecades = Array.from({ length: Math.floor(anchorBounds.end / 10) - Math.floor(anchorBounds.start / 10) + 1 }, (_, index) => (Math.floor(anchorBounds.start / 10) + index) * 10);
   const decade = anchorDecades[Math.abs(draftSeed + round * 7) % anchorDecades.length];
-  const scoutingNation = nationality(anchor);
   const choices = useMemo(() => {
     const used = new Set(drafted.map((player) => player.name));
     const unused = pool.filter((player) => !used.has(player.name) && (sport.id !== 'football' || !usedPositions.has(position(player, sport.id))));
