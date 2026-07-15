@@ -2,13 +2,14 @@ import { useMemo, useState } from 'react';
 import { Rankings } from './components/Rankings';
 import { SearchHero } from './components/SearchHero';
 import { SportsQuiz } from './components/SportsQuiz';
+import { DreamTeamDraft } from './components/DreamTeamDraft';
 import { sports, type Sport } from './lib/sportsData';
 
 export default function App() {
   const [sport, setSport] = useState<Sport>(sports[0]);
   const [query, setQuery] = useState('');
   const [tab, setTab] = useState<'teams' | 'players'>('teams');
-  const [quizOpen, setQuizOpen] = useState(false);
+  const [view, setView] = useState<'rankings' | 'quiz' | 'draft'>('rankings');
 
   const filtered = useMemo(() => {
     const value = query.trim().toLowerCase();
@@ -25,7 +26,7 @@ export default function App() {
   function chooseSport(next: Sport) {
     setSport(next);
     setQuery('');
-    setQuizOpen(false);
+    setView('rankings');
   }
 
   return (
@@ -44,13 +45,16 @@ export default function App() {
             <h2>{sport.icon} {sport.name} hub</h2>
             <p>Ranked by major titles, championships, medals and official records.</p>
           </div>
-          <button className="quiz-button" onClick={() => setQuizOpen((open) => !open)}>
-            {quizOpen ? 'Close quiz' : '⚡ Play the quiz'}
-          </button>
+          <div className="game-actions">
+            <button className="quiz-button" onClick={() => setView(view === 'quiz' ? 'rankings' : 'quiz')}>{view === 'quiz' ? 'Close quiz' : '⚡ Quiz'}</button>
+            <button className="quiz-button draft-button" onClick={() => setView(view === 'draft' ? 'rankings' : 'draft')}>{view === 'draft' ? 'Close draft' : '★ Dream Team Draft'}</button>
+          </div>
         </div>
 
-        {quizOpen ? (
+        {view === 'quiz' ? (
           <SportsQuiz sport={sport} />
+        ) : view === 'draft' ? (
+          <DreamTeamDraft key={sport.id} sport={sport} />
         ) : (
           <>
             <div className="tabs" role="tablist" aria-label="Rankings type">
