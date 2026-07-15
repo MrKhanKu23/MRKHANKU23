@@ -23,6 +23,12 @@ const highFootballRatings = new Set([
   'Javier Mascherano', 'Pepe', 'Deco', 'Manuel Neuer', 'Toni Kroos', 'Thomas Müller',
   'Karl-Heinz Rummenigge', 'Ruud Gullit', 'Frank Rijkaard', 'Ronald Koeman', 'Roberto Carlos', 'Paul Scholes',
 ]);
+const exceptionalSkillRatings: Record<string, number> = {
+  'Diego Maradona': 95, 'Ronaldinho': 94, 'Zinedine Zidane': 95, 'Neymar': 94,
+  'Zico': 94, 'Romário': 94, 'Rivaldo': 93, 'Kaká': 93, 'Dennis Bergkamp': 92,
+  'Juan Román Riquelme': 92, 'Sócrates': 91, 'Thierry Henry': 94, 'Kylian Mbappé': 94,
+  'Luís Figo': 93, 'Eusébio': 95, 'Bobby Charlton': 94, 'Roberto Baggio': 93,
+};
 
 function nationality(player: Player) {
   const parts = player.detail.split('·');
@@ -100,6 +106,7 @@ function playerRating(player: Player, index: number, poolSize: number, sportId: 
   if (sportId !== 'football') return baseRating;
   if (baseRating >= 96 && eliteFootballRatings.has(player.name)) return baseRating;
   if (baseRating >= 90 && highFootballRatings.has(player.name)) return Math.min(baseRating, 95);
+  if (exceptionalSkillRatings[player.name]) return exceptionalSkillRatings[player.name];
   return lowerTierRating(player, baseRating);
 }
 
