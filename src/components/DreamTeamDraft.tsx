@@ -23,23 +23,27 @@ function overlaps(player: Player, decade: number) {
 }
 
 export function DreamTeamDraft({ sport }: { sport: Sport }) {
-  const pool = sport.quizPlayers ?? sport.players;
+  const pool = sport.draftPlayers ?? sport.quizPlayers ?? sport.players;
   const teamSize = rosterSizes[sport.id] ?? 5;
   const [drafted, setDrafted] = useState<Player[]>([]);
   const round = drafted.length;
   const complete = round >= teamSize;
-  const ratings = useMemo(() => new Map(pool.map((player, index) => [player.name, 100 - Math.round(index * 20 / Math.max(pool.length - 1, 1))])), [pool]);
+  const ratings = useMemo(() => new Map(pool.map((player, index) => [player.name, player.rating ?? 100 - Math.round(index * 20 / Math.max(pool.length - 1, 1))])), [pool]);
   const available = pool.filter((player) => !drafted.some((pick) => pick.name === player.name));
   const anchor = available[(round * 3) % available.length];
   const anchorBounds = careerBounds(anchor);
   const anchorDecades = Array.from({ length: Math.floor(anchorBounds.end / 10) - Math.floor(anchorBounds.start / 10) + 1 }, (_, index) => (Math.floor(anchorBounds.start / 10) + index) * 10);
   const decade = anchorDecades[round % anchorDecades.length];
+  const scoutingNation = nationality(anchor);
   const choices = useMemo(() => {
     const used = new Set(drafted.map((player) => player.name));
-    const eraPlayers = pool.filter((player) => !used.has(player.name) && overlaps(player, decade));
-    const rest = pool.filter((player) => !used.has(player.name) && !eraPlayers.includes(player));
-    return [...eraPlayers, ...rest].sort((a, b) => ((ratings.get(b.name) ?? 80) + round) % 7 - ((ratings.get(a.name) ?? 80) + round) % 7).slice(0, 4);
-  }, [decade, drafted, pool, ratings, round]);
+    const unused = pool.filter((player) => !used.has(player.name));
+    const exact = unused.filter((player) => nationality(player) === scoutingNation && overlaps(player, decade));
+    const sameNation = unused.filter((player) => nationality(player) === scoutingNation && !exact.includes(player));
+    const sameEra = unused.filter((player) => overlaps(player, decade) && !exact.includes(player));
+    const ordered = [...exact, ...sameNation, ...sameEra, ...unused];
+    return ordered.filter((player, index) => ordered.findIndex((item) => item.name === player.name) === index).slice(0, 4);
+  }, [decade, drafted, pool, scoutingNation]);
   const average = drafted.length ? Math.round(drafted.reduce((total, player) => total + (ratings.get(player.name) ?? 80), 0) / drafted.length) : 0;
 
   if (complete) return <section className="draft-game draft-result">
@@ -51,7 +55,7 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
 
   return <section className="draft-game">
     <div className="draft-header"><div><p className="eyebrow">ROUND {round + 1} OF {teamSize}</p><h3>Build the greatest team</h3></div><div className="draft-score"><span>TEAM</span><strong>{average || '—'}</strong></div></div>
-    <div className="scouting-brief"><span>SCOUTING BRIEF</span><strong>{nationality(anchor)}</strong><i /> <strong>{decade}s</strong><p>Choose one legend from this era. Higher ratings reflect greater all-time impact and trophies.</p></div>
+    <div className="scouting-brief"><span>SCOUTING BRIEF</span><strong>{scoutingNation}</strong><i /> <strong>{decade}s</strong><p>Choices prioritize this nation and era. Higher ratings reflect greater all-time impact and trophies.</p></div>
     <div className="draft-choices">{choices.map((player) => <button key={player.name} onClick={() => setDrafted((team) => [...team, player])}>
       <div className="draft-rating"><strong>{ratings.get(player.name)}</strong><small>OVR</small></div>
       <span className="draft-years">{player.years}</span><h4>{player.name}</h4><p>{nationality(player)} · {player.detail.split('·')[0]}</p><em>🏆 {player.stat}</em><b>Draft player →</b>
