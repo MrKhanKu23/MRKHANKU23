@@ -53,6 +53,7 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
   const pool = sport.id === 'football' ? allPlayers.filter((player) => footballNationSet.has(nationality(player))) : allPlayers;
   const teamSize = rosterSizes[sport.id] ?? 5;
   const [drafted, setDrafted] = useState<Player[]>([]);
+  const [pending, setPending] = useState<Player>();
   const [draftSeed, setDraftSeed] = useState(() => Date.now());
   const round = drafted.length;
   const complete = round >= teamSize;
@@ -83,16 +84,17 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
     <p className="eyebrow">DRAFT COMPLETE</p><h3>Your {sport.name} dream team</h3>
     <div className="team-rating"><span>TEAM RATING</span><strong>{average}</strong><small>/100</small></div>
     <div className="drafted-roster">{drafted.map((player) => <article key={player.name}><span>{player.badge}</span><div><b>{player.name}</b><small>{player.years}</small></div><strong>{ratings.get(player.name)}</strong></article>)}</div>
-    <button className="restart-draft" onClick={() => { setDrafted([]); setDraftSeed(Date.now()); }}>Draft another team</button>
+    <button className="restart-draft" onClick={() => { setDrafted([]); setPending(undefined); setDraftSeed(Date.now()); }}>Draft another team</button>
   </section>;
 
   return <section className="draft-game">
     <div className="draft-header"><div><p className="eyebrow">ROUND {round + 1} OF {teamSize}</p><h3>Build the greatest team</h3></div><div className="draft-score"><span>TEAM</span><strong>{average || '—'}</strong></div></div>
     <div className="scouting-brief"><span>SCOUTING BRIEF</span><strong>{scoutingNation}</strong><i /> <strong>{decade}s</strong><p>Choices prioritize this nation and era. Higher ratings reflect greater all-time impact and trophies.</p></div>
-    <div className="draft-choices">{choices.map((player) => <button key={player.name} onClick={() => setDrafted((team) => [...team, player])}>
+    <div className="draft-choices">{choices.map((player) => <button key={player.name} className={pending ? (pending.name === player.name ? 'draft-selected' : 'draft-dimmed') : ''} onClick={() => setPending(player)}>
       <div className="draft-rating"><strong>{ratings.get(player.name)}</strong><small>OVR</small></div>
-      <span className="draft-years">{player.years}</span><h4>{player.name}</h4><p>{nationality(player)} · {player.detail.split('·')[0]}</p><em>🏆 {player.stat}</em><b>Draft player →</b>
+      <span className="draft-years">{player.years}</span><h4>{player.name}</h4><p>{nationality(player)} · {player.detail.split('·')[0]}</p><em>🏆 {player.stat}</em><b>{pending?.name === player.name ? '✓ Selected' : 'Select player →'}</b>
     </button>)}</div>
+    {pending && <div className="roll-panel"><div><span>YOUR PICK</span><strong>{pending.name}</strong></div><button onClick={() => { setDrafted((team) => [...team, pending]); setPending(undefined); }}>{round + 1 === teamSize ? 'Complete team →' : 'Roll next round ↻'}</button></div>}
     <div className="roster-progress">{Array.from({ length: teamSize }, (_, index) => <span key={index} className={index < drafted.length ? 'filled' : ''}>{drafted[index]?.badge ?? index + 1}</span>)}</div>
   </section>;
 }
