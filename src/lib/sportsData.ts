@@ -2,7 +2,7 @@ import { additionalSports } from './additionalSports';
 import { additionalQuizPlayers } from './additionalQuizPlayers';
 
 export type RankedItem = { name: string; detail: string; stat: string; badge: string };
-export type Player = RankedItem & { team: string };
+export type Player = RankedItem & { team: string; status?: 'active' | 'retired' };
 export type Sport = {
   id: string;
   name: string;
@@ -63,7 +63,33 @@ const rankedSports: Sport[] = [
   ...additionalSports,
 ];
 
-export const sports: Sport[] = rankedSports.map((sport) => ({
-  ...sport,
-  quizPlayers: [...sport.players, ...(additionalQuizPlayers[sport.id] ?? [])],
-}));
+const retiredPlayers = new Set([
+  'Pelé', 'Diego Maradona', 'Johan Cruyff', 'Franz Beckenbauer', 'Alfredo Di Stéfano', 'Ronaldo Nazário', 'Zinedine Zidane', 'Michel Platini',
+  'Ronaldinho', 'Paolo Maldini', 'Garrincha', 'Xavi Hernández', 'Andrés Iniesta', 'Gerd Müller',
+  'Bill Russell', 'Michael Jordan', 'Kareem Abdul-Jabbar', 'Wilt Chamberlain', 'Magic Johnson', 'Kobe Bryant', 'Tim Duncan', 'Larry Bird',
+  'Shaquille O’Neal', 'Hakeem Olajuwon', 'Oscar Robertson', 'Julius Erving', 'Moses Malone',
+  'Margaret Court', 'Serena Williams', 'Rafael Nadal', 'Steffi Graf', 'Roger Federer', 'Helen Wills', 'Chris Evert', 'Martina Navratilova', 'Pete Sampras',
+  'Björn Borg', 'Rod Laver', 'Billie Jean King', 'Andre Agassi', 'Monica Seles', 'John McEnroe',
+  'Michael Schumacher', 'Juan Manuel Fangio', 'Alain Prost', 'Sebastian Vettel', 'Ayrton Senna', 'Jack Brabham', 'Niki Lauda', 'Nelson Piquet',
+  'Mika Häkkinen', 'Jim Clark', 'Graham Hill', 'Kimi Räikkönen', 'Nigel Mansell',
+  'Babe Ruth', 'Willie Mays', 'Hank Aaron', 'Ty Cobb', 'Barry Bonds', 'Ted Williams', 'Walter Johnson', 'Cy Young', 'Lou Gehrig', 'Jackie Robinson',
+  'Mickey Mantle', 'Stan Musial', 'Honus Wagner', 'Roberto Clemente', 'Sandy Koufax', 'Rickey Henderson',
+  'Tom Brady', 'Jerry Rice', 'Jim Brown', 'Lawrence Taylor', 'Peyton Manning', 'Walter Payton', 'Joe Montana', 'Reggie White', 'Barry Sanders',
+  'Aaron Donald', 'Deion Sanders', 'Johnny Unitas', 'Randy Moss', 'Emmitt Smith', 'Ray Lewis',
+  'Georges St-Pierre', 'Anderson Silva', 'Demetrious Johnson', 'Amanda Nunes', 'José Aldo', 'Khabib Nurmagomedov', 'Stipe Miocic',
+  'Daniel Cormier', 'Randy Couture', 'Chuck Liddell', 'Joanna Jędrzejczyk',
+  'Michael Phelps', 'Jenny Thompson', 'Ryan Lochte', 'Dara Torres', 'Natalie Coughlin', 'Mark Spitz', 'Matt Biondi', 'Emma McKeon', 'Kristin Otto',
+  'Ian Thorpe', 'Aleksandr Popov', 'Katinka Hosszú', 'Janet Evans', 'Alexander Dityatin', 'Inge de Bruijn',
+  'Karch Kiraly', 'Giba', 'Sergio Santos', 'Regla Torres', 'Lang Ping', 'Lorenzo Bernardi', 'Sergey Tetyukhin', 'Mireya Luis', 'Andrea Giani',
+  'Usain Bolt', 'Michael Johnson', 'Allyson Felix', 'Florence Griffith Joyner', 'Wayde van Niekerk', 'Marie-José Pérec', 'Carl Lewis', 'Marita Koch',
+  'Yohan Blake', 'Donovan Bailey', 'Maurice Greene', 'Jeremy Wariner', 'Sanya Richards-Ross', 'Veronica Campbell-Brown',
+]);
+
+function withStatus(player: Player): Player {
+  return { ...player, status: retiredPlayers.has(player.name) ? 'retired' : 'active' };
+}
+
+export const sports: Sport[] = rankedSports.map((sport) => {
+  const players = sport.players.map(withStatus);
+  return { ...sport, players, quizPlayers: [...players, ...(additionalQuizPlayers[sport.id] ?? []).map(withStatus)] };
+});
