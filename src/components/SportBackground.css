@@ -1,0 +1,97 @@
+.sport-background {
+  --sport-base: #10120f;
+  --sport-glow: color-mix(in srgb, var(--accent) 20%, transparent);
+  background-color: var(--sport-base);
+  background-image:
+    radial-gradient(circle at 82% 38%, var(--sport-glow), transparent 25%),
+    linear-gradient(125deg, transparent 52%, rgba(255, 255, 255, .025));
+  transition: background-color .45s ease, background-image .45s ease;
+}
+
+.sport-background::after {
+  opacity: .7;
+}
+
+.sport-scene {
+  position: absolute;
+  z-index: 1;
+  right: 5%;
+  top: 105px;
+  width: min(35vw, 440px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
+  border-radius: 50%;
+  color: var(--accent);
+  opacity: .22;
+  transform: rotate(-8deg);
+  transition: border-radius .45s ease, transform .45s ease, opacity .45s ease;
+}
+
+.sport-scene span {
+  font-size: clamp(110px, 16vw, 230px);
+  filter: grayscale(1) contrast(1.4);
+  opacity: .72;
+}
+
+.sport-background[data-sport="football"] { --sport-base: #0b1b12; }
+.sport-background[data-sport="football"] .sport-scene {
+  background: repeating-linear-gradient(90deg, transparent 0 18%, rgba(183,243,74,.1) 18% 20%);
+}
+
+.sport-background[data-sport="basketball"] { --sport-base: #21120c; }
+.sport-background[data-sport="basketball"] .sport-scene {
+  background: radial-gradient(circle, transparent 0 24%, rgba(255,138,61,.2) 24.5% 25%, transparent 25.5%), linear-gradient(90deg, transparent 49.5%, rgba(255,138,61,.2) 50%, transparent 50.5%);
+}
+
+.sport-background[data-sport="tennis"] { --sport-base: #1b1907; }
+.sport-background[data-sport="tennis"] .sport-scene,
+.sport-background[data-sport="volleyball"] .sport-scene {
+  border-radius: 8px;
+  background: linear-gradient(90deg, transparent 49.5%, color-mix(in srgb,var(--accent) 25%,transparent) 50%, transparent 50.5%);
+}
+
+.sport-background[data-sport="f1"] { --sport-base: #210909; }
+.sport-background[data-sport="f1"] .sport-scene {
+  border-radius: 42% 58% 48% 52%;
+  background: repeating-linear-gradient(135deg, transparent 0 14px, rgba(255,255,255,.08) 14px 28px);
+  transform: rotate(-14deg) scaleX(1.2);
+}
+
+.sport-background[data-sport="baseball"] { --sport-base: #0a1722; }
+.sport-background[data-sport="baseball"] .sport-scene {
+  border-radius: 8px 55% 8px 55%;
+  transform: rotate(45deg);
+}
+.sport-background[data-sport="baseball"] .sport-scene span { transform: rotate(-45deg); }
+
+.sport-background[data-sport="american-football"] { --sport-base: #1c130b; }
+.sport-background[data-sport="american-football"] .sport-scene {
+  border-radius: 8px;
+  background: repeating-linear-gradient(90deg, transparent 0 19%, rgba(255,255,255,.12) 19% 20%);
+}
+
+.sport-background[data-sport="ufc"] { --sport-base: #210d0d; }
+.sport-background[data-sport="ufc"] .sport-scene {
+  border-radius: 0;
+  clip-path: polygon(29% 0,71% 0,100% 29%,100% 71%,71% 100%,29% 100%,0 71%,0 29%);
+  background: repeating-linear-gradient(60deg, transparent 0 18px, rgba(255,82,82,.08) 18px 20px);
+}
+
+.sport-background[data-sport="swimming"] { --sport-base: #071b24; }
+.sport-background[data-sport="swimming"] .sport-scene {
+  border-radius: 20px;
+  background: repeating-linear-gradient(0deg, transparent 0 17%, rgba(53,209,232,.13) 17% 20%);
+}
+
+.sport-background[data-sport="volleyball"] { --sport-base: #211b08; }
+.sport-background[data-sport="track-sprint"] { --sport-base: #18100b; }
+.sport-background[data-sport="track-sprint"] .sport-scene {
+  border-radius: 50% 8px 8px 50%;
+  background: repeating-radial-gradient(ellipse at left, transparent 0 15%, rgba(200,255,61,.11) 15.5% 17%);
+}
+
+@media (max-width: 850px) {
+  .sport-scene { right: -80px; top: 150px; width: 330px; opacity: .12; }
+}
