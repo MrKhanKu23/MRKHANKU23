@@ -1,9 +1,10 @@
 import { additionalSports } from './additionalSports';
 import { additionalQuizPlayers } from './additionalQuizPlayers';
 import { nameHonours } from './trophyNames';
+import { careerYears } from './careerYears';
 
 export type RankedItem = { name: string; detail: string; stat: string; badge: string; honours?: string[] };
-export type Player = RankedItem & { team: string; status?: 'active' | 'retired' };
+export type Player = RankedItem & { team: string; status?: 'active' | 'retired'; years?: string };
 export type Sport = {
   id: string;
   name: string;
@@ -87,7 +88,7 @@ const retiredPlayers = new Set([
 ]);
 
 function withStatus(player: Player): Player {
-  return { ...player, status: retiredPlayers.has(player.name) ? 'retired' : 'active' };
+  return { ...player, status: retiredPlayers.has(player.name) ? 'retired' : 'active', years: careerYears[player.name] ?? 'Career years unavailable' };
 }
 
 export const sports: Sport[] = rankedSports.map((sport) => {

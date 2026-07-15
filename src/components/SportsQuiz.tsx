@@ -38,7 +38,7 @@ export function SportsQuiz({ sport }: { sport: Sport }) {
     <div className="difficulty" aria-label="Quiz difficulty">
       {(Object.keys(rules) as Difficulty[]).map((level) => <button key={level} className={difficulty === level ? 'active' : ''} onClick={() => changeDifficulty(level)}>{rules[level].label}</button>)}
     </div>
-    <div className="mystery" style={{ background: sport.accent }}>{player.badge}</div>
+    <div className="mystery career-years" style={{ background: sport.accent }}><small>CAREER</small>{player.years}</div>
     <p className="eyebrow">GUESS THE STAR · {mode.label.toUpperCase()}</p><h3>{player.detail}</h3>
     <p className="clue">{mode.showTeam ? `Represented by ${player.team}` : 'Team hidden — use the record alone'}</p>
     <div className="choices">{choices.map((choice) => <button key={choice.name} className={answer ? (choice.name === player.name ? 'correct' : choice.name === answer ? 'wrong' : '') : ''} onClick={() => choose(choice.name)}>{choice.name}</button>)}</div>
