@@ -1,0 +1,12 @@
+.position-tag {
+  display: table;
+  margin: -7px 0 10px;
+  padding: 4px 7px;
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, #343a31);
+  border-radius: 4px;
+  color: var(--accent);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+}
