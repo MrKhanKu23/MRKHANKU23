@@ -16,13 +16,7 @@ const sportLegends: Record<string, [string, string]> = {
   'track-sprint': ['Usain Bolt', 'Allyson Felix'],
 };
 
-const remoteLegendPhotos: Record<string, string> = {
-  'Katie Ledecky': 'https://commons.wikimedia.org/wiki/Special:FilePath/Katie_Ledecky_at_the_2023_Golden_Goggle_Awards.jpg?width=700',
-  'Karch Kiraly': 'https://commons.wikimedia.org/wiki/Special:FilePath/Karch_Kiraly_2014.jpg?width=700',
-};
-
 function legendPhoto(name: string) {
-  if (remoteLegendPhotos[name]) return remoteLegendPhotos[name];
   const slug = name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   return `/legends/${slug}.${name === 'Anderson Silva' ? 'png' : 'jpg'}`;
 }
