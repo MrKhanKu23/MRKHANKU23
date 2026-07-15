@@ -131,11 +131,11 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
   return <section className="draft-game">
     <div className="draft-header"><div><p className="eyebrow">ROUND {round + 1} OF {teamSize}</p><h3>Build the greatest team</h3></div><div className="draft-score"><span>TEAM</span><strong>{average || '—'}</strong></div></div>
     <div className="scouting-brief"><div className="brief-copy"><span>THIS ROUND'S NATIONALITY + ERA</span><strong>{scoutingNation}</strong><i /> <strong>{decade}s</strong><p>{pending ? `${pending.name}${pendingSlot ? ` · ${pendingSlot}` : ' · choose a position below'}` : 'Choose a player, then place them in the lineup.'}</p></div><button className="top-roll" disabled={!pending || !pendingSlot} onClick={confirmPick}>{round + 1 === teamSize ? 'Complete team →' : 'Roll next round ↻'}</button></div>
-    <div className="draft-choices">{choices.map((player) => <button key={player.name} className={pending ? (pending.name === player.name ? 'draft-selected' : 'draft-dimmed') : ''} onClick={() => { setPending(player); setPendingSlot(undefined); }}>
+    {!pending && <div className="draft-choices">{choices.map((player) => <button key={player.name} onClick={() => { setPending(player); setPendingSlot(undefined); }}>
       <div className="draft-rating"><strong>{ratings.get(player.name)}</strong><small>OVR</small></div>
-      <span className="draft-years">{player.years}</span><span className="position-tag">{position(player, sport.id)}</span><h4>{player.name}</h4><p>{nationality(player)}</p><em>🏆 {player.stat}</em><b>{pending?.name === player.name ? '✓ Selected' : 'Select player →'}</b>
-    </button>)}</div>
-    {pending && <LineupPicker slots={slots} assigned={assigned} pending={pending} selected={pendingSlot} allowed={allowedSlots(pending, sport.id, slots).filter((slot) => !assigned[slot])} onSelect={setPendingSlot} />}
+      <span className="draft-years">{player.years}</span><span className="position-tag">{position(player, sport.id)}</span><h4>{player.name}</h4><p>{nationality(player)}</p><em>🏆 {player.stat}</em><b>Select player →</b>
+    </button>)}</div>}
+    {pending && <div className="lineup-stage"><button className="change-pick" onClick={() => { setPending(undefined); setPendingSlot(undefined); }}>← Choose a different player</button><LineupPicker slots={slots} assigned={assigned} pending={pending} selected={pendingSlot} allowed={allowedSlots(pending, sport.id, slots).filter((slot) => !assigned[slot])} onSelect={setPendingSlot} /></div>}
     <div className="roster-progress">{Array.from({ length: teamSize }, (_, index) => <span key={index} className={index < drafted.length ? 'filled' : ''}>{drafted[index]?.badge ?? index + 1}</span>)}</div>
   </section>;
 }

@@ -46,3 +46,12 @@
   .scouting-brief { align-items: stretch; flex-direction: column; }
   .top-roll { width: 100%; }
 }
+
+.lineup-stage { animation: lineup-stage-in .2s ease; }
+.change-pick { margin-top: 2px; padding: 8px 0; border: 0; background: transparent; color: #8e958a; font-size: 12px; font-weight: 700; }
+.change-pick:hover { color: var(--accent); }
+
+@keyframes lineup-stage-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
