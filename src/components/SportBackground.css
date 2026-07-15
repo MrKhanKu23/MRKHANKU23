@@ -126,10 +126,7 @@
   background: repeating-radial-gradient(ellipse at left, transparent 0 15%, rgba(200,255,61,.11) 15.5% 17%);
 }
 
-.sport-legends{position:absolute;z-index:1;inset:0;width:100%;display:grid;grid-template-columns:1fr 1fr;overflow:hidden;pointer-events:none}.sport-legends::before{content:'';position:absolute;z-index:2;inset:0;background:linear-gradient(90deg,color-mix(in srgb,var(--sport-base) 96%,transparent) 0%,color-mix(in srgb,var(--sport-base) 86%,transparent) 30%,color-mix(in srgb,var(--sport-base) 38%,transparent) 58%,transparent 88%),linear-gradient(0deg,color-mix(in srgb,var(--sport-base) 78%,transparent),transparent 38%);pointer-events:none}.sport-legends article{min-width:0;min-height:100%;background-image:var(--legend-photo);background-position:center 18%;background-repeat:no-repeat;background-size:cover;filter:saturate(.8) contrast(1.08)}.sport-legends article+article{border-left:2px solid color-mix(in srgb,var(--accent) 34%,transparent)}.sport-background:has(.sport-legends) .sport-scene{display:none}
-
 @media (max-width: 850px) {
   .sport-scene { right: -80px; top: 150px; width: 330px; opacity: .12; }
-  .sport-legends{width:100%;opacity:.52}.sport-legends::before{background:linear-gradient(90deg,var(--sport-base),color-mix(in srgb,var(--sport-base) 55%,transparent) 72%,transparent),linear-gradient(0deg,var(--sport-base),transparent 48%)}
   .sport-app .dashboard::before { inset: 16px 10px 30px; }
 }
