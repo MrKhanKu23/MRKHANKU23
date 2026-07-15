@@ -67,4 +67,22 @@ export const footballDraftPlayers: Player[] = [
     ['Steven Gerrard','Midfielder','Champions League and domestic cups','1998–2016',94],['Frank Lampard','Midfielder','Champions League and 3 Premier League titles','1995–2017',94],
     ['Paul Scholes','Midfielder','2 Champions Leagues and 11 league titles','1993–2013',95],['Alan Shearer','Forward','Premier League title and scoring record','1988–2006',94],
   ]),
+  ...nation('Norway', [
+    ['Erling Haaland','Forward','Champions League and European Golden Shoes','2015–present',95],['Martin Ødegaard','Midfielder','Domestic trophies and national-team captaincy','2014–present',90],
+    ['Ole Gunnar Solskjær','Forward','Champions League and 6 Premier League titles','1990–2007',91],['John Arne Riise','Defender','Champions League and domestic trophies','1996–2016',89],
+    ['John Carew','Forward','League titles in Spain and France','1997–2012',87],['Tore André Flo','Forward','European and domestic trophies','1993–2012',86],
+    ['Erik Mykland','Midfielder','Norwegian Footballer of the Year','1989–2004',85],['Brede Hangeland','Defender','National-team captaincy','2000–2016',85],
+  ]),
+  ...nation('Cape Verde', [
+    ['Ryan Mendes','Winger','AFCON quarterfinalist and league trophies','2007–present',86],['Stopira','Defender','Multiple Hungarian league titles','2006–present',84],
+    ['Vozinha','Goalkeeper','AFCON quarterfinalist','2009–present',84],['Garry Rodrigues','Winger','League and cup trophies','2012–present',85],
+    ['Djaniny','Forward','League titles and Golden Boot honors','2011–present',86],['Júlio Tavares','Forward','AFCON quarterfinalist','2008–present',83],
+    ['Bebé','Winger','Spanish second-division title','2008–present',83],['Jamiro Monteiro','Midfielder','CONCACAF Supporters’ Shield','2015–present',84],
+  ]),
+  ...nation('Japan', [
+    ['Hidetoshi Nakata','Midfielder','Serie A title and 2 Asian Cups','1995–2006',92],['Keisuke Honda','Midfielder','Asian Cup and national-team honors','2004–2021',90],
+    ['Shinji Kagawa','Midfielder','2 Bundesliga titles and Premier League title','2006–present',90],['Yasuhito Endō','Midfielder','Asian Cup and AFC Champions League','1998–2023',89],
+    ['Yuto Nagatomo','Defender','Asian Cup and domestic trophies','2007–present',88],['Daichi Kamada','Midfielder','Europa League champion','2015–present',88],
+    ['Takumi Minamino','Winger','Premier League and multiple Austrian titles','2012–present',87],['Takefusa Kubo','Winger','Olympic and European club honors','2016–present',88],
+  ]),
 ];

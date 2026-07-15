@@ -10,7 +10,7 @@ const rosterSizes: Record<string, number> = {
   'american-football': 11, ufc: 2, swimming: 4, volleyball: 6, 'track-sprint': 4,
 };
 
-const footballNations = ['Spain', 'Italy', 'France', 'Argentina', 'Portugal', 'Germany', 'Netherlands', 'Brazil', 'Morocco', 'England'];
+const footballNations = ['Spain', 'Italy', 'France', 'Argentina', 'Portugal', 'Germany', 'Netherlands', 'Brazil', 'Morocco', 'England', 'Norway', 'Cape Verde', 'Japan'];
 const footballNationSet = new Set(footballNations);
 
 function nationality(player: Player) {
