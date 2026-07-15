@@ -29,7 +29,7 @@ export default function App() {
   }
 
   return (
-    <main>
+    <main className="sport-app" data-sport={sport.id} style={{ '--accent': sport.accent } as React.CSSProperties}>
       <SearchHero
         sport={sport}
         sports={sports}
