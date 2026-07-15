@@ -1,20 +1,20 @@
-:root { color: #102a4c; background: #f4f8ff; }
-body { background: #f4f8ff; }
+:root { color: #fff; background: #000; }
+body { background: #000; }
 
 .sport-app {
   --accent: #1677ff !important;
-  --sport-base: #edf5ff !important;
-  color: #102a4c;
-  background-color: #f4f8ff;
-  background-image: radial-gradient(circle at 8% 72%, #1677ff14, transparent 25%), radial-gradient(circle at 92% 88%, #64a7ff1a, transparent 24%), linear-gradient(#1677ff0a 1px, transparent 1px), linear-gradient(90deg,#1677ff0a 1px,transparent 1px) !important;
+  --sport-base: #000 !important;
+  color: #fff;
+  background-color: #000;
+  background-image: radial-gradient(circle at 8% 72%, #1677ff20, transparent 25%), radial-gradient(circle at 92% 88%, #1677ff18, transparent 24%), linear-gradient(#1677ff0b 1px, transparent 1px), linear-gradient(90deg,#1677ff0b 1px,transparent 1px) !important;
 }
 
 .sport-background {
   --accent: #fff !important;
-  --sport-base: #075dcc !important;
+  --sport-base: #000 !important;
   color: #fff;
-  background-color: #075dcc !important;
-  background-image: radial-gradient(circle at 82% 38%,#fff2,transparent 27%),linear-gradient(135deg,#075dcc,#123b91) !important;
+  background-color: #000 !important;
+  background-image: radial-gradient(circle at 82% 38%,#1677ff40,transparent 27%),linear-gradient(135deg,#000,#071b36) !important;
 }
 
 .sport-background .brand,
@@ -27,56 +27,56 @@ body { background: #f4f8ff; }
 .sport-background .sport-pills button { border-color: #ffffff66; background: #ffffff12; color: #fff; }
 .sport-background .sport-pills button.selected { border-color: #fff; background: #fff; color: #075dcc; }
 
-.sport-app .dashboard::before { border-color: #1677ff1c; background: #ffffffdc; }
-.section-heading { border-color: #cfe1f7; }
+.sport-app .dashboard::before { border-color: #1677ff35; background: #000e; }
+.section-heading { border-color: #183755; }
 .section-heading h2,
 .rank-info h3,
 .quiz-card h3,
-.draft-game h3 { color: #102a4c; }
+.draft-game h3 { color: #fff; }
 .section-heading p,
-.section-heading .eyebrow { color: #53708f; }
+.section-heading .eyebrow { color: #9db4cc; }
 .quiz-button,
 .next,
 .draft-button,
 .restart-draft,
 .top-roll { background: #1677ff !important; color: #fff !important; }
 
-.tabs button { color: #66809d; }
-.tabs button.active { color: #075dcc; border-color: #1677ff; }
+.tabs button { color: #8da5bd; }
+.tabs button.active { color: #5da4ff; border-color: #1677ff; }
 .rank-card,
 .sport-app .rank-card,
 .sport-app .quiz-card,
-.draft-game { border-color: #d2e2f4; background: #fff; box-shadow: 0 15px 45px #164f8f12; }
+.draft-game { border-color: #183b5f; background: #080b10; box-shadow: 0 15px 45px #0008; }
 .rank-card:hover { border-color: #63a7f5; }
 .rank-info p,
 .rank-card strong,
 .quiz-top,
-.clue { color: #617a96; }
+.clue { color: #9db0c4; }
 .badge { background: #1677ff !important; color: #fff; }
 
-.difficulty { border-color: #cbdff5; background: #edf5ff; }
+.difficulty { border-color: #1d4369; background: #080d14; }
 .difficulty button { color: #54708f; }
 .difficulty button.active { background: #1677ff; color: #fff; }
-.choices button { border-color: #c8dbf0; background: #f5f9ff; color: #173a61; }
+.choices button { border-color: #1b4268; background: #0b111a; color: #fff; }
 .choices button:hover { border-color: #1677ff; }
-.quiz-player-meta { color: #54708f; }
+.quiz-player-meta { color: #a8bad0; }
 .quiz-player-icon { background: #1677ff !important; color: #fff; }
 
 .draft-score,
 .draft-choices > button,
 .drafted-roster article,
-.comparison-team { border-color: #cfdef0; background: #f7faff; color: #102a4c; }
+.comparison-team { border-color: #1a4268; background: #0b1119; color: #fff; }
 .draft-choices > button:hover { border-color: #1677ff; box-shadow: 0 12px 30px #155fac1c; }
 .draft-choices h4,
-.drafted-roster b { color: #102a4c; }
+.drafted-roster b { color: #fff; }
 .draft-choices p,
 .draft-choices em,
-.drafted-roster small { color: #617a96; }
-.scouting-brief { background: #edf5ff; }
-.scout-control { border-color: #b9d5f3; background: #fff; color: #214c79; }
+.drafted-roster small { color: #9bb0c7; }
+.scouting-brief { background: #08111c; }
+.scout-control { border-color: #245483; background: #0b1119; color: #c8ddf5; }
 .scout-control b { background: #1677ff; color: #fff; }
 .roster-progress span { border-color: #9dbfe3; color: #66809d; }
-.account-panel { border-color: #cadff4; background: #fff; color: #54708f; }
-.account-panel input { border-color: #bed5ee; background: #f7faff; color: #102a4c; }
+.account-panel { border-color: #1b456e; background: #080c12; color: #a4b9cf; }
+.account-panel input { border-color: #24517d; background: #0d1520; color: #fff; }
 .account-panel button { background: #1677ff; color: #fff; }
 .account-panel .account-switch { border-color: #b9d2ed; color: #2262a5; }
