@@ -1,7 +1,8 @@
 import { additionalSports } from './additionalSports';
 import { additionalQuizPlayers } from './additionalQuizPlayers';
+import { nameHonours } from './trophyNames';
 
-export type RankedItem = { name: string; detail: string; stat: string; badge: string };
+export type RankedItem = { name: string; detail: string; stat: string; badge: string; honours?: string[] };
 export type Player = RankedItem & { team: string; status?: 'active' | 'retired' };
 export type Sport = {
   id: string;
@@ -90,6 +91,8 @@ function withStatus(player: Player): Player {
 }
 
 export const sports: Sport[] = rankedSports.map((sport) => {
-  const players = sport.players.map(withStatus);
-  return { ...sport, players, quizPlayers: [...players, ...(additionalQuizPlayers[sport.id] ?? []).map(withStatus)] };
+  const players = sport.players.map((player) => ({ ...withStatus(player), honours: nameHonours(sport.id, player.stat, true) }));
+  const teams = sport.teams.map((team) => ({ ...team, honours: nameHonours(sport.id, team.stat, false) }));
+  const extras = (additionalQuizPlayers[sport.id] ?? []).map((player) => ({ ...withStatus(player), honours: nameHonours(sport.id, player.stat, true) }));
+  return { ...sport, teams, players, quizPlayers: [...players, ...extras] };
 });

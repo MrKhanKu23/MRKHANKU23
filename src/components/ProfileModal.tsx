@@ -27,7 +27,7 @@ export function ProfileModal({ sport, type, item, rank, onClose }: Props) {
       </div>
       {player && <div className={`status-pill ${player.status}`}><i />{player.status === 'retired' ? 'Retired' : 'Active player'}</div>}
       <div className="profile-stats">
-        <article><span>{type === 'players' ? 'CAREER RECORD / TROPHIES' : 'TROPHY CABINET / RECORD'}</span><strong>{item.stat}</strong></article>
+        <article className="trophy-list"><span>🏆 NAMED TROPHIES & RECORDS</span><ul>{(item.honours ?? [item.stat]).map((honour) => <li key={honour}>{honour}</li>)}</ul></article>
         <article><span>ALL-TIME SPORTDEX RANK</span><strong>#{rank}</strong></article>
         {player && <article><span>{player.status === 'retired' ? 'CAREER TEAM / NATION' : 'CURRENT / MOST RECENT TEAM'}</span><strong>{player.status === 'retired' ? 'Retired' : player.team}</strong>{player.status === 'retired' && <small>{player.team}</small>}</article>}
         {!player && <article><span>COMPETITION / REGION</span><strong>{item.detail}</strong></article>}
