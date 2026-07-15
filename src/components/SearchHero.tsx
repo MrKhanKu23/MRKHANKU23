@@ -16,6 +16,17 @@ const sportLegends: Record<string, [string, string]> = {
   'track-sprint': ['Usain Bolt', 'Allyson Felix'],
 };
 
+const remoteLegendPhotos: Record<string, string> = {
+  'Katie Ledecky': 'https://commons.wikimedia.org/wiki/Special:FilePath/Katie_Ledecky_at_the_2023_Golden_Goggle_Awards.jpg?width=700',
+  'Karch Kiraly': 'https://commons.wikimedia.org/wiki/Special:FilePath/Karch_Kiraly_2014.jpg?width=700',
+};
+
+function legendPhoto(name: string) {
+  if (remoteLegendPhotos[name]) return remoteLegendPhotos[name];
+  const slug = name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  return `/legends/${slug}.${name === 'Anderson Silva' ? 'png' : 'jpg'}`;
+}
+
 export function SearchHero({ sport, sports, query, onQuery, onSport }: Props) {
   const legends = sportLegends[sport.id] ?? sport.players.slice(0, 2).map((player) => player.name) as [string, string];
   return <header className="hero sport-background" data-sport={sport.id} style={{ '--accent': sport.accent } as React.CSSProperties}>
@@ -29,7 +40,7 @@ export function SearchHero({ sport, sports, query, onQuery, onSport }: Props) {
     </div>
     <div className="sport-scene" aria-hidden="true"><span>{sport.icon}</span></div>
     <aside className="sport-legends" aria-label={`${sport.name} legends`}>
-      {legends.map((legend, index) => <article key={legend}><span>{String(index + 1).padStart(2, '0')}</span><div><small>{sport.name.toUpperCase()} LEGEND</small><strong>{legend}</strong></div></article>)}
+      {legends.map((legend, index) => <article key={legend} style={{ '--legend-photo': `url("${legendPhoto(legend)}")` } as React.CSSProperties}><span>{String(index + 1).padStart(2, '0')}</span><div><small>{sport.name.toUpperCase()} LEGEND</small><strong>{legend}</strong></div></article>)}
     </aside>
     <div className="hero-number">10</div>
   </header>;
