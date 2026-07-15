@@ -72,11 +72,10 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
   const complete = round >= teamSize;
   const ratings = useMemo(() => new Map(pool.map((player, index) => [player.name, player.rating ?? 100 - Math.round(index * 20 / Math.max(pool.length - 1, 1))])), [pool]);
   const usedPositions = new Set(drafted.map((player) => position(player, sport.id)));
-  const available = pool.filter((player) => !drafted.some((pick) => pick.name === player.name) && (sport.id !== 'football' || !usedPositions.has(position(player, sport.id))));
-  const anchor = available[(round * 3) % available.length];
+  const anchor = pool[Math.abs(draftSeed) % pool.length];
   const anchorBounds = careerBounds(anchor);
   const anchorDecades = Array.from({ length: Math.floor(anchorBounds.end / 10) - Math.floor(anchorBounds.start / 10) + 1 }, (_, index) => (Math.floor(anchorBounds.start / 10) + index) * 10);
-  const decade = anchorDecades[round % anchorDecades.length];
+  const decade = anchorDecades[Math.abs(draftSeed) % anchorDecades.length];
   const scoutingNation = nationality(anchor);
   const choices = useMemo(() => {
     const used = new Set(drafted.map((player) => player.name));
@@ -95,7 +94,7 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
   const average = drafted.length ? Math.round(drafted.reduce((total, player) => total + (ratings.get(player.name) ?? 80), 0) / drafted.length) : 0;
 
   if (complete) return <section className="draft-game draft-result">
-    <p className="eyebrow">DRAFT COMPLETE</p><h3>Your {sport.name} dream team</h3>
+    <p className="eyebrow">DRAFT COMPLETE · {scoutingNation} · {decade}s</p><h3>Your {sport.name} dream team</h3>
     <div className="team-rating"><span>TEAM RATING</span><strong>{average}</strong><small>/100</small></div>
     <div className="drafted-roster">{drafted.map((player) => <article key={player.name}><span>{player.badge}</span><div><b>{player.name}</b><small>{position(player, sport.id)} · {player.years}</small></div><strong>{ratings.get(player.name)}</strong></article>)}</div>
     <button className="restart-draft" onClick={() => { setDrafted([]); setPending(undefined); setDraftSeed(Date.now()); }}>Draft another team</button>
@@ -103,7 +102,7 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
 
   return <section className="draft-game">
     <div className="draft-header"><div><p className="eyebrow">ROUND {round + 1} OF {teamSize}</p><h3>Build the greatest team</h3></div><div className="draft-score"><span>TEAM</span><strong>{average || '—'}</strong></div></div>
-    <div className="scouting-brief"><span>SCOUTING BRIEF</span><strong>{scoutingNation}</strong><i /> <strong>{decade}s</strong><p>Choices prioritize this nation and era. Higher ratings reflect greater all-time impact and trophies.</p></div>
+    <div className="scouting-brief"><span>THIS DRAFT'S NATIONALITY + ERA</span><strong>{scoutingNation}</strong><i /> <strong>{decade}s</strong><p>This challenge stays locked for every round. Choices prioritize athletes matching both, then the same nation or era.</p></div>
     <div className="draft-choices">{choices.map((player) => <button key={player.name} className={pending ? (pending.name === player.name ? 'draft-selected' : 'draft-dimmed') : ''} onClick={() => setPending(player)}>
       <div className="draft-rating"><strong>{ratings.get(player.name)}</strong><small>OVR</small></div>
       <span className="draft-years">{player.years}</span><span className="position-tag">{position(player, sport.id)}</span><h4>{player.name}</h4><p>{nationality(player)}</p><em>🏆 {player.stat}</em><b>{pending?.name === player.name ? '✓ Selected' : 'Select player →'}</b>
