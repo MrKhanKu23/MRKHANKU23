@@ -9,19 +9,31 @@ const rules = {
   hard: { choices: 6, showTeam: false, label: 'Hard' },
 } satisfies Record<Difficulty, { choices: number; showTeam: boolean; label: string }>;
 
+function seededShuffle<T>(items: T[], seed: number) {
+  const shuffled = [...items];
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const value = Math.sin(seed + index * 71) * 10000;
+    const swapIndex = Math.floor((value - Math.floor(value)) * (index + 1));
+    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+  }
+  return shuffled;
+}
+
 export function SportsQuiz({ sport }: { sport: Sport }) {
   const [round, setRound] = useState(0);
   const [score, setScore] = useState(0);
   const [answer, setAnswer] = useState<string>();
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
-  const quizPlayers = sport.quizPlayers ?? sport.players;
+  const [quizSeed, setQuizSeed] = useState(() => Date.now());
+  const playerPool = sport.quizPlayers ?? sport.players;
+  const quizPlayers = useMemo(() => seededShuffle(playerPool, quizSeed), [playerPool, quizSeed]);
   const player = quizPlayers[round % quizPlayers.length];
   const mode = rules[difficulty];
   const choices = useMemo(() => {
     const alternatives = quizPlayers.filter((item) => item.name !== player.name);
     const rotated = [...alternatives.slice(round), ...alternatives.slice(0, round)];
-    return [player, ...rotated.slice(0, mode.choices - 1)].sort(() => .5 - Math.random());
-  }, [mode.choices, player, quizPlayers, round]);
+    return seededShuffle([player, ...rotated.slice(0, mode.choices - 1)], quizSeed + round * 997);
+  }, [mode.choices, player, quizPlayers, quizSeed, round]);
 
   function choose(name: string) {
     if (answer) return;
@@ -30,7 +42,7 @@ export function SportsQuiz({ sport }: { sport: Sport }) {
   }
 
   function changeDifficulty(next: Difficulty) {
-    setDifficulty(next); setRound(0); setScore(0); setAnswer(undefined);
+    setDifficulty(next); setRound(0); setScore(0); setAnswer(undefined); setQuizSeed(Date.now());
   }
 
   return <section className="quiz-card">
