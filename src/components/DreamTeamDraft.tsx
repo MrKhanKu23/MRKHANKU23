@@ -87,9 +87,8 @@ function weightedSample(players: Player[], count: number, ratings: Map<string, n
   return selected;
 }
 
-function lowerTierRating(player: Player, baseRating: number) {
+function trophyScore(player: Player) {
   const honours = player.stat.toLowerCase();
-  const skillPoints = Math.max(0, Math.min(4, Math.round((baseRating - 80) / 5)));
   let trophyPoints = 0;
   if (honours.includes('ballon d’or')) trophyPoints += 3;
   if (honours.includes('world cup')) trophyPoints += 3;
@@ -98,15 +97,28 @@ function lowerTierRating(player: Player, baseRating: number) {
   if (honours.includes('league title') || honours.includes('premier league') || honours.includes('serie a') || honours.includes('bundesliga')) trophyPoints += 2;
   if (honours.includes('euro') || honours.includes('copa américa') || honours.includes('copa america')) trophyPoints += 2;
   if (honours.includes('cup') || honours.includes('domestic')) trophyPoints += 1;
+  return trophyPoints;
+}
+
+function lowerTierRating(player: Player, baseRating: number) {
+  const skillPoints = Math.max(0, Math.min(4, Math.round((baseRating - 80) / 5)));
+  const trophyPoints = trophyScore(player);
   return Math.min(89, 80 + skillPoints + Math.min(5, trophyPoints));
+}
+
+function highTierRating(player: Player, baseRating: number) {
+  const skillPoints = Math.max(0, Math.min(3, Math.round((baseRating - 90) / 2)));
+  const honours = trophyScore(player);
+  const trophyPoints = honours >= 4 ? 2 : honours > 0 ? 1 : 0;
+  return Math.min(95, 90 + skillPoints + trophyPoints);
 }
 
 function playerRating(player: Player, index: number, poolSize: number, sportId: string) {
   const baseRating = player.rating ?? 100 - Math.round(index * 20 / Math.max(poolSize - 1, 1));
   if (sportId !== 'football') return baseRating;
   if (baseRating >= 96 && eliteFootballRatings.has(player.name)) return baseRating;
-  if (baseRating >= 90 && highFootballRatings.has(player.name)) return Math.min(baseRating, 95);
-  if (exceptionalSkillRatings[player.name]) return exceptionalSkillRatings[player.name];
+  if (baseRating >= 90 && highFootballRatings.has(player.name)) return highTierRating(player, baseRating);
+  if (exceptionalSkillRatings[player.name]) return highTierRating(player, Math.max(baseRating, exceptionalSkillRatings[player.name]));
   return lowerTierRating(player, baseRating);
 }
 
