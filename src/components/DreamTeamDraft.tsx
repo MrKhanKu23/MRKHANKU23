@@ -5,6 +5,7 @@ import './DreamTeamComparison.css';
 import './DraftPositions.css';
 import { LineupPicker } from './LineupPicker';
 import { lineupSlots, type LineupSlot } from '../lib/lineupSlots';
+import { saveDreamTeam } from '../lib/sportdexDb';
 
 const rosterSizes: Record<string, number> = {
   football: 11, basketball: 5, tennis: 2, f1: 2, baseball: 9,
@@ -135,6 +136,7 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
   const [assigned, setAssigned] = useState<Record<string, Player>>({});
   const [firstTeam, setFirstTeam] = useState<{ drafted: Player[]; assigned: Record<string, Player>; average: number }>();
   const [draftSeed, setDraftSeed] = useState(() => Date.now());
+  const [saveMessage, setSaveMessage] = useState('');
   const headToHead = sport.id === 'tennis' || sport.id === 'ufc';
   const slots = lineupSlots[sport.id] ?? [];
   const round = drafted.length;
@@ -191,6 +193,14 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
     return <div className="drafted-roster">{team.map((player) => <article key={player.name}><span>{player.badge}</span><div><b>{player.name}</b><small>{Object.entries(lineup).find(([, pick]) => pick.name === player.name)?.[0]} · {player.years}</small></div><strong>{ratings.get(player.name)}</strong></article>)}</div>;
   }
 
+  async function saveTeams(teams: { players: Player[]; overall: number }[]) {
+    setSaveMessage('Saving…');
+    try {
+      const results = await Promise.all(teams.map((team) => saveDreamTeam(sport.id, team.overall, team.players)));
+      setSaveMessage(results.every(Boolean) ? 'Dream Team saved to your account.' : 'Sign in above to save Dream Teams.');
+    } catch { setSaveMessage('The team could not be saved. Try again.'); }
+  }
+
   if (complete && headToHead && !firstTeam) return <section className="draft-game draft-result">
     <p className="eyebrow">TEAM 1 COMPLETE</p><h3>Your first {sport.name} team</h3>
     <div className="team-rating"><span>TEAM 1 OVR</span><strong>{average}</strong><small>/100</small></div>
@@ -208,6 +218,8 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
         <div className="comparison-versus">VS</div>
         <div className={difference <= 0 ? 'comparison-team winner' : 'comparison-team'}><span>TEAM 2</span><strong>{average}</strong><small> OVR</small>{roster(drafted, assigned)}</div>
       </div>
+      <button className="restart-draft" onClick={() => saveTeams([{ players: firstTeam.drafted, overall: firstTeam.average }, { players: drafted, overall: average }])}>Save both teams</button>
+      {saveMessage && <p className="draft-save-message">{saveMessage}</p>}
       <button className="restart-draft" onClick={() => { setFirstTeam(undefined); resetCurrentTeam(); }}>Draft two new teams</button>
     </section>;
   }
@@ -216,6 +228,8 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
     <p className="eyebrow">MULTI-NATION · MULTI-ERA DRAFT COMPLETE</p><h3>Your {sport.name} dream team</h3>
     <div className="team-rating"><span>TEAM RATING</span><strong>{average}</strong><small>/100</small></div>
     <div className="drafted-roster">{drafted.map((player) => <article key={player.name}><span>{player.badge}</span><div><b>{player.name}</b><small>{Object.entries(assigned).find(([, pick]) => pick.name === player.name)?.[0]} · {player.years}</small></div><strong>{ratings.get(player.name)}</strong></article>)}</div>
+    <button className="restart-draft" onClick={() => saveTeams([{ players: drafted, overall: average }])}>Save Dream Team</button>
+    {saveMessage && <p className="draft-save-message">{saveMessage}</p>}
     <button className="restart-draft" onClick={() => { setDrafted([]); setPending(undefined); setPendingSlot(undefined); setAssigned({}); setDraftSeed(Date.now()); }}>Draft another team</button>
   </section>;
 

@@ -1,15 +1,22 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Rankings } from './components/Rankings';
 import { SearchHero } from './components/SearchHero';
 import { SportsQuiz } from './components/SportsQuiz';
 import { DreamTeamDraft } from './components/DreamTeamDraft';
+import { AccountPanel } from './components/AccountPanel';
 import { sports, type Sport } from './lib/sportsData';
+import { loadSportsCatalog } from './lib/sportdexDb';
 
 export default function App() {
+  const [catalog, setCatalog] = useState<Sport[]>(sports);
   const [sport, setSport] = useState<Sport>(sports[0]);
   const [query, setQuery] = useState('');
   const [tab, setTab] = useState<'teams' | 'players'>('teams');
   const [view, setView] = useState<'rankings' | 'quiz' | 'draft'>('rankings');
+
+  useEffect(() => {
+    loadSportsCatalog(sports).then((loaded) => { setCatalog(loaded); setSport(loaded[0]); });
+  }, []);
 
   const filtered = useMemo(() => {
     const value = query.trim().toLowerCase();
@@ -33,12 +40,13 @@ export default function App() {
     <main className="sport-app" data-sport={sport.id} style={{ '--accent': sport.accent } as React.CSSProperties}>
       <SearchHero
         sport={sport}
-        sports={sports}
+        sports={catalog}
         query={query}
         onQuery={setQuery}
         onSport={chooseSport}
       />
       <section className="dashboard">
+        <AccountPanel />
         <div className="section-heading">
           <div>
             <p className="eyebrow">ALL-TIME RECORD BOOK</p>

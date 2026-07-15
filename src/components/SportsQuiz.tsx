@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { Sport } from '../lib/sportsData';
+import { saveQuizScore } from '../lib/sportdexDb';
 import './SportsQuiz.css';
 
 type Difficulty = 'easy' | 'medium' | 'hard';
@@ -8,6 +9,7 @@ const rules = {
   medium: { choices: 4, showTeam: true, label: 'Medium' },
   hard: { choices: 6, showTeam: false, label: 'Hard' },
 } satisfies Record<Difficulty, { choices: number; showTeam: boolean; label: string }>;
+const quizLength = 10;
 
 function seededShuffle<T>(items: T[], seed: number) {
   const shuffled = [...items];
@@ -25,6 +27,8 @@ export function SportsQuiz({ sport }: { sport: Sport }) {
   const [answer, setAnswer] = useState<string>();
   const [difficulty, setDifficulty] = useState<Difficulty>('easy');
   const [quizSeed, setQuizSeed] = useState(() => Date.now());
+  const [finished, setFinished] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('');
   const playerPool = sport.draftPlayers ?? sport.quizPlayers ?? sport.players;
   const quizPlayers = useMemo(() => seededShuffle(playerPool, quizSeed), [playerPool, quizSeed]);
   const player = quizPlayers[round % quizPlayers.length];
@@ -42,11 +46,25 @@ export function SportsQuiz({ sport }: { sport: Sport }) {
   }
 
   function changeDifficulty(next: Difficulty) {
-    setDifficulty(next); setRound(0); setScore(0); setAnswer(undefined); setQuizSeed(Date.now());
+    setDifficulty(next); setRound(0); setScore(0); setAnswer(undefined); setFinished(false); setSaveMessage(''); setQuizSeed(Date.now());
   }
 
+  async function next() {
+    if (round + 1 < quizLength) { setAnswer(undefined); setRound((value) => value + 1); return; }
+    setFinished(true);
+    try {
+      const saved = await saveQuizScore(sport.id, difficulty, score, quizLength);
+      setSaveMessage(saved ? 'Score saved to your account.' : 'Sign in above to save this score.');
+    } catch { setSaveMessage('The score could not be saved. Try again.'); }
+  }
+
+  if (finished) return <section className="quiz-card">
+    <p className="eyebrow">QUIZ COMPLETE</p><h3>{score} / {quizLength}</h3><p className="clue">{saveMessage || 'Saving score…'}</p>
+    <button className="next" onClick={() => changeDifficulty(difficulty)}>Play again →</button>
+  </section>;
+
   return <section className="quiz-card">
-    <div className="quiz-top"><span>ROUND {round + 1}</span><strong>{score} correct</strong></div>
+    <div className="quiz-top"><span>ROUND {round + 1} / {quizLength}</span><strong>{score} correct</strong></div>
     <div className="difficulty" aria-label="Quiz difficulty">
       {(Object.keys(rules) as Difficulty[]).map((level) => <button key={level} className={difficulty === level ? 'active' : ''} onClick={() => changeDifficulty(level)}>{rules[level].label}</button>)}
     </div>
@@ -54,6 +72,6 @@ export function SportsQuiz({ sport }: { sport: Sport }) {
     <p className="eyebrow">GUESS THE STAR · {mode.label.toUpperCase()}</p><h3>{player.detail}</h3>
     <p className="clue">{mode.showTeam ? `Represented by ${player.team}` : 'Team hidden — use the record alone'}</p>
     <div className="choices">{choices.map((choice) => <button key={choice.name} className={answer ? (choice.name === player.name ? 'correct' : choice.name === answer ? 'wrong' : '') : ''} onClick={() => choose(choice.name)}>{choice.name}</button>)}</div>
-    {answer && <button className="next" onClick={() => { setAnswer(undefined); setRound((value) => value + 1); }}>Next challenge →</button>}
+    {answer && <button className="next" onClick={next}>{round + 1 === quizLength ? 'Finish quiz →' : 'Next challenge →'}</button>}
   </section>;
 }
