@@ -4,12 +4,13 @@ import './DreamTeamDraft.css';
 import './DraftPositions.css';
 
 const rosterSizes: Record<string, number> = {
-  football: 5, basketball: 5, tennis: 4, f1: 2, baseball: 5,
-  'american-football': 5, ufc: 5, swimming: 4, volleyball: 6, 'track-sprint': 4,
+  football: 11, basketball: 5, tennis: 1, f1: 2, baseball: 9,
+  'american-football': 11, ufc: 1, swimming: 4, volleyball: 6, 'track-sprint': 4,
 };
 
 const footballNations = ['Spain', 'Italy', 'France', 'Argentina', 'Portugal', 'Germany', 'Netherlands', 'Brazil', 'Morocco', 'England'];
 const footballNationSet = new Set(footballNations);
+const footballPositionOverrides: Record<string, string> = { 'Ricardo Carvalho': 'LCB', 'Bobby Moore': 'RCB' };
 
 function nationality(player: Player) {
   const parts = player.detail.split('·');
@@ -17,9 +18,15 @@ function nationality(player: Player) {
   return rawNationality.split('/').map((value) => value.trim()).find((value) => footballNationSet.has(value)) ?? rawNationality;
 }
 
-function position(player: Player) {
+function position(player: Player, sportId = '') {
   const role = player.detail.split('·')[0].trim();
-  return role.toLowerCase().includes('midfielder') ? 'CM' : role;
+  if (sportId !== 'football') return role.toLowerCase().includes('midfielder') ? 'CM' : role;
+  if (footballPositionOverrides[player.name]) return footballPositionOverrides[player.name];
+  const hash = [...player.name].reduce((total, character) => total + character.charCodeAt(0), 0);
+  if (role === 'Goalkeeper') return 'GK';
+  if (role.toLowerCase().includes('defender')) return ['LB', 'LCB', 'RCB', 'RB'][hash % 4];
+  if (role.toLowerCase().includes('midfielder')) return ['CDM', 'CM', 'CAM'][hash % 3];
+  return ['LW', 'ST', 'RW'][hash % 3];
 }
 
 function careerBounds(player: Player) {
@@ -64,8 +71,8 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
   const round = drafted.length;
   const complete = round >= teamSize;
   const ratings = useMemo(() => new Map(pool.map((player, index) => [player.name, player.rating ?? 100 - Math.round(index * 20 / Math.max(pool.length - 1, 1))])), [pool]);
-  const usedPositions = new Set(drafted.map(position));
-  const available = pool.filter((player) => !drafted.some((pick) => pick.name === player.name) && (sport.id !== 'football' || !usedPositions.has(position(player))));
+  const usedPositions = new Set(drafted.map((player) => position(player, sport.id)));
+  const available = pool.filter((player) => !drafted.some((pick) => pick.name === player.name) && (sport.id !== 'football' || !usedPositions.has(position(player, sport.id))));
   const anchor = available[(round * 3) % available.length];
   const anchorBounds = careerBounds(anchor);
   const anchorDecades = Array.from({ length: Math.floor(anchorBounds.end / 10) - Math.floor(anchorBounds.start / 10) + 1 }, (_, index) => (Math.floor(anchorBounds.start / 10) + index) * 10);
@@ -73,7 +80,7 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
   const scoutingNation = nationality(anchor);
   const choices = useMemo(() => {
     const used = new Set(drafted.map((player) => player.name));
-    const unused = pool.filter((player) => !used.has(player.name) && (sport.id !== 'football' || !usedPositions.has(position(player))));
+    const unused = pool.filter((player) => !used.has(player.name) && (sport.id !== 'football' || !usedPositions.has(position(player, sport.id))));
     const exact = unused.filter((player) => nationality(player) === scoutingNation && overlaps(player, decade));
     const sameNation = unused.filter((player) => nationality(player) === scoutingNation && !exact.includes(player));
     const sameEra = unused.filter((player) => overlaps(player, decade) && !exact.includes(player));
@@ -90,7 +97,7 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
   if (complete) return <section className="draft-game draft-result">
     <p className="eyebrow">DRAFT COMPLETE</p><h3>Your {sport.name} dream team</h3>
     <div className="team-rating"><span>TEAM RATING</span><strong>{average}</strong><small>/100</small></div>
-    <div className="drafted-roster">{drafted.map((player) => <article key={player.name}><span>{player.badge}</span><div><b>{player.name}</b><small>{position(player)} · {player.years}</small></div><strong>{ratings.get(player.name)}</strong></article>)}</div>
+    <div className="drafted-roster">{drafted.map((player) => <article key={player.name}><span>{player.badge}</span><div><b>{player.name}</b><small>{position(player, sport.id)} · {player.years}</small></div><strong>{ratings.get(player.name)}</strong></article>)}</div>
     <button className="restart-draft" onClick={() => { setDrafted([]); setPending(undefined); setDraftSeed(Date.now()); }}>Draft another team</button>
   </section>;
 
@@ -99,7 +106,7 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
     <div className="scouting-brief"><span>SCOUTING BRIEF</span><strong>{scoutingNation}</strong><i /> <strong>{decade}s</strong><p>Choices prioritize this nation and era. Higher ratings reflect greater all-time impact and trophies.</p></div>
     <div className="draft-choices">{choices.map((player) => <button key={player.name} className={pending ? (pending.name === player.name ? 'draft-selected' : 'draft-dimmed') : ''} onClick={() => setPending(player)}>
       <div className="draft-rating"><strong>{ratings.get(player.name)}</strong><small>OVR</small></div>
-      <span className="draft-years">{player.years}</span><span className="position-tag">{position(player)}</span><h4>{player.name}</h4><p>{nationality(player)}</p><em>🏆 {player.stat}</em><b>{pending?.name === player.name ? '✓ Selected' : 'Select player →'}</b>
+      <span className="draft-years">{player.years}</span><span className="position-tag">{position(player, sport.id)}</span><h4>{player.name}</h4><p>{nationality(player)}</p><em>🏆 {player.stat}</em><b>{pending?.name === player.name ? '✓ Selected' : 'Select player →'}</b>
     </button>)}</div>
     {pending && <div className="roll-panel"><div><span>YOUR PICK</span><strong>{pending.name}</strong></div><button onClick={() => { setDrafted((team) => [...team, pending]); setPending(undefined); }}>{round + 1 === teamSize ? 'Complete team →' : 'Roll next round ↻'}</button></div>}
     <div className="roster-progress">{Array.from({ length: teamSize }, (_, index) => <span key={index} className={index < drafted.length ? 'filled' : ''}>{drafted[index]?.badge ?? index + 1}</span>)}</div>
