@@ -14,7 +14,7 @@ const rosterSizes: Record<string, number> = {
 
 const footballNations = ['Spain', 'Italy', 'France', 'Argentina', 'Portugal', 'Germany', 'Netherlands', 'Brazil', 'Morocco', 'England', 'Norway', 'Cape Verde', 'Japan'];
 const footballNationSet = new Set(footballNations);
-const clubDraftSports = new Set(['football', 'basketball', 'baseball']);
+const clubDraftSports = new Set(['football', 'basketball', 'baseball', 'american-football']);
 const individualDraftSports = new Set(['f1', 'swimming', 'ufc']);
 const minimumGroupPlayers = 8;
 const eliteFootballRatings = new Set([
@@ -142,7 +142,9 @@ function playerRating(player: Player, index: number, poolSize: number, sportId: 
   return lowerTierRating(player, baseRating);
 }
 
-function DraftGame({ sport, pool, clubMode }: { sport: Sport; pool: Player[]; clubMode: boolean }) {
+type EligibleBrief = { group: string; decade: number };
+
+function DraftGame({ sport, pool, clubMode, eligibleBriefs }: { sport: Sport; pool: Player[]; clubMode: boolean; eligibleBriefs: EligibleBrief[] }) {
   const teamSize = sport.id === 'ufc' ? 1 : rosterSizes[sport.id] ?? 5;
   const [drafted, setDrafted] = useState<Player[]>([]);
   const [pending, setPending] = useState<Player>();
@@ -160,20 +162,17 @@ function DraftGame({ sport, pool, clubMode }: { sport: Sport; pool: Player[]; cl
   const round = drafted.length;
   const complete = round >= teamSize;
   const ratings = useMemo(() => new Map(pool.map((player, index) => [player.name, playerRating(player, index, pool.length, sport.id)])), [pool, sport.id]);
-  const nationOrder = useMemo(() => {
-    const nations = [...new Set(pool.map((player) => draftGroup(player, sport, clubMode)))];
-    for (let index = nations.length - 1; index > 0; index -= 1) {
+  const briefOrder = useMemo(() => {
+    const briefs = [...eligibleBriefs];
+    for (let index = briefs.length - 1; index > 0; index -= 1) {
       const swapIndex = Math.floor(randomFromSeed(draftSeed + index * 71) * (index + 1));
-      [nations[index], nations[swapIndex]] = [nations[swapIndex], nations[index]];
+      [briefs[index], briefs[swapIndex]] = [briefs[swapIndex], briefs[index]];
     }
-    return nations;
-  }, [draftSeed, pool]);
-  const scoutingNation = nationOrder[(round + nationOffset) % nationOrder.length];
-  const nationPlayers = pool.filter((player) => draftGroup(player, sport, clubMode) === scoutingNation);
-  const anchor = nationPlayers[Math.abs(draftSeed + round * 13 + nationOffset * 31) % nationPlayers.length];
-  const anchorBounds = careerBounds(anchor);
-  const anchorDecades = Array.from({ length: Math.floor(anchorBounds.end / 10) - Math.floor(anchorBounds.start / 10) + 1 }, (_, index) => (Math.floor(anchorBounds.start / 10) + index) * 10);
-  const decade = anchorDecades[Math.abs(draftSeed + round * 7 + nationOffset) % anchorDecades.length];
+    return briefs;
+  }, [draftSeed, eligibleBriefs]);
+  const brief = briefOrder[(round + nationOffset) % briefOrder.length];
+  const scoutingNation = brief.group;
+  const decade = brief.decade;
   const choices = useMemo(() => {
     const used = new Set([...drafted, ...(firstTeam?.drafted ?? [])].map((player) => player.name));
     const unused = pool.filter((player) => !used.has(player.name) && allowedSlots(player, sport.id, slots).some((slot) => !assigned[slot]));
@@ -287,16 +286,24 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
   const counts = new Map<string, number>();
   allPlayers.forEach((player) => {
     const group = draftGroup(player, sport, clubMode);
-    if (group) counts.set(group, (counts.get(group) ?? 0) + 1);
+    if (!group) return;
+    const { start, end } = careerBounds(player);
+    for (let decade = Math.floor(start / 10) * 10; decade <= Math.floor(end / 10) * 10; decade += 10) {
+      const key = `${group}\u0000${decade}`;
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
   });
-  const eligibleGroups = new Set([...counts].filter(([, count]) => count >= requiredPlayers).map(([group]) => group));
-  const pool = allPlayers.filter((player) => eligibleGroups.has(draftGroup(player, sport, clubMode)));
+  const eligibleBriefs = [...counts].filter(([, count]) => count >= requiredPlayers).map(([key]) => {
+    const [group, decade] = key.split('\u0000');
+    return { group, decade: Number(decade) };
+  });
+  const pool = allPlayers.filter((player) => eligibleBriefs.some((brief) => draftGroup(player, sport, clubMode) === brief.group && overlaps(player, brief.decade)));
 
   if (!pool.length) return <section className="draft-game draft-unavailable">
     <p className="eyebrow">DRAFT POOL REQUIREMENT</p>
     <h3>No eligible {clubMode ? 'teams' : 'nationalities'} yet</h3>
-    <p>Each {clubMode ? 'team' : 'nationality'} needs at least {requiredPlayers} player{requiredPlayers === 1 ? '' : 's'} before it can enter the Dream Team Draft.</p>
+    <p>Each {clubMode ? 'team' : 'nationality'} and era needs at least {requiredPlayers} player{requiredPlayers === 1 ? '' : 's'} before it can enter the Dream Team Draft.</p>
   </section>;
 
-  return <DraftGame sport={sport} pool={pool} clubMode={clubMode} />;
+  return <DraftGame sport={sport} pool={pool} clubMode={clubMode} eligibleBriefs={eligibleBriefs} />;
 }
