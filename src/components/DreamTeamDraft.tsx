@@ -20,6 +20,14 @@ const minimumGroupPlayers = 8;
 const nationalityLimit = 10;
 const firstDraftDecade = 1950;
 const lastDraftDecade = 2020;
+
+function availableThreshold(poolSizes: number[], lineupSize: number) {
+  for (const threshold of [minimumGroupPlayers, 4]) {
+    const available = poolSizes.filter((size) => size >= threshold).reduce((total, size) => total + size, 0);
+    if (available >= lineupSize) return threshold;
+  }
+  return 1;
+}
 const eliteFootballRatings = new Set([
   'Lionel Messi', 'Cristiano Ronaldo', 'Pelé', 'Johan Cruyff', 'Michel Platini',
   'Marco van Basten', 'Ronaldo Nazário', 'Garrincha', 'Cafu',
@@ -44,10 +52,9 @@ function nationality(player: Player) {
   return rawNationality.split('/').map((value) => value.trim()).find((value) => footballNationSet.has(value)) ?? rawNationality;
 }
 
-function draftGroup(player: Player, sport: Sport, clubMode: boolean) {
+function draftGroup(player: Player, _sport: Sport, clubMode: boolean) {
   if (!clubMode) return nationality(player);
-  const rankedClubs = new Set(sport.teams.map((team) => team.name));
-  return rankedClubs.has(player.team) ? player.team : '';
+  return player.team;
 }
 
 function position(player: Player, sportId = '') {
@@ -290,6 +297,7 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
   const allPlayers = sport.draftPlayers ?? sport.quizPlayers ?? sport.players;
   const clubMode = clubDraftSports.has(sport.id) && sport.teams.length >= 10;
   const rankedNationalityMode = !clubMode && !individualDraftSports.has(sport.id);
+  const requiredLineupSize = sport.id === 'ufc' ? 1 : rosterSizes[sport.id] ?? 5;
   const countryPlayers = new Map<string, Player[]>();
   if (rankedNationalityMode) allPlayers.forEach((player) => {
     const decade = primaryDecade(player);
@@ -297,11 +305,12 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
     const country = nationality(player);
     countryPlayers.set(country, [...(countryPlayers.get(country) ?? []), player]);
   });
+  const countryThreshold = availableThreshold([...countryPlayers.values()].map((players) => players.length), requiredLineupSize);
   const eligibleCountries = new Set([...countryPlayers]
-    .filter(([, players]) => players.length >= minimumGroupPlayers)
+    .filter(([, players]) => players.length >= countryThreshold)
     .map(([country, players]) => ({
       country,
-      caliber: players.map((player) => playerRating(player, allPlayers.indexOf(player), allPlayers.length, sport.id)).sort((a, b) => b - a).slice(0, minimumGroupPlayers).reduce((total, rating) => total + rating, 0) / minimumGroupPlayers,
+      caliber: players.map((player) => playerRating(player, allPlayers.indexOf(player), allPlayers.length, sport.id)).sort((a, b) => b - a).slice(0, countryThreshold).reduce((total, rating) => total + rating, 0) / countryThreshold,
     }))
     .sort((a, b) => b.caliber - a.caliber)
     .slice(0, nationalityLimit)
@@ -315,7 +324,8 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
     const key = `${group}\u0000${decade}`;
     counts.set(key, (counts.get(key) ?? 0) + 1);
   });
-  const eligibleBriefs = [...counts].filter(([, count]) => count >= (clubMode ? minimumGroupPlayers : 1)).map(([key]) => {
+  const teamEraThreshold = clubMode ? availableThreshold([...counts.values()], requiredLineupSize) : 1;
+  const eligibleBriefs = [...counts].filter(([, count]) => count >= teamEraThreshold).map(([key]) => {
     const [group, decade] = key.split('\u0000');
     return { group, decade: Number(decade) };
   });
@@ -324,7 +334,7 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
   if (!pool.length) return <section className="draft-game draft-unavailable">
     <p className="eyebrow">DRAFT POOL REQUIREMENT</p>
     <h3>No eligible {clubMode ? 'teams' : 'nationalities'} yet</h3>
-    <p>{clubMode ? `Each team and era needs at least ${minimumGroupPlayers} players before it can enter the Dream Team Draft.` : rankedNationalityMode ? `Countries need at least ${minimumGroupPlayers} available athletes. The ${nationalityLimit} strongest eligible countries enter the draft.` : 'Every represented nationality can enter this individual-sport draft.'}</p>
+    <p>{clubMode ? `The draft prefers eight players per team and era, then uses the strongest available pool of at least four when the dataset is smaller.` : rankedNationalityMode ? `The draft prefers eight athletes per country, falls back to at least four when needed, and selects up to ${nationalityLimit} of the strongest eligible countries.` : 'Every represented nationality can enter this individual-sport draft.'}</p>
   </section>;
 
   return <DraftGame sport={sport} pool={pool} clubMode={clubMode} eligibleBriefs={eligibleBriefs} />;
