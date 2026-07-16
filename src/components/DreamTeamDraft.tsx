@@ -309,34 +309,33 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
   const clubMode = clubDraftSports.has(sport.id) && sport.teams.length >= 10;
   const rankedNationalityMode = !clubMode && !individualDraftSports.has(sport.id);
   const requiredLineupSize = sport.id === 'ufc' ? 1 : rosterSizes[sport.id] ?? 5;
-  const countryPlayers = new Map<string, Player[]>();
-  if (rankedNationalityMode) allPlayers.forEach((player) => {
+  const groupPlayers = new Map<string, Player[]>();
+  if (rankedNationalityMode || clubMode) allPlayers.forEach((player) => {
     const decade = primaryDecade(player);
     if (decade < firstDraftDecade || decade > lastDraftDecade) return;
-    const country = nationality(player);
-    countryPlayers.set(country, [...(countryPlayers.get(country) ?? []), player]);
+    const group = draftGroup(player, sport, clubMode);
+    if (group) groupPlayers.set(group, [...(groupPlayers.get(group) ?? []), player]);
   });
-  const countryThreshold = availableThreshold([...countryPlayers.values()].map((players) => players.length), requiredLineupSize);
-  const eligibleCountries = new Set([...countryPlayers]
-    .filter(([, players]) => players.length >= countryThreshold)
-    .map(([country, players]) => ({
-      country,
-      caliber: players.map((player) => playerRating(player, allPlayers.indexOf(player), allPlayers.length, sport.id)).sort((a, b) => b - a).slice(0, countryThreshold).reduce((total, rating) => total + rating, 0) / countryThreshold,
+  const groupThreshold = availableThreshold([...groupPlayers.values()].map((players) => players.length), requiredLineupSize);
+  const eligibleGroups = new Set([...groupPlayers]
+    .filter(([, players]) => players.length >= groupThreshold)
+    .map(([group, players]) => ({
+      group,
+      caliber: players.map((player) => playerRating(player, allPlayers.indexOf(player), allPlayers.length, sport.id)).sort((a, b) => b - a).slice(0, groupThreshold).reduce((total, rating) => total + rating, 0) / groupThreshold,
     }))
     .sort((a, b) => b.caliber - a.caliber)
-    .slice(0, nationalityLimit)
-    .map(({ country }) => country));
+    .slice(0, rankedNationalityMode ? nationalityLimit : groupPlayers.size)
+    .map(({ group }) => group));
   const counts = new Map<string, number>();
   allPlayers.forEach((player) => {
     const group = draftGroup(player, sport, clubMode);
-    if (!group || (rankedNationalityMode && !eligibleCountries.has(group))) return;
+    if (!group || ((rankedNationalityMode || clubMode) && !eligibleGroups.has(group))) return;
     const decade = primaryDecade(player);
     if (decade < firstDraftDecade || decade > lastDraftDecade) return;
     const key = `${group}\u0000${decade}`;
     counts.set(key, (counts.get(key) ?? 0) + 1);
   });
-  const teamEraThreshold = clubMode ? availableThreshold([...counts.values()], requiredLineupSize) : 1;
-  const eligibleBriefs = [...counts].filter(([, count]) => count >= teamEraThreshold).map(([key]) => {
+  const eligibleBriefs = [...counts].map(([key]) => {
     const [group, decade] = key.split('\u0000');
     return { group, decade: Number(decade) };
   });
