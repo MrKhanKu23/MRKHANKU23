@@ -69,12 +69,18 @@ function allowedSlots(player: Player, sportId: string, slots: LineupSlot[]) {
 
 function careerBounds(player: Player) {
   const values = player.years?.match(/\d{4}/g)?.map(Number) ?? [];
-  return { start: values[0] ?? 1980, end: player.years?.includes('present') ? 2029 : values[1] ?? values[0] ?? 1989 };
+  return { start: values[0] ?? 1980, end: player.years?.toLowerCase().includes('present') ? new Date().getFullYear() : values[1] ?? values[0] ?? 1989 };
 }
 
-function overlaps(player: Player, decade: number) {
+function primaryDecade(player: Player) {
   const { start, end } = careerBounds(player);
-  return start <= decade + 9 && end >= decade;
+  let bestDecade = Math.floor(start / 10) * 10;
+  let mostYears = 0;
+  for (let decade = bestDecade; decade <= Math.floor(end / 10) * 10; decade += 10) {
+    const years = Math.min(end, decade + 9) - Math.max(start, decade) + 1;
+    if (years > mostYears) { bestDecade = decade; mostYears = years; }
+  }
+  return bestDecade;
 }
 
 function randomFromSeed(seed: number) {
@@ -175,16 +181,8 @@ function DraftGame({ sport, pool, clubMode, eligibleBriefs }: { sport: Sport; po
   const choices = useMemo(() => {
     const used = new Set([...drafted, ...(firstTeam?.drafted ?? [])].map((player) => player.name));
     const unused = pool.filter((player) => !used.has(player.name) && allowedSlots(player, sport.id, slots).some((slot) => !assigned[slot]));
-    const exact = unused.filter((player) => draftGroup(player, sport, clubMode) === scoutingNation && overlaps(player, decade));
-    const sameNation = unused.filter((player) => draftGroup(player, sport, clubMode) === scoutingNation && !exact.includes(player));
-    const sameEra = unused.filter((player) => overlaps(player, decade) && !exact.includes(player));
-    const selections: Player[] = [];
-    const addWeighted = (group: Player[], salt: number) => {
-      const remaining = group.filter((player) => !selections.some((pick) => pick.name === player.name));
-      selections.push(...weightedSample(remaining, 4 - selections.length, ratings, choiceSeed + round * 997 + salt));
-    };
-    addWeighted(exact, 11); addWeighted(sameNation, 23); addWeighted(sameEra, 37); addWeighted(unused, 53);
-    return selections.slice(0, 4);
+    const exact = unused.filter((player) => draftGroup(player, sport, clubMode) === scoutingNation && primaryDecade(player) === decade);
+    return weightedSample(exact, 4, ratings, choiceSeed + round * 997 + 11);
   }, [assigned, choiceSeed, clubMode, decade, drafted, firstTeam, pool, ratings, round, scoutingNation, slots, sport]);
   const average = drafted.length ? Math.round(drafted.reduce((total, player) => total + (ratings.get(player.name) ?? 80), 0) / drafted.length) : 0;
   const teamNumber = firstTeam ? 2 : 1;
@@ -286,17 +284,14 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
   allPlayers.forEach((player) => {
     const group = draftGroup(player, sport, clubMode);
     if (!group) return;
-    const { start, end } = careerBounds(player);
-    for (let decade = Math.floor(start / 10) * 10; decade <= Math.floor(end / 10) * 10; decade += 10) {
-      const key = `${group}\u0000${decade}`;
-      counts.set(key, (counts.get(key) ?? 0) + 1);
-    }
+    const key = `${group}\u0000${primaryDecade(player)}`;
+    counts.set(key, (counts.get(key) ?? 0) + 1);
   });
   const eligibleBriefs = [...counts].filter(([, count]) => count >= requiredPlayers).map(([key]) => {
     const [group, decade] = key.split('\u0000');
     return { group, decade: Number(decade) };
   });
-  const pool = allPlayers.filter((player) => eligibleBriefs.some((brief) => draftGroup(player, sport, clubMode) === brief.group && overlaps(player, brief.decade)));
+  const pool = allPlayers.filter((player) => eligibleBriefs.some((brief) => draftGroup(player, sport, clubMode) === brief.group && primaryDecade(player) === brief.decade));
 
   if (!pool.length) return <section className="draft-game draft-unavailable">
     <p className="eyebrow">DRAFT POOL REQUIREMENT</p>
