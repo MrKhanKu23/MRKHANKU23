@@ -172,16 +172,22 @@ function DraftGame({ sport, pool, clubMode, eligibleBriefs }: { sport: Sport; po
   const complete = round >= teamSize;
   const ratings = useMemo(() => new Map(pool.map((player, index) => [player.name, playerRating(player, index, pool.length, sport.id)])), [pool, sport.id]);
   const briefOrder = useMemo(() => {
-    const briefs = [...eligibleBriefs];
+    const used = new Set([...drafted, ...(firstTeam?.drafted ?? [])].map((player) => player.name));
+    const briefs = eligibleBriefs.filter((brief) => pool.some((player) =>
+      !used.has(player.name)
+      && draftGroup(player, sport, clubMode) === brief.group
+      && primaryDecade(player) === brief.decade
+      && allowedSlots(player, sport.id, slots).some((slot) => !assigned[slot]),
+    ));
     for (let index = briefs.length - 1; index > 0; index -= 1) {
       const swapIndex = Math.floor(randomFromSeed(draftSeed + index * 71) * (index + 1));
       [briefs[index], briefs[swapIndex]] = [briefs[swapIndex], briefs[index]];
     }
     return briefs;
-  }, [draftSeed, eligibleBriefs]);
+  }, [assigned, clubMode, draftSeed, drafted, eligibleBriefs, firstTeam, pool, slots, sport]);
   const brief = briefOrder[(round + nationOffset) % briefOrder.length];
-  const scoutingNation = brief.group;
-  const decade = brief.decade;
+  const scoutingNation = brief?.group ?? '';
+  const decade = brief?.decade ?? firstDraftDecade;
   const choices = useMemo(() => {
     const used = new Set([...drafted, ...(firstTeam?.drafted ?? [])].map((player) => player.name));
     const unused = pool.filter((player) => !used.has(player.name) && allowedSlots(player, sport.id, slots).some((slot) => !assigned[slot]));
