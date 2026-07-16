@@ -24,3 +24,16 @@ button,a,input{touch-action:manipulation}
 @media(max-width:380px){
   .hero h1{font-size:40px}.section-heading h2{font-size:27px}.game-actions{grid-template-columns:1fr}.rank-card{padding:10px}.rank-info h3{font-size:14px}.formation-row{gap:2px}.formation-row button{width:16vw}.leaderboards li span{display:none}
 }
+
+@media(max-width:600px) and (orientation:portrait){
+  .section-heading,.draft-header,.quiz-top{flex-direction:column;align-items:stretch}
+  .draft-score{align-self:flex-start}.rank-card{display:grid;grid-template-columns:auto auto minmax(0,1fr)}.rank-card .rank{grid-row:1}.rank-card .badge{grid-row:1}.rank-card .rank-info{grid-row:1}.rank-card>strong{grid-column:3;display:block;text-align:left}
+  .sport-site-grid a{display:grid;grid-template-columns:auto minmax(0,1fr) auto}.fact-results>button{display:grid;grid-template-columns:auto minmax(0,1fr)}
+  .leaderboards li{display:grid;grid-template-columns:auto minmax(0,1fr) auto}.leaderboards li::before{grid-row:1}.leaderboards li strong{grid-row:1}.leaderboards li b{grid-row:1}.leaderboards li span{grid-column:2/4}
+}
+
+@media(max-height:520px) and (orientation:landscape){
+  .hero{min-height:auto;padding:16px 24px 24px}.hero-copy{margin-top:24px;max-width:760px}.hero h1{font-size:42px;margin:10px 0}.hero-copy>p:not(.kicker){font-size:14px}.search{margin-top:14px}.sport-scene,.hero-number{display:none}
+  .dashboard{padding:28px 24px 55px}.profile-backdrop{align-items:center;padding:12px}.profile-modal{max-height:94dvh;border-radius:16px}.profile-identity{flex-direction:row}.profile-stats{grid-template-columns:1fr 1fr}
+  .draft-choices{grid-template-columns:repeat(2,1fr)}.draft-choices>button{min-height:190px}.leaderboards{grid-template-columns:1fr 1fr}.sport-site-grid{grid-template-columns:repeat(2,1fr)}
+}
