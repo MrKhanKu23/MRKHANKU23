@@ -5,6 +5,7 @@ import { LandingPage } from './pages/LandingPage';
 import { SportPage } from './pages/SportPage';
 import './components/BlueWhiteTheme.css';
 import './components/SportLinks.css';
+import './components/Mobile.css';
 
 export default function App() {
   const [catalog, setCatalog] = useState<Sport[]>(sports);
