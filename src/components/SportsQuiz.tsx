@@ -66,7 +66,7 @@ export function SportsQuiz({ sport }: { sport: Sport }) {
     setFinished(true);
     try {
       const saved = await saveQuizScore(sport.id, difficulty, score, quizLength);
-      setSaveMessage(saved ? 'Score saved to your account.' : 'Sign in above to save this score.');
+      setSaveMessage(saved === 'saved' ? 'Score saved to your account.' : saved === 'duplicate' ? 'You already saved this score.' : 'Sign in above to save this score.');
     } catch { setSaveMessage('The score could not be saved. Try again.'); }
   }
 

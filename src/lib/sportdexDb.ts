@@ -44,11 +44,12 @@ export async function updateNickname(nickname: string) {
 }
 
 export async function saveQuizScore(sportId: string, difficulty: string, score: number, rounds: number) {
-  if (!(await signedIn())) return false;
+  if (!(await signedIn())) return 'signed-out' as const;
   const { error } = await supabase.from('quiz_scores').insert({ sport_id: sportId, difficulty, score, rounds });
+  if (error?.code === '23505') return 'duplicate' as const;
   if (error) throw error;
   window.dispatchEvent(new Event('leaderboard-updated'));
-  return true;
+  return 'saved' as const;
 }
 
 export async function saveDreamTeam(sportId: string, overall: number, players: Player[]) {
