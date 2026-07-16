@@ -9,7 +9,7 @@ import type { Sport } from '../lib/sportsData';
 
 type View = 'rankings' | 'quiz' | 'draft';
 
-export function SportPage({ sport, sports }: { sport: Sport; sports: Sport[] }) {
+export function SportPage({ sport }: { sport: Sport }) {
   const [query, setQuery] = useState('');
   const [tab, setTab] = useState<'teams' | 'players'>('teams');
   const [view, setView] = useState<View>('rankings');
@@ -20,8 +20,8 @@ export function SportPage({ sport, sports }: { sport: Sport; sports: Sport[] }) 
   }, [query, sport]);
 
   return <main className="sport-app" data-sport={sport.id} style={{ '--accent': sport.accent } as React.CSSProperties}>
-    <a className="sport-home-link" href="/">← All sports</a>
-    <SearchHero sport={sport} sports={sports} query={query} onQuery={setQuery} onSport={(next) => { window.location.href = `/sports/${next.id}`; }} />
+    <a className="sport-home-link" href="/">← Back to all sports</a>
+    <SearchHero sport={sport} query={query} onQuery={setQuery} />
     <section className="dashboard" id={sport.id}>
       <AccountPanel />
       <div className="section-heading"><div><p className="eyebrow">ALL-TIME RECORD BOOK</p><h2>{sport.icon} {sport.name} hub</h2><p>Ranked by major titles, championships, medals and official records.</p></div>

@@ -15,5 +15,5 @@ export default function App() {
 
   if (!sportId) return <LandingPage sports={catalog} />;
   if (!sport) return <main className="landing-page"><section className="landing-hero"><p className="eyebrow">404</p><h1>Sport not found.</h1><a href="/">← Return to all sports</a></section></main>;
-  return <SportPage sport={sport} sports={catalog} />;
+  return <SportPage sport={sport} />;
 }

@@ -1,5 +1,6 @@
 html,body,#root{max-width:100%;overflow-x:hidden}
 button,a,input{touch-action:manipulation}
+.sport-home-link{align-items:center;min-height:44px;padding:10px 16px;border:1px solid #1677ff66;border-radius:8px;background:#071a31;color:#fff}.sport-home-link:hover{border-color:#1677ff;background:#0b284c}
 
 @media(max-width:600px){
   .sport-home-link{margin:14px 16px 0;font-size:14px}

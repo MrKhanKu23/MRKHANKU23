@@ -1,9 +1,9 @@
 import type { Sport } from '../lib/sportsData';
 import './SportBackground.css';
 
-type Props = { sport: Sport; sports: Sport[]; query: string; onQuery: (value: string) => void; onSport: (sport: Sport) => void };
+type Props = { sport: Sport; query: string; onQuery: (value: string) => void };
 
-export function SearchHero({ sport, sports, query, onQuery, onSport }: Props) {
+export function SearchHero({ sport, query, onQuery }: Props) {
   return <header className="hero sport-background" data-sport={sport.id} style={{ '--accent': sport.accent } as React.CSSProperties}>
     <nav><a className="brand" href="#top"><span>SP</span>ORTDEX</a><span className="live"><i /> ALL-TIME EDITION</span></nav>
     <div className="hero-copy">
@@ -11,7 +11,6 @@ export function SearchHero({ sport, sports, query, onQuery, onSport }: Props) {
       <h1>Know the game.<br /><em>Own the stats.</em></h1>
       <p>Search a sport. Meet the teams. Learn the stars. Then prove what you know.</p>
       <label className="search"><span>⌕</span><input value={query} onChange={(event) => onQuery(event.target.value)} placeholder={`Search ${sport.name.toLowerCase()} teams or players...`} /></label>
-      <div className="sport-pills">{sports.map((item) => <a key={item.id} href={`/sports/${item.id}`} className={item.id === sport.id ? 'selected' : ''} onClick={(event) => { event.preventDefault(); onSport(item); }}>{item.icon} {item.name}</a>)}</div>
     </div>
     <div className="sport-scene" aria-hidden="true"><span>{sport.icon}</span></div>
     <div className="hero-number">10</div>
