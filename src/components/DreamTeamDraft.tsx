@@ -149,13 +149,24 @@ function highTierRating(player: Player, baseRating: number) {
   return Math.min(95, 90 + skillPoints + trophyPoints);
 }
 
+function recentFormBonus(player: Player) {
+  if (player.status !== 'active') return 0;
+  const record = `${player.stat} ${(player.honours ?? []).join(' ')}`.toLowerCase();
+  const nearlyWon = ['runner-up', 'runner up', 'finalist', 'second place', 'title race'].some((term) => record.includes(term));
+  const standoutForm = ['mvp', 'golden boot', 'record', 'standout', 'player of the'].some((term) => record.includes(term));
+  return 1 + (nearlyWon ? 1 : 0) + (standoutForm ? 1 : 0);
+}
+
 function playerRating(player: Player, index: number, poolSize: number, sportId: string) {
   const baseRating = player.rating ?? 100 - Math.round(index * 20 / Math.max(poolSize - 1, 1));
-  if (sportId !== 'football') return baseRating;
-  if (baseRating >= 96 && eliteFootballRatings.has(player.name)) return baseRating;
-  if (baseRating >= 90 && highFootballRatings.has(player.name)) return highTierRating(player, baseRating);
-  if (exceptionalSkillRatings[player.name]) return highTierRating(player, Math.max(baseRating, exceptionalSkillRatings[player.name]));
-  return lowerTierRating(player, baseRating);
+  const formBonus = recentFormBonus(player);
+  if (sportId !== 'football') return Math.min(100, baseRating + formBonus);
+  const historicalRating = baseRating >= 96 && eliteFootballRatings.has(player.name) ? baseRating
+    : baseRating >= 90 && highFootballRatings.has(player.name) ? highTierRating(player, baseRating)
+      : exceptionalSkillRatings[player.name] ? highTierRating(player, Math.max(baseRating, exceptionalSkillRatings[player.name]))
+        : lowerTierRating(player, baseRating);
+  const maximum = eliteFootballRatings.has(player.name) ? 100 : 95;
+  return Math.min(maximum, historicalRating + formBonus);
 }
 
 type EligibleBrief = { group: string; decade: number };
