@@ -3,6 +3,16 @@ import type { Player } from './sportsData';
 const makePlayers = (rows: string[][]): Player[] => rows.map(([name, detail, stat, badge, team]) => ({ name, detail, stat, badge, team }));
 
 export const additionalQuizPlayers: Record<string, Player[]> = {
+  fortnite: makePlayers([
+    ['MrSavage', 'Fragger · Norway', 'DreamHack Anaheim champion', 'MS', '100 Thieves'], ['Benjyfishy', 'Fragger · Great Britain', 'World Cup finalist and FNCS finalist', 'BEN', 'NRG'],
+    ['Clix', 'Fragger · USA', 'Multiple FNCS finals', 'CLX', 'XSET'], ['Rehx', 'Fragger · USA', 'Multiple FNCS titles', 'RHX', 'North America'],
+    ['Setty', 'IGL · Poland', 'DreamHack and FNCS champion', 'SET', 'Europe'], ['Malibuca', 'Fragger · Russia', 'FNCS champion', 'MAL', 'Europe'],
+  ]),
+  'counter-strike-2': makePlayers([
+    ['karrigan', 'IGL · Denmark', 'Major champion and Intel Grand Slam winner', 'KAR', 'FaZe Clan'], ['apEX', 'IGL · France', 'Two Major championships', 'APX', 'Team Vitality'],
+    ['electroNic', 'Rifler · Russia', 'Major champion and Intel Grand Slam winner', 'ELC', 'Russia'], ['Twistzz', 'Rifler · Canada', 'Two Major championships', 'TWZ', 'Team Liquid'],
+    ['f0rest', 'Rifler · Sweden', 'Major champion and Counter-Strike legend', 'F0R', 'Ninjas in Pyjamas'], ['olofmeister', 'Rifler · Sweden', 'Two Major championships', 'OLF', 'FaZe Clan'],
+  ]),
   football: makePlayers([
     ['Ronaldinho', 'Attacking Midfielder · Brazil', '2005 Ballon d’Or', 'R10', 'Brazil'], ['Paolo Maldini', 'Defender · Italy', '5 European Cups', 'PM', 'AC Milan'],
     ['Garrincha', 'Winger · Brazil', '2 World Cup titles', 'GAR', 'Brazil'], ['Xavi Hernández', 'Midfielder · Spain', 'World Cup and 2 Euros', 'XH', 'Barcelona'],

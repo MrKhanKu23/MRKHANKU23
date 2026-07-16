@@ -8,13 +8,14 @@ import { lineupSlots, type LineupSlot } from '../lib/lineupSlots';
 import { saveDreamTeam } from '../lib/sportdexDb';
 
 const rosterSizes: Record<string, number> = {
+  fortnite: 4, 'counter-strike-2': 5,
   football: 11, basketball: 5, tennis: 2, f1: 2, baseball: 9,
   'american-football': 11, ufc: 2, swimming: 2, volleyball: 6, 'track-sprint': 4,
 };
 
 const footballNations = ['Spain', 'Italy', 'France', 'Argentina', 'Portugal', 'Germany', 'Netherlands', 'Brazil', 'Morocco', 'England', 'Norway', 'Cape Verde', 'Japan'];
 const footballNationSet = new Set(footballNations);
-const clubDraftSports = new Set(['football', 'basketball', 'baseball', 'american-football']);
+const clubDraftSports = new Set(['football', 'basketball', 'baseball', 'american-football', 'counter-strike-2']);
 const individualDraftSports = new Set(['f1', 'swimming', 'ufc']);
 const minimumGroupPlayers = 8;
 const nationalityLimit = 10;

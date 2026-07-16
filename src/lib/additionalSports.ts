@@ -4,6 +4,32 @@ const teams = (rows: string[][]): RankedItem[] => rows.map(([name, detail, stat,
 const players = (rows: string[][]): Player[] => rows.map(([name, detail, stat, badge, team]) => ({ name, detail, stat, badge, team }));
 
 export const additionalSports: Sport[] = [
+  { id: 'fortnite', name: 'Fortnite', icon: '🎮', accent: '#8b5cf6', teams: teams([
+    ['Team Falcons', 'Fortnite esports', 'Global championship contenders', 'FLC'], ['Dignitas', 'Fortnite esports', 'Multiple elite players', 'DIG'],
+    ['Karmine Corp', 'Fortnite esports', 'European title contenders', 'KC'], ['Gentle Mates', 'Fortnite esports', 'European champions', 'M8'],
+    ['Twisted Minds', 'Fortnite esports', 'International contenders', 'TM'], ['XSET', 'Fortnite esports', 'North American champions', 'XSET'],
+    ['Team Liquid', 'Fortnite esports', 'Global esports organization', 'TL'], ['NRG', 'Fortnite esports', 'North American legacy', 'NRG'],
+    ['FaZe Clan', 'Fortnite esports', 'International esports legacy', 'FAZE'], ['100 Thieves', 'Fortnite esports', 'North American contenders', '100T'],
+  ]), players: players([
+    ['Bugha', 'Fragger · USA', '2019 Fortnite World Cup Solo champion', 'BUG', 'Dignitas'], ['Aqua', 'IGL · Austria', '2019 Fortnite World Cup Duos champion', 'AQU', 'Europe'],
+    ['Mero', 'Fragger · Canada', 'Multiple FNCS titles', 'MER', 'Dignitas'], ['Tayson', 'IGL · Slovenia', 'Multiple FNCS titles', 'TAY', 'Team Falcons'],
+    ['Peterbot', 'Fragger · USA', 'FNCS Global Championship winner', 'PET', 'Team Falcons'], ['Pollo', 'Support · Mexico', 'FNCS Global Championship winner', 'POL', 'Team Falcons'],
+    ['Queasy', 'IGL · Serbia', 'Multiple FNCS titles', 'QUE', 'Europe'], ['Veno', 'Fragger · Great Britain', 'FNCS champion', 'VEN', 'Europe'],
+    ['EpikWhale', 'Fragger · USA', 'World Cup podium and FNCS titles', 'EPI', 'North America'], ['Kami', 'IGL · Poland', 'FNCS Invitational champion', 'KAM', 'Gentle Mates'],
+  ]) },
+  { id: 'counter-strike-2', name: 'Counter-Strike 2', icon: '🎯', accent: '#f59e0b', teams: teams([
+    ['Natus Vincere', 'Counter-Strike · Europe', 'Multiple Major championships', 'NAVI'], ['Astralis', 'Counter-Strike · Denmark', 'Record four Major championships', 'AST'],
+    ['Team Vitality', 'Counter-Strike · Europe', 'Major champions', 'VIT'], ['Team Spirit', 'Counter-Strike · Europe', 'Major champions', 'TS'],
+    ['FaZe Clan', 'Counter-Strike · International', 'Major champions', 'FAZE'], ['G2 Esports', 'Counter-Strike · Europe', 'Multiple elite event titles', 'G2'],
+    ['MOUZ', 'Counter-Strike · Europe', 'International title contenders', 'MOUZ'], ['FURIA', 'Counter-Strike · Brazil', 'Brazilian championship contenders', 'FUR'],
+    ['Team Liquid', 'Counter-Strike · Americas', 'Intel Grand Slam champions', 'TL'], ['Ninjas in Pyjamas', 'Counter-Strike · Sweden', 'Historic Major champions', 'NIP'],
+  ]), players: players([
+    ['s1mple', 'AWPer · Ukraine', 'Major champion and multiple player-of-year awards', 'S1', 'Natus Vincere'], ['dev1ce', 'AWPer · Denmark', 'Four Major championships', 'DEV', 'Astralis'],
+    ['ZywOo', 'AWPer · France', 'Major champion and multiple player-of-year awards', 'ZYW', 'Team Vitality'], ['donk', 'Rifler · Russia', 'Major MVP and record rookie impact', 'DNK', 'Team Spirit'],
+    ['NiKo', 'Rifler · Bosnia and Herzegovina', 'Multiple elite event MVP awards', 'NIKO', 'Team Falcons'], ['coldzera', 'Rifler · Brazil', 'Two Major championships', 'CLD', 'Brazil'],
+    ['GeT_RiGhT', 'Lurker · Sweden', 'Major champion and two player-of-year awards', 'GTR', 'Ninjas in Pyjamas'], ['dupreeh', 'Entry fragger · Denmark', 'Five Major championships', 'DUP', 'Europe'],
+    ['ropz', 'Lurker · Estonia', 'Major champion and Intel Grand Slam winner', 'ROPZ', 'Team Vitality'], ['m0NESY', 'AWPer · Russia', 'Multiple elite event MVP awards', 'M0N', 'G2 Esports'],
+  ]) },
   { id: 'f1', name: 'Formula 1', icon: '🏎️', accent: '#ff3b30', teams: teams([
     ['Ferrari', 'Constructors’ Championship', '16 world titles', 'FER'], ['Williams', 'Constructors’ Championship', '9 world titles', 'WIL'],
     ['McLaren', 'Constructors’ Championship', '9+ world titles', 'MCL'], ['Mercedes', 'Constructors’ Championship', '8 world titles', 'MER'],

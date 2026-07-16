@@ -91,6 +91,7 @@ const retiredPlayers = new Set([
   'Karch Kiraly', 'Giba', 'Sergio Santos', 'Regla Torres', 'Lang Ping', 'Lorenzo Bernardi', 'Sergey Tetyukhin', 'Mireya Luis', 'Andrea Giani',
   'Usain Bolt', 'Michael Johnson', 'Allyson Felix', 'Florence Griffith Joyner', 'Wayde van Niekerk', 'Marie-José Pérec', 'Carl Lewis', 'Marita Koch',
   'Yohan Blake', 'Donovan Bailey', 'Maurice Greene', 'Jeremy Wariner', 'Sanya Richards-Ross', 'Veronica Campbell-Brown',
+  'Benjyfishy', 'GeT_RiGhT',
 ]);
 
 function withStatus(player: Player): Player {

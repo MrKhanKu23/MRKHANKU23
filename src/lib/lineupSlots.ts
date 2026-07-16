@@ -1,6 +1,8 @@
 export type LineupSlot = { id: string; label: string; row: number };
 
 export const lineupSlots: Record<string, LineupSlot[]> = {
+  fortnite: ['P1','P2','P3','P4'].map((id) => ({ id, label: `Player ${id.slice(1)}`, row: 1 })),
+  'counter-strike-2': ['IGL','AWP','RIF1','RIF2','SUP'].map((id, index) => ({ id, label: id, row: index < 2 ? 1 : 2 })),
   football: [
     { id: 'LW', label: 'LW', row: 1 }, { id: 'ST', label: 'ST', row: 1 }, { id: 'RW', label: 'RW', row: 1 },
     { id: 'LM', label: 'LM', row: 2 }, { id: 'LCM', label: 'LCM', row: 2 }, { id: 'RCM', label: 'RCM', row: 2 }, { id: 'RM', label: 'RM', row: 2 },
