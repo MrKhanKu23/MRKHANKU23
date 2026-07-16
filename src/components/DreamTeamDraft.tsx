@@ -109,7 +109,7 @@ function weightedSample(players: Player[], count: number, ratings: Map<string, n
   while (available.length && selected.length < count) {
     const weights = available.map((player) => {
       const rating = ratings.get(player.name) ?? 80;
-      return Math.pow(101 - rating, 2.25);
+      return Math.pow(101 - rating, 2.05);
     });
     const total = weights.reduce((sum, weight) => sum + weight, 0);
     let target = randomFromSeed(seed + selected.length * 97) * total;
