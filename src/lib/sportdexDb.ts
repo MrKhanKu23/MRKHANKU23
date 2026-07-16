@@ -5,7 +5,17 @@ export async function loadSportsCatalog(fallback: Sport[]) {
   const { data, error } = await supabase.from('sports_catalog').select('payload').order('sport_id');
   if (error || !data?.length) return fallback;
   const byId = new Map(data.map((row) => [(row.payload as Sport).id, row.payload as Sport]));
-  return fallback.map((sport) => byId.get(sport.id) ?? sport);
+  return fallback.map((sport) => {
+    const stored = byId.get(sport.id);
+    if (!stored) return sport;
+    const localPlayers = new Map(sport.players.map((player) => [player.name, player]));
+    return {
+      ...stored,
+      players: stored.players.map((player) => ({ ...player, ...localPlayers.get(player.name) })),
+      quizPlayers: sport.quizPlayers,
+      draftPlayers: sport.draftPlayers,
+    };
+  });
 }
 
 async function signedIn() {

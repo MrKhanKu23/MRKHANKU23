@@ -29,7 +29,7 @@ export function ProfileModal({ sport, type, item, rank, onClose }: Props) {
       <div className="profile-stats">
         <article className="trophy-list"><span>🏆 NAMED TROPHIES & RECORDS</span><ul>{(item.honours ?? [item.stat]).map((honour) => <li key={honour}>{honour}</li>)}</ul></article>
         <article><span>ALL-TIME SPORTDEX RANK</span><strong>#{rank}</strong></article>
-        {player && <article><span>{player.status === 'retired' ? 'CAREER TEAM / NATION' : 'CURRENT / MOST RECENT TEAM'}</span><strong>{player.status === 'retired' ? 'Retired' : player.team}</strong>{player.status === 'retired' && <small>{player.team}</small>}</article>}
+        {player && <article><span>{player.status === 'retired' ? 'CAREER / MOST RECENT TEAM' : 'CURRENT TEAM / ACTIVE YEARS'}</span><strong>{player.status === 'retired' ? 'Retired' : player.currentTeam ?? player.team}</strong><small>{player.status === 'retired' ? `${player.team} · ${player.years}` : player.teamYears ?? player.years?.replace('present', 'current')}</small></article>}
         {!player && <article><span>COMPETITION / REGION</span><strong>{item.detail}</strong></article>}
       </div>
       <p className="profile-note">Profiles summarize the all-time record used in this ranking. Active-team information reflects the latest curated Sportdex roster.</p>

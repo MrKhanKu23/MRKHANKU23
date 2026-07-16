@@ -6,9 +6,10 @@ import { footballDraftPlayers } from './footballDraftPlayers';
 import { footballClubPlayers } from './footballClubPlayers';
 import { basketballClubPlayers } from './basketballClubPlayers';
 import { baseballClubPlayers } from './baseballClubPlayers';
+import { currentTeams } from './currentTeams';
 
 export type RankedItem = { name: string; detail: string; stat: string; badge: string; honours?: string[] };
-export type Player = RankedItem & { team: string; status?: 'active' | 'retired'; years?: string; rating?: number };
+export type Player = RankedItem & { team: string; status?: 'active' | 'retired'; years?: string; rating?: number; currentTeam?: string; teamYears?: string };
 export type Sport = {
   id: string;
   name: string;
@@ -93,7 +94,15 @@ const retiredPlayers = new Set([
 ]);
 
 function withStatus(player: Player): Player {
-  return { ...player, status: retiredPlayers.has(player.name) ? 'retired' : 'active', years: careerYears[player.name] ?? 'Career years unavailable' };
+  const status = retiredPlayers.has(player.name) ? 'retired' : 'active';
+  const current = status === 'active' ? currentTeams[player.name] : undefined;
+  return {
+    ...player,
+    status,
+    years: careerYears[player.name] ?? 'Career years unavailable',
+    currentTeam: current?.team,
+    teamYears: current ? `${current.joined}–current` : careerYears[player.name]?.replace('present', 'current'),
+  };
 }
 
 export const sports: Sport[] = rankedSports.map((sport) => {
