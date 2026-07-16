@@ -1,0 +1,14 @@
+import { clubSquad } from './clubDraftData';
+
+export const baseballClubPlayers = [
+  ...clubSquad('New York Yankees','2010s',[['Derek Jeter','Shortstop'],['Mariano Rivera','Pitcher'],['Alex Rodriguez','Third base'],['Robinson Canó','Second base'],['CC Sabathia','Pitcher'],['Mark Teixeira','First base'],['Brett Gardner','Left field'],['Jorge Posada','Catcher']]),
+  ...clubSquad('St. Louis Cardinals','2000s',[['Albert Pujols','First base'],['Yadier Molina','Catcher'],['Adam Wainwright','Pitcher'],['Chris Carpenter','Pitcher'],['Scott Rolen','Third base'],['Jim Edmonds','Center field'],['David Eckstein','Shortstop'],['Matt Holliday','Left field']]),
+  ...clubSquad('Boston Red Sox','2000s',[['David Ortiz','Designated hitter'],['Pedro Martínez','Pitcher'],['Manny Ramirez','Left field'],['Jason Varitek','Catcher'],['Dustin Pedroia','Second base'],['Kevin Youkilis','First base'],['Johnny Damon','Center field'],['Curt Schilling','Pitcher']]),
+  ...clubSquad('Athletics','2000s',[['Miguel Tejada','Shortstop'],['Jason Giambi','First base'],['Eric Chavez','Third base'],['Tim Hudson','Pitcher'],['Barry Zito','Pitcher'],['Mark Mulder','Pitcher'],['Jermaine Dye','Right field'],['Ramon Hernandez','Catcher']]),
+  ...clubSquad('Los Angeles Dodgers','2020s',[['Mookie Betts','Right field'],['Freddie Freeman','First base'],['Clayton Kershaw','Pitcher'],['Shohei Ohtani','Designated hitter'],['Will Smith','Catcher'],['Max Muncy','Third base'],['Teoscar Hernández','Left field'],['Walker Buehler','Pitcher']]),
+  ...clubSquad('San Francisco Giants','2010s',[['Buster Posey','Catcher'],['Madison Bumgarner','Pitcher'],['Brandon Crawford','Shortstop'],['Brandon Belt','First base'],['Pablo Sandoval','Third base'],['Tim Lincecum','Pitcher'],['Matt Cain','Pitcher'],['Hunter Pence','Right field']]),
+  ...clubSquad('Cincinnati Reds','1970s',[['Johnny Bench','Catcher'],['Pete Rose','Third base'],['Joe Morgan','Second base'],['Tony Pérez','First base'],['Dave Concepción','Shortstop'],['George Foster','Left field'],['Ken Griffey Sr.','Right field'],['César Gerónimo','Center field']]),
+  ...clubSquad('Pittsburgh Pirates','1970s',[['Roberto Clemente','Right field'],['Willie Stargell','Left field'],['Dave Parker','Right field'],['Al Oliver','Center field'],['Manny Sanguillén','Catcher'],['Bill Mazeroski','Second base'],['Dock Ellis','Pitcher'],['Kent Tekulve','Pitcher']]),
+  ...clubSquad('Atlanta Braves','1990s',[['Chipper Jones','Third base'],['Greg Maddux','Pitcher'],['Tom Glavine','Pitcher'],['John Smoltz','Pitcher'],['Andruw Jones','Center field'],['Javy López','Catcher'],['Fred McGriff','First base'],['David Justice','Right field']]),
+  ...clubSquad('Detroit Tigers','1980s',[['Alan Trammell','Shortstop'],['Lou Whitaker','Second base'],['Jack Morris','Pitcher'],['Kirk Gibson','Right field'],['Lance Parrish','Catcher'],['Chet Lemon','Center field'],['Darrell Evans','First base'],['Willie Hernández','Pitcher']]),
+];

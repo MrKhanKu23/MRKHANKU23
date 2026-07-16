@@ -1,0 +1,14 @@
+import { clubSquad } from './clubDraftData';
+
+export const footballClubPlayers = [
+  ...clubSquad('Real Madrid','2020s',[['Jude Bellingham','Midfielder'],['Toni Kroos','Midfielder'],['Vinícius Júnior','Winger'],['Luka Modrić','Midfielder'],['Thibaut Courtois','Goalkeeper'],['Dani Carvajal','Defender'],['Federico Valverde','Midfielder'],['Rodrygo','Forward']]),
+  ...clubSquad('Bayern Munich','2020s',[['Harry Kane','Forward'],['Thomas Müller','Forward'],['Manuel Neuer','Goalkeeper'],['Joshua Kimmich','Midfielder'],['Jamal Musiala','Midfielder'],['Leroy Sané','Winger'],['Alphonso Davies','Defender'],['Leon Goretzka','Midfielder']]),
+  ...clubSquad('Liverpool','2020s',[['Mohamed Salah','Winger'],['Virgil van Dijk','Defender'],['Alisson Becker','Goalkeeper'],['Trent Alexander-Arnold','Defender'],['Andrew Robertson','Defender'],['Sadio Mané','Winger'],['Roberto Firmino','Forward'],['Jordan Henderson','Midfielder']]),
+  ...clubSquad('Barcelona','2020s',[['Robert Lewandowski','Forward'],['Pedri','Midfielder'],['Gavi','Midfielder'],['Lamine Yamal','Winger'],['Raphinha','Winger'],['Marc-André ter Stegen','Goalkeeper'],['Ronald Araújo','Defender'],['Frenkie de Jong','Midfielder']]),
+  ...clubSquad('Inter Milan','2020s',[['Lautaro Martínez','Forward'],['Nicolò Barella','Midfielder'],['Hakan Çalhanoğlu','Midfielder'],['Alessandro Bastoni','Defender'],['Federico Dimarco','Defender'],['Marcus Thuram','Forward'],['Yann Sommer','Goalkeeper'],['Henrikh Mkhitaryan','Midfielder']]),
+  ...clubSquad('Manchester City','2020s',[['Erling Haaland','Forward'],['Kevin De Bruyne','Midfielder'],['Rodri','Midfielder'],['Phil Foden','Midfielder'],['Bernardo Silva','Midfielder'],['Rúben Dias','Defender'],['Ederson','Goalkeeper'],['İlkay Gündoğan','Midfielder']]),
+  ...clubSquad('Arsenal','2020s',[['Bukayo Saka','Winger'],['Martin Ødegaard','Midfielder'],['Declan Rice','Midfielder'],['William Saliba','Defender'],['Gabriel Martinelli','Winger'],['Kai Havertz','Forward'],['Gabriel Magalhães','Defender'],['David Raya','Goalkeeper']]),
+  ...clubSquad('Atlético Madrid','2020s',[['Antoine Griezmann','Forward'],['Jan Oblak','Goalkeeper'],['Koke','Midfielder'],['Rodrigo de Paul','Midfielder'],['Álvaro Morata','Forward'],['José María Giménez','Defender'],['Marcos Llorente','Midfielder'],['Ángel Correa','Forward']]),
+  ...clubSquad('Paris Saint-Germain','2020s',[['Kylian Mbappé','Forward'],['Neymar','Winger'],['Lionel Messi','Forward'],['Achraf Hakimi','Defender'],['Marquinhos','Defender'],['Gianluigi Donnarumma','Goalkeeper'],['Marco Verratti','Midfielder'],['Ousmane Dembélé','Winger']]),
+  ...clubSquad('Bayer Leverkusen','2020s',[['Florian Wirtz','Midfielder'],['Granit Xhaka','Midfielder'],['Victor Boniface','Forward'],['Jeremie Frimpong','Defender'],['Álex Grimaldo','Defender'],['Jonathan Tah','Defender'],['Exequiel Palacios','Midfielder'],['Lukáš Hrádecký','Goalkeeper']]),
+];
