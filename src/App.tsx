@@ -1,98 +1,18 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Rankings } from './components/Rankings';
-import { SearchHero } from './components/SearchHero';
-import { SportsQuiz } from './components/SportsQuiz';
-import { DreamTeamDraft } from './components/DreamTeamDraft';
-import { AccountPanel } from './components/AccountPanel';
+import { useEffect, useState } from 'react';
 import { sports, type Sport } from './lib/sportsData';
 import { loadSportsCatalog } from './lib/sportdexDb';
+import { LandingPage } from './pages/LandingPage';
+import { SportPage } from './pages/SportPage';
 import './components/BlueWhiteTheme.css';
 import './components/SportLinks.css';
 
 export default function App() {
   const [catalog, setCatalog] = useState<Sport[]>(sports);
-  const [sport, setSport] = useState<Sport>(sports[0]);
-  const [query, setQuery] = useState('');
-  const [tab, setTab] = useState<'teams' | 'players'>('teams');
-  const [view, setView] = useState<'rankings' | 'quiz' | 'draft'>('rankings');
+  useEffect(() => { loadSportsCatalog(sports).then(setCatalog); }, []);
+  const sportId = window.location.pathname.match(/^\/sports\/([^/]+)\/?$/)?.[1];
+  const sport = catalog.find((item) => item.id === sportId);
 
-  useEffect(() => {
-    loadSportsCatalog(sports).then((loaded) => {
-      setCatalog(loaded);
-      setSport(loaded.find((item) => item.id === window.location.hash.slice(1)) ?? loaded[0]);
-    });
-  }, []);
-
-  useEffect(() => {
-    function followSportLink() {
-      const linkedSport = catalog.find((item) => item.id === window.location.hash.slice(1));
-      if (linkedSport) { setSport(linkedSport); setQuery(''); setView('rankings'); }
-    }
-    window.addEventListener('hashchange', followSportLink);
-    return () => window.removeEventListener('hashchange', followSportLink);
-  }, [catalog]);
-
-  const filtered = useMemo(() => {
-    const value = query.trim().toLowerCase();
-    if (!value) return sport;
-    return {
-      ...sport,
-      teams: sport.teams.filter((team) => team.name.toLowerCase().includes(value)),
-      players: sport.players.filter((player) =>
-        `${player.name} ${player.team}`.toLowerCase().includes(value),
-      ),
-    };
-  }, [query, sport]);
-
-  function chooseSport(next: Sport) {
-    setSport(next);
-    setQuery('');
-    setView('rankings');
-    window.history.pushState(null, '', `#${next.id}`);
-    window.setTimeout(() => document.getElementById(next.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0);
-  }
-
-  return (
-    <main className="sport-app" data-sport={sport.id} style={{ '--accent': sport.accent } as React.CSSProperties}>
-      <SearchHero
-        sport={sport}
-        sports={catalog}
-        query={query}
-        onQuery={setQuery}
-        onSport={chooseSport}
-      />
-      <section className="dashboard" id={sport.id}>
-        <AccountPanel />
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">ALL-TIME RECORD BOOK</p>
-            <h2>{sport.icon} {sport.name} hub</h2>
-            <p>Ranked by major titles, championships, medals and official records.</p>
-          </div>
-          <div className="game-actions">
-            <button className="quiz-button" onClick={() => setView(view === 'quiz' ? 'rankings' : 'quiz')}>{view === 'quiz' ? 'Close quiz' : '⚡ Quiz'}</button>
-            <button className="quiz-button draft-button" onClick={() => setView(view === 'draft' ? 'rankings' : 'draft')}>{view === 'draft' ? 'Close draft' : '★ Dream Team Draft'}</button>
-          </div>
-        </div>
-
-        {view === 'quiz' ? (
-          <SportsQuiz sport={sport} />
-        ) : view === 'draft' ? (
-          <DreamTeamDraft key={sport.id} sport={sport} />
-        ) : (
-          <>
-            <div className="tabs" role="tablist" aria-label="Rankings type">
-              <button className={tab === 'teams' ? 'active' : ''} onClick={() => setTab('teams')}>
-                Top teams
-              </button>
-              <button className={tab === 'players' ? 'active' : ''} onClick={() => setTab('players')}>
-                Top players
-              </button>
-            </div>
-            <Rankings sport={filtered} type={tab} />
-          </>
-        )}
-      </section>
-    </main>
-  );
+  if (!sportId) return <LandingPage sports={catalog} />;
+  if (!sport) return <main className="landing-page"><section className="landing-hero"><p className="eyebrow">404</p><h1>Sport not found.</h1><a href="/">← Return to all sports</a></section></main>;
+  return <SportPage sport={sport} sports={catalog} />;
 }
