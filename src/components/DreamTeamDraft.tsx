@@ -18,6 +18,8 @@ const clubDraftSports = new Set(['football', 'basketball', 'baseball', 'american
 const individualDraftSports = new Set(['f1', 'swimming', 'ufc']);
 const minimumGroupPlayers = 8;
 const nationalityLimit = 10;
+const firstDraftDecade = 1950;
+const lastDraftDecade = 2020;
 const eliteFootballRatings = new Set([
   'Lionel Messi', 'Cristiano Ronaldo', 'Pelé', 'Johan Cruyff', 'Michel Platini',
   'Marco van Basten', 'Ronaldo Nazário', 'Garrincha', 'Cafu',
@@ -284,6 +286,8 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
   const rankedNationalityMode = !clubMode && !individualDraftSports.has(sport.id);
   const countryPlayers = new Map<string, Player[]>();
   if (rankedNationalityMode) allPlayers.forEach((player) => {
+    const decade = primaryDecade(player);
+    if (decade < firstDraftDecade || decade > lastDraftDecade) return;
     const country = nationality(player);
     countryPlayers.set(country, [...(countryPlayers.get(country) ?? []), player]);
   });
@@ -300,7 +304,9 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
   allPlayers.forEach((player) => {
     const group = draftGroup(player, sport, clubMode);
     if (!group || (rankedNationalityMode && !eligibleCountries.has(group))) return;
-    const key = `${group}\u0000${primaryDecade(player)}`;
+    const decade = primaryDecade(player);
+    if (decade < firstDraftDecade || decade > lastDraftDecade) return;
+    const key = `${group}\u0000${decade}`;
     counts.set(key, (counts.get(key) ?? 0) + 1);
   });
   const eligibleBriefs = [...counts].filter(([, count]) => count >= (clubMode ? minimumGroupPlayers : 1)).map(([key]) => {
