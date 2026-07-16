@@ -15,6 +15,7 @@ const rosterSizes: Record<string, number> = {
 const footballNations = ['Spain', 'Italy', 'France', 'Argentina', 'Portugal', 'Germany', 'Netherlands', 'Brazil', 'Morocco', 'England', 'Norway', 'Cape Verde', 'Japan'];
 const footballNationSet = new Set(footballNations);
 const clubDraftSports = new Set(['football', 'basketball', 'baseball']);
+const individualDraftSports = new Set(['f1', 'swimming', 'ufc']);
 const minimumGroupPlayers = 8;
 const eliteFootballRatings = new Set([
   'Lionel Messi', 'Cristiano Ronaldo', 'Pelé', 'Johan Cruyff', 'Michel Platini',
@@ -282,18 +283,19 @@ function DraftGame({ sport, pool, clubMode }: { sport: Sport; pool: Player[]; cl
 export function DreamTeamDraft({ sport }: { sport: Sport }) {
   const allPlayers = sport.draftPlayers ?? sport.quizPlayers ?? sport.players;
   const clubMode = clubDraftSports.has(sport.id) && sport.teams.length >= 10;
+  const requiredPlayers = individualDraftSports.has(sport.id) ? 1 : minimumGroupPlayers;
   const counts = new Map<string, number>();
   allPlayers.forEach((player) => {
     const group = draftGroup(player, sport, clubMode);
     if (group) counts.set(group, (counts.get(group) ?? 0) + 1);
   });
-  const eligibleGroups = new Set([...counts].filter(([, count]) => count >= minimumGroupPlayers).map(([group]) => group));
+  const eligibleGroups = new Set([...counts].filter(([, count]) => count >= requiredPlayers).map(([group]) => group));
   const pool = allPlayers.filter((player) => eligibleGroups.has(draftGroup(player, sport, clubMode)));
 
   if (!pool.length) return <section className="draft-game draft-unavailable">
     <p className="eyebrow">DRAFT POOL REQUIREMENT</p>
     <h3>No eligible {clubMode ? 'teams' : 'nationalities'} yet</h3>
-    <p>Each {clubMode ? 'team' : 'nationality'} needs at least {minimumGroupPlayers} players before it can enter the Dream Team Draft.</p>
+    <p>Each {clubMode ? 'team' : 'nationality'} needs at least {requiredPlayers} player{requiredPlayers === 1 ? '' : 's'} before it can enter the Dream Team Draft.</p>
   </section>;
 
   return <DraftGame sport={sport} pool={pool} clubMode={clubMode} />;
