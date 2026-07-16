@@ -15,7 +15,9 @@ const rosterSizes: Record<string, number> = {
 const footballNations = ['Spain', 'Italy', 'France', 'Argentina', 'Portugal', 'Germany', 'Netherlands', 'Brazil', 'Morocco', 'England', 'Norway', 'Cape Verde', 'Japan'];
 const footballNationSet = new Set(footballNations);
 const clubDraftSports = new Set(['football', 'basketball', 'baseball', 'american-football']);
+const individualDraftSports = new Set(['f1', 'swimming', 'ufc']);
 const minimumGroupPlayers = 8;
+const nationalityLimit = 10;
 const eliteFootballRatings = new Set([
   'Lionel Messi', 'Cristiano Ronaldo', 'Pelé', 'Johan Cruyff', 'Michel Platini',
   'Marco van Basten', 'Ronaldo Nazário', 'Garrincha', 'Cafu',
@@ -279,15 +281,29 @@ function DraftGame({ sport, pool, clubMode, eligibleBriefs }: { sport: Sport; po
 export function DreamTeamDraft({ sport }: { sport: Sport }) {
   const allPlayers = sport.draftPlayers ?? sport.quizPlayers ?? sport.players;
   const clubMode = clubDraftSports.has(sport.id) && sport.teams.length >= 10;
-  const requiredPlayers = clubMode ? minimumGroupPlayers : 1;
+  const rankedNationalityMode = !clubMode && !individualDraftSports.has(sport.id);
+  const countryPlayers = new Map<string, Player[]>();
+  if (rankedNationalityMode) allPlayers.forEach((player) => {
+    const country = nationality(player);
+    countryPlayers.set(country, [...(countryPlayers.get(country) ?? []), player]);
+  });
+  const eligibleCountries = new Set([...countryPlayers]
+    .filter(([, players]) => players.length >= minimumGroupPlayers)
+    .map(([country, players]) => ({
+      country,
+      caliber: players.map((player) => playerRating(player, allPlayers.indexOf(player), allPlayers.length, sport.id)).sort((a, b) => b - a).slice(0, minimumGroupPlayers).reduce((total, rating) => total + rating, 0) / minimumGroupPlayers,
+    }))
+    .sort((a, b) => b.caliber - a.caliber)
+    .slice(0, nationalityLimit)
+    .map(({ country }) => country));
   const counts = new Map<string, number>();
   allPlayers.forEach((player) => {
     const group = draftGroup(player, sport, clubMode);
-    if (!group) return;
+    if (!group || (rankedNationalityMode && !eligibleCountries.has(group))) return;
     const key = `${group}\u0000${primaryDecade(player)}`;
     counts.set(key, (counts.get(key) ?? 0) + 1);
   });
-  const eligibleBriefs = [...counts].filter(([, count]) => count >= requiredPlayers).map(([key]) => {
+  const eligibleBriefs = [...counts].filter(([, count]) => count >= (clubMode ? minimumGroupPlayers : 1)).map(([key]) => {
     const [group, decade] = key.split('\u0000');
     return { group, decade: Number(decade) };
   });
@@ -296,7 +312,7 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
   if (!pool.length) return <section className="draft-game draft-unavailable">
     <p className="eyebrow">DRAFT POOL REQUIREMENT</p>
     <h3>No eligible {clubMode ? 'teams' : 'nationalities'} yet</h3>
-    <p>{clubMode ? `Each team and era needs at least ${requiredPlayers} players before it can enter the Dream Team Draft.` : 'Every nationality represented by a player can enter the Dream Team Draft.'}</p>
+    <p>{clubMode ? `Each team and era needs at least ${minimumGroupPlayers} players before it can enter the Dream Team Draft.` : rankedNationalityMode ? `Countries need at least ${minimumGroupPlayers} available athletes. The ${nationalityLimit} strongest eligible countries enter the draft.` : 'Every represented nationality can enter this individual-sport draft.'}</p>
   </section>;
 
   return <DraftGame sport={sport} pool={pool} clubMode={clubMode} eligibleBriefs={eligibleBriefs} />;
