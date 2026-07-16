@@ -6,7 +6,7 @@ type Props = {
   sport: Sport;
   type: 'teams' | 'players';
   item: RankedItem | Player;
-  rank: number;
+  rank?: number;
   onClose: () => void;
 };
 
@@ -23,12 +23,12 @@ export function ProfileModal({ sport, type, item, rank, onClose }: Props) {
       <button className="profile-close" onClick={onClose} aria-label="Close profile">×</button>
       <div className="profile-identity">
         <div className="profile-badge" style={{ background: sport.accent }}>{item.badge}</div>
-        <div><p className="eyebrow">{sport.icon} {sport.name} · #{rank} ALL-TIME</p><h2>{item.name}</h2><p>{item.detail}</p></div>
+        <div><p className="eyebrow">{sport.icon} {sport.name} · {rank ? `#${rank} ALL-TIME` : 'FACT FILE'}</p><h2>{item.name}</h2><p>{item.detail}</p></div>
       </div>
       {player && <div className={`status-pill ${player.status}`}><i />{player.status === 'retired' ? 'Retired' : 'Active player'}</div>}
       <div className="profile-stats">
         <article className="trophy-list"><span>🏆 NAMED TROPHIES & RECORDS</span><ul>{(item.honours ?? [item.stat]).map((honour) => <li key={honour}>{honour}</li>)}</ul></article>
-        <article><span>ALL-TIME SPORTDEX RANK</span><strong>#{rank}</strong></article>
+        <article><span>ALL-TIME SPORTDEX RANK</span><strong>{rank ? `#${rank}` : 'Extended roster'}</strong></article>
         {player && <article><span>{player.status === 'retired' ? 'CAREER / MOST RECENT TEAM' : 'CURRENT TEAM / ACTIVE YEARS'}</span><strong>{player.status === 'retired' ? 'Retired' : player.currentTeam ?? player.team}</strong><small>{player.status === 'retired' ? `${player.team} · ${player.years}` : player.teamYears ?? player.years?.replace('present', 'current')}</small></article>}
         {!player && <article><span>COMPETITION / REGION</span><strong>{item.detail}</strong></article>}
       </div>
