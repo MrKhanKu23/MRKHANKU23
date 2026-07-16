@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
+import { loadNickname, updateNickname } from '../lib/sportdexDb';
 import './AccountPanel.css';
 
 export function AccountPanel() {
@@ -10,10 +11,15 @@ export function AccountPanel() {
   const [nickname, setNickname] = useState('');
   const [signup, setSignup] = useState(false);
   const [message, setMessage] = useState('');
+  const [displayName, setDisplayName] = useState('Player');
+  const [editingName, setEditingName] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setUser(data.user));
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => setUser(session?.user ?? null));
+    supabase.auth.getUser().then(({ data }) => { setUser(data.user); if (data.user) loadNickname().then(setDisplayName); });
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      if (session?.user) loadNickname().then(setDisplayName);
+    });
     return () => data.subscription.unsubscribe();
   }, []);
 
@@ -25,7 +31,15 @@ export function AccountPanel() {
     setMessage(result.error ? result.error.message : signup ? 'Check your email to confirm your account.' : 'Signed in.');
   }
 
-  if (user) return <div className="account-panel"><span>Playing as <strong>{user.user_metadata.nickname ?? 'Player'}</strong></span><button onClick={() => supabase.auth.signOut()}>Sign out</button></div>;
+  async function saveUsername(event: React.FormEvent) {
+    event.preventDefault(); setMessage('');
+    try {
+      const saved = await updateNickname(nickname);
+      setDisplayName(saved); setNickname(''); setEditingName(false);
+    } catch (error) { setMessage(error instanceof Error ? error.message : 'Username could not be changed.'); }
+  }
+
+  if (user) return editingName ? <form className="account-panel" onSubmit={saveUsername}><span>Choose a new username</span><input type="text" placeholder="Username" value={nickname} onChange={(event) => setNickname(event.target.value)} minLength={2} maxLength={24} required autoFocus /><button type="submit">Save username</button><button type="button" className="account-switch" onClick={() => setEditingName(false)}>Cancel</button>{message && <small>{message}</small>}</form> : <div className="account-panel"><span>Playing as <strong>{displayName}</strong></span><button onClick={() => { setNickname(displayName); setEditingName(true); }}>Change username</button><button onClick={() => supabase.auth.signOut()}>Sign out</button></div>;
 
   return <form className="account-panel" onSubmit={submit}>
     <span>Sign in to save scores and Dream Teams</span>

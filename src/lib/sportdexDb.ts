@@ -23,6 +23,26 @@ async function signedIn() {
   return Boolean(data.user);
 }
 
+export async function loadNickname() {
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) return '';
+  const { data } = await supabase.from('profiles').select('nickname').eq('user_id', auth.user.id).single();
+  return data?.nickname ?? auth.user.user_metadata.nickname ?? 'Player';
+}
+
+export async function updateNickname(nickname: string) {
+  const value = nickname.trim();
+  if (value.length < 2 || value.length > 24) throw new Error('Username must be 2–24 characters.');
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) throw new Error('Sign in before changing your username.');
+  const { error } = await supabase.from('profiles').update({ nickname: value }).eq('user_id', auth.user.id);
+  if (error) throw error;
+  const { error: metadataError } = await supabase.auth.updateUser({ data: { nickname: value } });
+  if (metadataError) throw metadataError;
+  window.dispatchEvent(new Event('leaderboard-updated'));
+  return value;
+}
+
 export async function saveQuizScore(sportId: string, difficulty: string, score: number, rounds: number) {
   if (!(await signedIn())) return false;
   const { error } = await supabase.from('quiz_scores').insert({ sport_id: sportId, difficulty, score, rounds });
