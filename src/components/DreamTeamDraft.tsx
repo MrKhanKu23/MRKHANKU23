@@ -14,6 +14,8 @@ const rosterSizes: Record<string, number> = {
 
 const footballNations = ['Spain', 'Italy', 'France', 'Argentina', 'Portugal', 'Germany', 'Netherlands', 'Brazil', 'Morocco', 'England', 'Norway', 'Cape Verde', 'Japan'];
 const footballNationSet = new Set(footballNations);
+const clubDraftSports = new Set(['football', 'basketball', 'baseball']);
+const minimumGroupPlayers = 8;
 const eliteFootballRatings = new Set([
   'Lionel Messi', 'Cristiano Ronaldo', 'Pelé', 'Johan Cruyff', 'Michel Platini',
   'Marco van Basten', 'Ronaldo Nazário', 'Garrincha', 'Cafu',
@@ -36,6 +38,12 @@ function nationality(player: Player) {
   const parts = player.detail.split('·');
   const rawNationality = parts[parts.length - 1]?.trim() ?? player.team;
   return rawNationality.split('/').map((value) => value.trim()).find((value) => footballNationSet.has(value)) ?? rawNationality;
+}
+
+function draftGroup(player: Player, sport: Sport, clubMode: boolean) {
+  if (!clubMode) return nationality(player);
+  const rankedClubs = new Set(sport.teams.map((team) => team.name));
+  return rankedClubs.has(player.team) ? player.team : '';
 }
 
 function position(player: Player, sportId = '') {
@@ -133,9 +141,7 @@ function playerRating(player: Player, index: number, poolSize: number, sportId: 
   return lowerTierRating(player, baseRating);
 }
 
-export function DreamTeamDraft({ sport }: { sport: Sport }) {
-  const allPlayers = sport.draftPlayers ?? sport.quizPlayers ?? sport.players;
-  const pool = sport.id === 'football' ? allPlayers.filter((player) => footballNationSet.has(nationality(player))) : allPlayers;
+function DraftGame({ sport, pool, clubMode }: { sport: Sport; pool: Player[]; clubMode: boolean }) {
   const teamSize = sport.id === 'ufc' ? 1 : rosterSizes[sport.id] ?? 5;
   const [drafted, setDrafted] = useState<Player[]>([]);
   const [pending, setPending] = useState<Player>();
@@ -154,7 +160,7 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
   const complete = round >= teamSize;
   const ratings = useMemo(() => new Map(pool.map((player, index) => [player.name, playerRating(player, index, pool.length, sport.id)])), [pool, sport.id]);
   const nationOrder = useMemo(() => {
-    const nations = [...new Set(pool.map(nationality))];
+    const nations = [...new Set(pool.map((player) => draftGroup(player, sport, clubMode)))];
     for (let index = nations.length - 1; index > 0; index -= 1) {
       const swapIndex = Math.floor(randomFromSeed(draftSeed + index * 71) * (index + 1));
       [nations[index], nations[swapIndex]] = [nations[swapIndex], nations[index]];
@@ -162,7 +168,7 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
     return nations;
   }, [draftSeed, pool]);
   const scoutingNation = nationOrder[(round + nationOffset) % nationOrder.length];
-  const nationPlayers = pool.filter((player) => nationality(player) === scoutingNation);
+  const nationPlayers = pool.filter((player) => draftGroup(player, sport, clubMode) === scoutingNation);
   const anchor = nationPlayers[Math.abs(draftSeed + round * 13 + nationOffset * 31) % nationPlayers.length];
   const anchorBounds = careerBounds(anchor);
   const anchorDecades = Array.from({ length: Math.floor(anchorBounds.end / 10) - Math.floor(anchorBounds.start / 10) + 1 }, (_, index) => (Math.floor(anchorBounds.start / 10) + index) * 10);
@@ -170,8 +176,8 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
   const choices = useMemo(() => {
     const used = new Set([...drafted, ...(firstTeam?.drafted ?? [])].map((player) => player.name));
     const unused = pool.filter((player) => !used.has(player.name) && allowedSlots(player, sport.id, slots).some((slot) => !assigned[slot]));
-    const exact = unused.filter((player) => nationality(player) === scoutingNation && overlaps(player, decade));
-    const sameNation = unused.filter((player) => nationality(player) === scoutingNation && !exact.includes(player));
+    const exact = unused.filter((player) => draftGroup(player, sport, clubMode) === scoutingNation && overlaps(player, decade));
+    const sameNation = unused.filter((player) => draftGroup(player, sport, clubMode) === scoutingNation && !exact.includes(player));
     const sameEra = unused.filter((player) => overlaps(player, decade) && !exact.includes(player));
     const selections: Player[] = [];
     const addWeighted = (group: Player[], salt: number) => {
@@ -180,7 +186,7 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
     };
     addWeighted(exact, 11); addWeighted(sameNation, 23); addWeighted(sameEra, 37); addWeighted(unused, 53);
     return selections.slice(0, 4);
-  }, [assigned, choiceSeed, decade, drafted, firstTeam, pool, ratings, round, scoutingNation, slots, sport.id]);
+  }, [assigned, choiceSeed, clubMode, decade, drafted, firstTeam, pool, ratings, round, scoutingNation, slots, sport]);
   const average = drafted.length ? Math.round(drafted.reduce((total, player) => total + (ratings.get(player.name) ?? 80), 0) / drafted.length) : 0;
   const teamNumber = firstTeam ? 2 : 1;
 
@@ -263,7 +269,7 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
 
   return <section className="draft-game">
     <div className="draft-header"><div><p className="eyebrow">{headToHead ? `TEAM ${teamNumber} · ` : ''}ROUND {round + 1} OF {teamSize}</p><h3>{headToHead ? `Build Team ${teamNumber}` : 'Build the greatest team'}</h3></div><div className="draft-score"><span>{headToHead ? `TEAM ${teamNumber}` : 'TEAM'}</span><strong>{average || '—'}</strong></div></div>
-    <div className="scouting-brief"><div className="brief-copy"><span>THIS ROUND'S NATIONALITY + ERA</span><strong>{scoutingNation}</strong><i /> <strong>{decade}s</strong><p>{pending ? `${pending.name}${pendingSlot ? ` · ${pendingSlot}` : ' · choose a position below'}` : 'Choose a player, then place them in the lineup.'}</p></div><div className="brief-actions"><button className="scout-control" disabled={!rerolls || Boolean(pending)} onClick={rerollBrief}>Reroll brief <b>{rerolls}</b></button><button className="scout-control" disabled={!refreshes || Boolean(pending)} onClick={refreshPlayers}>Refresh players <b>{refreshes}</b></button><button className="top-roll" disabled={!pending || !pendingSlot} onClick={confirmPick}>{round + 1 === teamSize ? 'Complete team →' : 'Roll next round ↻'}</button></div></div>
+    <div className="scouting-brief"><div className="brief-copy"><span>THIS ROUND'S {clubMode ? 'TEAM' : 'NATIONALITY'} + ERA</span><strong>{scoutingNation}</strong><i /> <strong>{decade}s</strong><p>{pending ? `${pending.name}${pendingSlot ? ` · ${pendingSlot}` : ' · choose a position below'}` : 'Choose a player, then place them in the lineup.'}</p></div><div className="brief-actions"><button className="scout-control" disabled={!rerolls || Boolean(pending)} onClick={rerollBrief}>Reroll brief <b>{rerolls}</b></button><button className="scout-control" disabled={!refreshes || Boolean(pending)} onClick={refreshPlayers}>Refresh players <b>{refreshes}</b></button><button className="top-roll" disabled={!pending || !pendingSlot} onClick={confirmPick}>{round + 1 === teamSize ? 'Complete team →' : 'Roll next round ↻'}</button></div></div>
     {!pending && <div className="draft-choices">{choices.map((player) => <button key={player.name} onClick={() => { setPending(player); setPendingSlot(undefined); }}>
       <div className="draft-rating"><strong>{ratings.get(player.name)}</strong><small>OVR</small></div>
       <span className="draft-years">{player.years}</span><span className="position-tag">{position(player, sport.id)}</span><h4>{player.name}</h4><p>{nationality(player)}</p><em>🏆 {player.stat}</em><b>Select player →</b>
@@ -271,4 +277,24 @@ export function DreamTeamDraft({ sport }: { sport: Sport }) {
     {pending && <div className="lineup-stage"><button className="change-pick" onClick={() => { setPending(undefined); setPendingSlot(undefined); }}>← Choose a different player</button><LineupPicker slots={slots} assigned={assigned} pending={pending} selected={pendingSlot} allowed={allowedSlots(pending, sport.id, slots).filter((slot) => !assigned[slot])} onSelect={setPendingSlot} /></div>}
     <div className="roster-progress">{Array.from({ length: teamSize }, (_, index) => <span key={index} className={index < drafted.length ? 'filled' : ''}>{drafted[index]?.badge ?? index + 1}</span>)}</div>
   </section>;
+}
+
+export function DreamTeamDraft({ sport }: { sport: Sport }) {
+  const allPlayers = sport.draftPlayers ?? sport.quizPlayers ?? sport.players;
+  const clubMode = clubDraftSports.has(sport.id) && sport.teams.length >= 10;
+  const counts = new Map<string, number>();
+  allPlayers.forEach((player) => {
+    const group = draftGroup(player, sport, clubMode);
+    if (group) counts.set(group, (counts.get(group) ?? 0) + 1);
+  });
+  const eligibleGroups = new Set([...counts].filter(([, count]) => count >= minimumGroupPlayers).map(([group]) => group));
+  const pool = allPlayers.filter((player) => eligibleGroups.has(draftGroup(player, sport, clubMode)));
+
+  if (!pool.length) return <section className="draft-game draft-unavailable">
+    <p className="eyebrow">DRAFT POOL REQUIREMENT</p>
+    <h3>No eligible {clubMode ? 'teams' : 'nationalities'} yet</h3>
+    <p>Each {clubMode ? 'team' : 'nationality'} needs at least {minimumGroupPlayers} players before it can enter the Dream Team Draft.</p>
+  </section>;
+
+  return <DraftGame sport={sport} pool={pool} clubMode={clubMode} />;
 }
