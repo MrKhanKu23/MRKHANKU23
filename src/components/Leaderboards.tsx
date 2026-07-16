@@ -18,10 +18,10 @@ export function Leaderboards({ sportId }: { sportId: string }) {
 
   return <section className="leaderboards">
     <div><p className="eyebrow">TOP QUIZ SCORES</p><h3>Quiz leaderboard</h3>
-      {quiz.length ? <ol>{quiz.map((result) => <li key={result.id}><b>{result.score}/{result.rounds}</b><span>{result.difficulty}</span></li>)}</ol> : <p className="empty-board">No saved scores yet. Be the first.</p>}
+      {quiz.length ? <ol>{quiz.map((result) => <li key={result.id}><strong>{result.nickname}</strong><b>{result.score}/{result.rounds}</b><span>{result.difficulty}</span></li>)}</ol> : <p className="empty-board">No saved scores yet. Be the first.</p>}
     </div>
     <div><p className="eyebrow">BEST SQUADS</p><h3>Dream Draft leaderboard</h3>
-      {drafts.length ? <ol>{drafts.map((result) => <li key={result.id}><b>{result.overall} OVR</b><span>Dream Team</span></li>)}</ol> : <p className="empty-board">No saved teams yet. Build the first.</p>}
+      {drafts.length ? <ol>{drafts.map((result) => <li key={result.id}><strong>{result.nickname}</strong><b>{result.overall} OVR</b><span>Dream Team</span></li>)}</ol> : <p className="empty-board">No saved teams yet. Build the first.</p>}
     </div>
   </section>;
 }

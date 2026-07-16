@@ -29,13 +29,13 @@ export async function saveDreamTeam(sportId: string, overall: number, players: P
   return true;
 }
 
-export type QuizResult = { id: string; difficulty: string; score: number; rounds: number };
-export type DraftResult = { id: string; overall: number };
+export type QuizResult = { id: string; nickname: string; difficulty: string; score: number; rounds: number };
+export type DraftResult = { id: string; nickname: string; overall: number };
 
 export async function loadLeaderboards(sportId: string) {
   const [quizResult, draftResult] = await Promise.all([
-    supabase.from('quiz_leaderboard').select('id,difficulty,score,rounds').eq('sport_id', sportId).order('score', { ascending: false }).limit(10),
-    supabase.from('draft_leaderboard').select('id,overall').eq('sport_id', sportId).order('overall', { ascending: false }).limit(10),
+    supabase.from('quiz_leaderboard').select('id,nickname,difficulty,score,rounds').eq('sport_id', sportId).order('score', { ascending: false }).limit(10),
+    supabase.from('draft_leaderboard').select('id,nickname,overall').eq('sport_id', sportId).order('overall', { ascending: false }).limit(10),
   ]);
   return {
     quiz: (quizResult.data ?? []) as QuizResult[],
