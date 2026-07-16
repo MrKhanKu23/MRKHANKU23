@@ -24,8 +24,10 @@ body { background: #000; }
 .sport-background h1 em,
 .sport-background .kicker { color: #bdddff; }
 .sport-background .hero-copy > p:not(.kicker) { color: #dcecff; }
-.sport-background .sport-pills button { border-color: #ffffff66; background: #ffffff12; color: #fff; }
-.sport-background .sport-pills button.selected { border-color: #fff; background: #fff; color: #075dcc; }
+.sport-background .sport-pills button,
+.sport-background .sport-pills a { border-color: #ffffff66; background: #ffffff12; color: #fff; }
+.sport-background .sport-pills button.selected,
+.sport-background .sport-pills a.selected { border-color: #fff; background: #fff; color: #075dcc; }
 
 .sport-app .dashboard::before { border-color: #1677ff35; background: #000e; }
 .section-heading { border-color: #183755; }

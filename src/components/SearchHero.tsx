@@ -11,7 +11,7 @@ export function SearchHero({ sport, sports, query, onQuery, onSport }: Props) {
       <h1>Know the game.<br /><em>Own the stats.</em></h1>
       <p>Search a sport. Meet the teams. Learn the stars. Then prove what you know.</p>
       <label className="search"><span>⌕</span><input value={query} onChange={(event) => onQuery(event.target.value)} placeholder={`Search ${sport.name.toLowerCase()} teams or players...`} /></label>
-      <div className="sport-pills">{sports.map((item) => <button key={item.id} className={item.id === sport.id ? 'selected' : ''} onClick={() => onSport(item)}>{item.icon} {item.name}</button>)}</div>
+      <div className="sport-pills">{sports.map((item) => <a key={item.id} href={`#${item.id}`} className={item.id === sport.id ? 'selected' : ''} onClick={(event) => { event.preventDefault(); onSport(item); }}>{item.icon} {item.name}</a>)}</div>
     </div>
     <div className="sport-scene" aria-hidden="true"><span>{sport.icon}</span></div>
     <div className="hero-number">10</div>

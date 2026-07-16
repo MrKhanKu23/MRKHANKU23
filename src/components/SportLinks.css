@@ -1,0 +1,12 @@
+.sport-pills a {
+  border: 1px solid #3c4039;
+  color: #b8bcb3;
+  background: #191c17;
+  padding: 9px 15px;
+  border-radius: 30px;
+  text-decoration: none;
+}
+
+.sport-pills a.selected {
+  font-weight: 700;
+}

@@ -7,6 +7,7 @@ import { AccountPanel } from './components/AccountPanel';
 import { sports, type Sport } from './lib/sportsData';
 import { loadSportsCatalog } from './lib/sportdexDb';
 import './components/BlueWhiteTheme.css';
+import './components/SportLinks.css';
 
 export default function App() {
   const [catalog, setCatalog] = useState<Sport[]>(sports);
@@ -16,8 +17,20 @@ export default function App() {
   const [view, setView] = useState<'rankings' | 'quiz' | 'draft'>('rankings');
 
   useEffect(() => {
-    loadSportsCatalog(sports).then((loaded) => { setCatalog(loaded); setSport(loaded[0]); });
+    loadSportsCatalog(sports).then((loaded) => {
+      setCatalog(loaded);
+      setSport(loaded.find((item) => item.id === window.location.hash.slice(1)) ?? loaded[0]);
+    });
   }, []);
+
+  useEffect(() => {
+    function followSportLink() {
+      const linkedSport = catalog.find((item) => item.id === window.location.hash.slice(1));
+      if (linkedSport) { setSport(linkedSport); setQuery(''); setView('rankings'); }
+    }
+    window.addEventListener('hashchange', followSportLink);
+    return () => window.removeEventListener('hashchange', followSportLink);
+  }, [catalog]);
 
   const filtered = useMemo(() => {
     const value = query.trim().toLowerCase();
@@ -35,6 +48,8 @@ export default function App() {
     setSport(next);
     setQuery('');
     setView('rankings');
+    window.history.pushState(null, '', `#${next.id}`);
+    window.setTimeout(() => document.getElementById(next.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0);
   }
 
   return (
@@ -46,7 +61,7 @@ export default function App() {
         onQuery={setQuery}
         onSport={chooseSport}
       />
-      <section className="dashboard">
+      <section className="dashboard" id={sport.id}>
         <AccountPanel />
         <div className="section-heading">
           <div>
