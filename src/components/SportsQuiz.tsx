@@ -22,6 +22,24 @@ function seededShuffle<T>(items: T[], seed: number) {
   return shuffled;
 }
 
+function nationality(detail: string, fallback: string) {
+  const parts = detail.split('·');
+  return parts.slice(1).join('·').trim() || fallback;
+}
+
+function primaryEra(years?: string) {
+  const values = years?.match(/\d{4}/g)?.map(Number) ?? [];
+  const start = values[0] ?? 1980;
+  const end = years?.toLowerCase().includes('present') ? new Date().getFullYear() : values[1] ?? start;
+  let era = Math.floor(start / 10) * 10;
+  let longest = 0;
+  for (let decade = era; decade <= Math.floor(end / 10) * 10; decade += 10) {
+    const duration = Math.min(end, decade + 9) - Math.max(start, decade) + 1;
+    if (duration > longest) { era = decade; longest = duration; }
+  }
+  return era;
+}
+
 export function SportsQuiz({ sport }: { sport: Sport }) {
   const [round, setRound] = useState(0);
   const [score, setScore] = useState(0);
@@ -40,8 +58,11 @@ export function SportsQuiz({ sport }: { sport: Sport }) {
   const playerNationality = detailParts.slice(1).join('·').trim() || player.team;
   const choices = useMemo(() => {
     const alternatives = quizPlayers.filter((item) => item.name !== player.name);
-    const rotated = [...alternatives.slice(round), ...alternatives.slice(0, round)];
-    return seededShuffle([player, ...rotated.slice(0, mode.choices - 1)], quizSeed + round * 997);
+    const correctNationality = nationality(player.detail, player.team);
+    const correctEra = primaryEra(player.years);
+    const related = alternatives.filter((item) => nationality(item.detail, item.team) === correctNationality || primaryEra(item.years) === correctEra);
+    const shuffled = seededShuffle(related, quizSeed + round * 419);
+    return seededShuffle([player, ...shuffled.slice(0, mode.choices - 1)], quizSeed + round * 997);
   }, [mode.choices, player, quizPlayers, quizSeed, round]);
 
   useEffect(() => {
