@@ -2,11 +2,12 @@ import type { Sport } from '../lib/sportsData';
 import { FactFileSearch } from './FactFileSearch';
 import './SportBackground.css';
 
-type Props = { sport: Sport; query: string; onQuery: (value: string) => void };
+type Edition = 'all-time' | 'current';
+type Props = { sport: Sport; query: string; edition: Edition; onQuery: (value: string) => void; onEdition: (edition: Edition) => void };
 
-export function SearchHero({ sport, query, onQuery }: Props) {
+export function SearchHero({ sport, query, edition, onQuery, onEdition }: Props) {
   return <header className="hero sport-background" data-sport={sport.id} style={{ '--accent': sport.accent } as React.CSSProperties}>
-    <nav><a className="brand" href="#top"><span>SPORT</span>IFY</a><span className="live"><i /> ALL-TIME EDITION</span></nav>
+    <nav><a className="brand" href="#top"><span>SPORT</span>IFY</a><div className="edition-toggle" aria-label="Choose rankings edition"><button className={edition === 'all-time' ? 'active' : ''} onClick={() => onEdition('all-time')}>All-Time Edition</button><button className={edition === 'current' ? 'active' : ''} onClick={() => onEdition('current')}>Current Edition</button></div></nav>
     <div className="hero-copy">
       <p className="kicker">YOUR SPORTS KNOWLEDGE HUB</p>
       <h1>Know the game.<br /><em>Own the stats.</em></h1>
