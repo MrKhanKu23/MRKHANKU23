@@ -12,7 +12,7 @@ button,a,input{touch-action:manipulation}
   .hero-copy{margin-top:48px}.hero h1{font-size:clamp(42px,14vw,62px);letter-spacing:-3px}
   .hero-copy>p:not(.kicker){font-size:16px;line-height:1.5}.search{margin-top:24px;padding-left:12px}.search input{min-width:0;padding:13px 8px}
   .sport-pills{flex-wrap:nowrap;overflow-x:auto;padding:2px 0 10px;scroll-snap-type:x proximity;scrollbar-width:none}.sport-pills::-webkit-scrollbar{display:none}.sport-pills a{flex:0 0 auto;min-height:44px;display:flex;align-items:center;scroll-snap-align:start}
-  .dashboard{padding:34px 16px 70px}.section-heading h2{font-size:30px}.game-actions{display:grid;width:100%;grid-template-columns:1fr 1fr}.game-actions button{min-height:48px;padding:12px 8px}
+  .dashboard{padding:34px 16px 70px}.section-heading h2{font-size:30px}.game-actions{display:grid;width:auto;grid-template-columns:auto auto;gap:7px}.game-actions button{min-height:38px;padding:8px 11px;font-size:12px}
   .tabs{margin-top:22px}.tabs button{min-height:44px}.rank-card{min-height:78px;padding:12px;gap:10px}.badge{flex:0 0 42px;width:42px;height:42px}.arrow{display:none}
   .quiz-card{margin:24px 0;padding:20px 14px}.quiz-top{gap:10px}.difficulty{display:grid;grid-template-columns:repeat(3,1fr)}.difficulty button{min-height:44px;padding:9px 4px}.choices button,.next{min-height:48px}
   .draft-game{margin:24px 0;padding:18px 12px}.draft-header{gap:10px}.draft-header h3{font-size:25px}.scouting-brief{padding:15px 12px}.brief-copy strong{font-size:17px}.draft-choices>button{min-height:210px}.roster-progress{justify-content:flex-start;overflow-x:auto;padding-bottom:8px}.roster-progress span{flex:0 0 36px}
@@ -25,7 +25,7 @@ button,a,input{touch-action:manipulation}
 }
 
 @media(max-width:380px){
-  .hero h1{font-size:40px}.section-heading h2{font-size:27px}.game-actions{grid-template-columns:1fr}.rank-card{padding:10px}.rank-info h3{font-size:14px}.formation-row{gap:2px}.formation-row button{width:16vw}.leaderboards li span{display:none}
+  .hero h1{font-size:40px}.section-heading h2{font-size:27px}.game-actions{grid-template-columns:auto auto}.game-actions button{padding:7px 9px;font-size:11px}.rank-card{padding:10px}.rank-info h3{font-size:14px}.formation-row{gap:2px}.formation-row button{width:16vw}.leaderboards li span{display:none}
 }
 
 @media(max-width:600px) and (orientation:portrait){
