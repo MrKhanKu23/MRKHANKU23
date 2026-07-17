@@ -28,7 +28,7 @@ export function LandscapeGate() {
     <div className="rotate-phone" aria-hidden="true">📱</div>
     <p className="eyebrow">MOBILE GAME MODE</p>
     <h2>Flip your phone sideways</h2>
-    <p>Sportdex adapts into its full landscape game layout when your phone is sideways.</p>
+    <p>Sportify adapts into its full landscape game layout when your phone is sideways.</p>
     <button onClick={rotate}>Switch to landscape</button>
   </aside>;
 }

@@ -42,11 +42,11 @@ export function ProfileModal({ sport, type, item, rank, onClose }: Props) {
       {player && <div className={`status-pill ${player.status}`}><i />{player.status === 'retired' ? 'Retired' : 'Active player'}</div>}
       <div className="profile-stats">
         <article className="trophy-list"><span>🏆 COMPLETE TROPHIES, AWARDS & RECORDS</span><ul>{honours.map((honour) => <li key={honour}>{honour}</li>)}</ul>{loadingHonours && <small>Loading the complete honours list…</small>}</article>
-        <article><span>ALL-TIME SPORTDEX RANK</span><strong>{rank ? `#${rank}` : 'Extended roster'}</strong></article>
+        <article><span>ALL-TIME SPORTIFY RANK</span><strong>{rank ? `#${rank}` : 'Extended roster'}</strong></article>
         {player && <article><span>{player.status === 'retired' ? 'CAREER / MOST RECENT TEAM' : 'CURRENT TEAM / ACTIVE YEARS'}</span><strong>{player.status === 'retired' ? 'Retired' : player.currentTeam ?? player.team}</strong><small>{player.status === 'retired' ? `${player.team} · ${player.years}` : player.teamYears ?? player.years?.replace('present', 'current')}</small></article>}
         {!player && <article><span>COMPETITION / REGION</span><strong>{item.detail}</strong></article>}
       </div>
-      <p className="profile-note">Profiles summarize the all-time record used in this ranking. Active-team information reflects the latest curated Sportdex roster.</p>
+      <p className="profile-note">Profiles summarize the all-time record used in this ranking. Active-team information reflects the latest curated Sportify roster.</p>
     </section>
   </div>, document.body);
 }
