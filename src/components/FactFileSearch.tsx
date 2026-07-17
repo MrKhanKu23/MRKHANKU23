@@ -14,12 +14,13 @@ export function FactFileSearch({ sport, query }: { sport: Sport; query: string }
       if (`${team.name} ${team.detail} ${team.stat}`.toLowerCase().includes(value)) results.push({ item: team, type: 'teams', rank: index + 1 });
     });
     const names = new Set<string>();
-    (sport.quizPlayers ?? sport.players).forEach((player) => {
-      if (names.has(player.name)) return;
-      names.add(player.name);
+    const rankedPlayers = (sport.quizPlayers ?? sport.players).filter((player) => {
+      if (names.has(player.name)) return false;
+      names.add(player.name); return true;
+    });
+    rankedPlayers.forEach((player, index) => {
       if (`${player.name} ${player.team} ${player.detail} ${player.stat}`.toLowerCase().includes(value)) {
-        const index = sport.players.findIndex((item) => item.name === player.name);
-        results.push({ item: player, type: 'players', rank: index >= 0 ? index + 1 : undefined });
+        results.push({ item: player, type: 'players', rank: index + 1 });
       }
     });
     return results.sort((first, second) => {
