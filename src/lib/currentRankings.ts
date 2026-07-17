@@ -36,6 +36,33 @@ export const currentPlayers: Record<string, Player[]> = {
   ]),
 };
 
+export const currentPlayerPools: Record<string, Player[]> = {
+  ...currentPlayers,
+  football: [...currentPlayers.football, ...players([
+    ['Désiré Doué','Winger · France','Recent Champions League and league-winning impact','DD','Paris Saint-Germain','2023–present'],
+    ['Bradley Barcola','Winger · France','Recent title-winning and international form','BB','Paris Saint-Germain','2020–present'],
+    ['Pedri','CM · Spain','Elite current midfield form and league-winning impact','PED','Barcelona','2020–present'],
+    ['Raphinha','Winger · Brazil','Recent elite scoring and title-winning form','RAP','Barcelona','2015–present'],
+    ['Alexis Mac Allister','CM · Argentina','Recent league-winning midfield impact','AMA','Liverpool','2016–present'],
+    ['Dominik Szoboszlai','CM · Hungary','Recent league-winning midfield impact','DS','Liverpool','2017–present'],
+    ['Michael Olise','Winger · France','Recent league-winning scoring and creative impact','MO','Bayern Munich','2019–present'],
+    ['Jamal Musiala','Attacking midfielder · Germany','Elite dribbling and title-winning impact','JM','Bayern Munich','2020–present'],
+    ['Lautaro Martínez','Forward · Argentina','Recent league titles and elite scoring form','LMZ','Inter Milan','2015–present'],
+    ['Marcus Thuram','Forward · France','Recent league-winning scoring impact','MT','Inter Milan','2015–present'],
+    ['Nicolò Barella','CM · Italy','Recent league-winning midfield impact','NB','Inter Milan','2015–present'],
+    ['Bukayo Saka','Winger · England','Recent title-challenging scoring impact','BS','Arsenal','2018–present'],
+    ['Declan Rice','CM · England','Recent title-challenging midfield impact','DR','Arsenal','2017–present'],
+    ['William Saliba','Centre-back · France','Recent elite defensive and title-challenging form','WS','Arsenal','2017–present'],
+    ['Phil Foden','Attacking midfielder · England','Multiple recent league titles and scoring impact','PF','Manchester City','2017–present'],
+    ['Julián Álvarez','Forward · Argentina','Recent elite scoring and international impact','JA','Atlético Madrid','2018–present'],
+    ['Álex Baena','CM · Spain','Recent elite creative and international form','AB','Atlético Madrid','2019–present'],
+    ['Giuliano Simeone','Winger · Argentina','Recent first-team and international impact','GS','Atlético Madrid','2022–present'],
+    ['Álex Grimaldo','Left-back · Spain','Recent title-winning and creative impact','AG','Bayer Leverkusen','2010–present'],
+    ['Exequiel Palacios','CM · Argentina','Recent title-winning midfield impact','EP','Bayer Leverkusen','2015–present'],
+    ['Patrik Schick','Forward · Czech Republic','Recent elite league scoring form','PS','Bayer Leverkusen','2014–present'],
+  ])],
+};
+
 export const recentTeamOrder: Record<string, string[]> = {
   football:['Paris Saint-Germain','Barcelona','Liverpool','Bayern Munich','Inter Milan','Arsenal','Manchester City','Real Madrid','Atlético Madrid','Bayer Leverkusen'], basketball:['Oklahoma City Thunder','Boston Celtics','New York Knicks','Indiana Pacers','Denver Nuggets','Minnesota Timberwolves','Cleveland Cavaliers','Los Angeles Lakers','Golden State Warriors','San Antonio Spurs'], tennis:['Italy','Spain','Germany','United States','Australia','Serbia','Great Britain','France','Sweden','Czech Republic (women)'], f1:['Mercedes','Ferrari','McLaren','Red Bull Racing','Williams','Aston Martin','Renault','Haas','Lotus','Benetton'], baseball:['Los Angeles Dodgers','New York Yankees','Detroit Tigers','Chicago Cubs','New York Mets','Seattle Mariners','Cleveland Guardians','Toronto Blue Jays','Philadelphia Phillies','San Diego Padres'], 'american-football':['Philadelphia Eagles','Buffalo Bills','Kansas City Chiefs','Baltimore Ravens','Detroit Lions','Los Angeles Rams','Minnesota Vikings','Green Bay Packers','Denver Broncos','Washington Commanders'], ufc:['City Kickboxing','American Top Team','AKA','Tiger Muay Thai','Xtreme Couture','Kill Cliff FC','Kings MMA','Team Alpha Male','Nova União','Renegade MMA'], swimming:['United States','Australia','France','Canada','China','Italy','Great Britain','Romania','Japan','Hungary'], volleyball:['France','Italy','Poland','Brazil','Japan','United States','Türkiye','Serbia','Slovenia','China'], 'track-sprint':['United States','Jamaica','Botswana','Saint Lucia','Dominican Republic','South Africa','Canada','Great Britain','Bahamas','Nigeria'], fortnite:['Team Falcons','Dignitas','Gentle Mates','Karmine Corp','Twisted Minds','XSET','Team Liquid','NRG','FaZe Clan','100 Thieves'], 'counter-strike-2':['Team Spirit','Team Vitality','Natus Vincere','MOUZ','G2 Esports','FaZe Clan','FURIA','Team Liquid','Astralis','Ninjas in Pyjamas'],
 };

@@ -6,7 +6,7 @@ import { Rankings } from '../components/Rankings';
 import { SearchHero } from '../components/SearchHero';
 import { SportsQuiz } from '../components/SportsQuiz';
 import type { Sport } from '../lib/sportsData';
-import { currentPlayers, orderCurrentTeams } from '../lib/currentRankings';
+import { currentPlayerPools, currentPlayers, orderCurrentTeams } from '../lib/currentRankings';
 
 type View = 'rankings' | 'quiz' | 'draft';
 
@@ -18,9 +18,9 @@ export function SportPage({ sport }: { sport: Sport }) {
   const organisations = sport.id === 'fortnite' || sport.id === 'counter-strike-2';
   const editionSport = useMemo(() => {
     if (edition === 'all-time') return sport;
-    const active = currentPlayers[sport.id] ?? (sport.quizPlayers ?? sport.players).filter((player) => player.status === 'active').slice(0, 10);
-    const activeNames = new Set(active.map((player) => player.name));
-    return { ...sport, teams: orderCurrentTeams(sport.teams, sport.id), players: active.slice(0, 10), quizPlayers: active, draftPlayers: active.filter((player) => activeNames.has(player.name)) };
+    const ranked = currentPlayers[sport.id] ?? (sport.quizPlayers ?? sport.players).filter((player) => player.status === 'active').slice(0, 10);
+    const pool = currentPlayerPools[sport.id] ?? ranked;
+    return { ...sport, teams: orderCurrentTeams(sport.teams, sport.id), players: ranked.slice(0, 10), quizPlayers: pool, draftPlayers: pool };
   }, [edition, sport]);
   const currentGameUnavailable = edition === 'current' && (editionSport.quizPlayers?.length ?? 0) < 3;
 
