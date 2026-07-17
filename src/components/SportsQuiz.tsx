@@ -101,7 +101,7 @@ export function SportsQuiz({ sport }: { sport: Sport }) {
     <div className="difficulty" aria-label="Quiz difficulty">
       {(Object.keys(rules) as Difficulty[]).map((level) => <button key={level} className={difficulty === level ? 'active' : ''} onClick={() => changeDifficulty(level)}>{rules[level].label}</button>)}
     </div>
-    <div className={`mystery quiz-player-icon ${answer && playerImage ? 'revealed' : ''}`} style={{ background: sport.accent }}>{answer && playerImage ? <img src={playerImage} alt={`Portrait of ${player.name}`} /> : <strong>?</strong>}</div>
+    <div className={`mystery quiz-player-icon ${playerImage ? 'revealed' : ''}`} style={{ background: sport.accent }}>{playerImage ? <img src={playerImage} alt={answer ? `Portrait of ${player.name}` : 'Mystery player portrait'} /> : <strong>?</strong>}</div>
     {answer && <strong className="revealed-player-name">{player.name}</strong>}
     <p className="eyebrow">GUESS THE STAR · {mode.label.toUpperCase()}</p><h3>{role}</h3>
     <p className="quiz-player-meta"><span>{playerNationality}</span><b>{player.years}</b></p>
