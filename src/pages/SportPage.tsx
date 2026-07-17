@@ -19,7 +19,10 @@ export function SportPage({ sport }: { sport: Sport }) {
   const editionSport = useMemo(() => {
     if (edition === 'all-time') return sport;
     const ranked = currentPlayers[sport.id] ?? (sport.quizPlayers ?? sport.players).filter((player) => player.status === 'active').slice(0, 10);
-    const pool = currentPlayerPools[sport.id] ?? ranked;
+    const additionalActive = (sport.quizPlayers ?? sport.players).filter((player) => player.status === 'active');
+    const pool = [...(currentPlayerPools[sport.id] ?? ranked), ...additionalActive].filter(
+      (player, index, players) => players.findIndex((candidate) => candidate.name === player.name) === index,
+    );
     return { ...sport, teams: orderCurrentTeams(sport.teams, sport.id), players: ranked.slice(0, 10), quizPlayers: pool, draftPlayers: pool };
   }, [edition, sport]);
   const currentGameUnavailable = edition === 'current' && (editionSport.quizPlayers?.length ?? 0) < 3;
