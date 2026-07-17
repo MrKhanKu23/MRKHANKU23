@@ -4,7 +4,7 @@ import { ProfileModal } from './ProfileModal';
 
 export function Rankings({ sport, type }: { sport: Sport; type: 'teams' | 'players' }) {
   const [profile, setProfile] = useState<{ item: RankedItem | Player; rank: number }>();
-  const items = sport[type].slice(0, 5);
+  const items = sport[type];
   if (!items.length) return <div className="empty-state"><b>No results found</b><span>Try another player or team name.</span></div>;
   return <div className="rankings">{items.map((item, index) => {
     const team = 'team' in item ? item.team : undefined;
