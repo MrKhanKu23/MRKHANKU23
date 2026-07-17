@@ -68,9 +68,9 @@ export function SportsQuiz({ sport }: { sport: Sport }) {
   useEffect(() => {
     let current = true;
     setPlayerImage(undefined);
-    loadPlayerImage(player.name).then((source) => { if (current) setPlayerImage(source); });
+    loadPlayerImage(player.name, `${sport.name} ${player.detail} ${player.team}`).then((source) => { if (current) setPlayerImage(source); });
     return () => { current = false; };
-  }, [player.name]);
+  }, [player.detail, player.name, player.team, sport.name]);
 
   function choose(name: string) {
     if (answer) return;
