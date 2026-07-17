@@ -22,7 +22,11 @@ export function FactFileSearch({ sport, query }: { sport: Sport; query: string }
         results.push({ item: player, type: 'players', rank: index >= 0 ? index + 1 : undefined });
       }
     });
-    return results.slice(0, 20);
+    return results.sort((first, second) => {
+      const firstExact = first.item.name.toLowerCase() === value ? 1 : 0;
+      const secondExact = second.item.name.toLowerCase() === value ? 1 : 0;
+      return secondExact - firstExact;
+    }).slice(0, 4);
   }, [query, sport]);
 
   if (!matches.length) return <section className="fact-search"><p className="eyebrow">FACT FILE SEARCH</p><h3>No player or team found</h3><p>Try a name, team, nationality, role, trophy, or record.</p></section>;
