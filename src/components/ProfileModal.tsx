@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import type { Player, RankedItem, Sport } from '../lib/sportsData';
 import { loadCompleteHonours } from '../lib/completeHonours';
 import './ProfileModal.css';
@@ -18,8 +19,9 @@ export function ProfileModal({ sport, type, item, rank, onClose }: Props) {
   const [loadingHonours, setLoadingHonours] = useState(true);
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => { if (event.key === 'Escape') onClose(); };
+    document.body.classList.add('profile-open');
     window.addEventListener('keydown', closeOnEscape);
-    return () => window.removeEventListener('keydown', closeOnEscape);
+    return () => { document.body.classList.remove('profile-open'); window.removeEventListener('keydown', closeOnEscape); };
   }, [onClose]);
   useEffect(() => {
     let current = true;
@@ -30,7 +32,7 @@ export function ProfileModal({ sport, type, item, rank, onClose }: Props) {
     return () => { current = false; };
   }, [item.name, sport.name]);
 
-  return <div className="profile-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+  return createPortal(<div className="profile-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
     <section className="profile-modal" role="dialog" aria-modal="true" aria-label={`${item.name} profile`}>
       <button className="profile-close" onClick={onClose} aria-label="Close profile">×</button>
       <div className="profile-identity">
@@ -46,5 +48,5 @@ export function ProfileModal({ sport, type, item, rank, onClose }: Props) {
       </div>
       <p className="profile-note">Profiles summarize the all-time record used in this ranking. Active-team information reflects the latest curated Sportdex roster.</p>
     </section>
-  </div>;
+  </div>, document.body);
 }

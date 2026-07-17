@@ -1,4 +1,5 @@
 html,body,#root{max-width:100%;overflow-x:hidden}
+body.profile-open{overflow:hidden}.profile-backdrop{z-index:2000;background:#02060bdd;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
 button,a,input{touch-action:manipulation}
 .sport-home-link{align-items:center;min-height:44px;padding:10px 16px;border:1px solid #1677ff66;border-radius:8px;background:#071a31;color:#fff}.sport-home-link:hover{border-color:#1677ff;background:#0b284c}
 
