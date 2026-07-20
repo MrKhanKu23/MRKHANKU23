@@ -9,7 +9,7 @@
 // Модель можно поменять (gemini-2.0-flash — быстрая и бесплатная).
 
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
-const MODEL = 'gemini-2.0-flash';
+const MODEL = 'gemini-3.5-flash';
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -39,7 +39,12 @@ Deno.serve(async (req) => {
     );
 
     const data = await res.json();
+    if (!res.ok) {
+      const message = data?.error?.message ?? `Gemini request failed with HTTP ${res.status}`;
+      throw new Error(message);
+    }
     const text = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+    if (!text) throw new Error('Gemini returned an empty response.');
     return new Response(JSON.stringify({ text }), {
       headers: { ...cors, 'Content-Type': 'application/json' },
     });

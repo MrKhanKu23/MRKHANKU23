@@ -1,0 +1,33 @@
+import { supabase } from './supabase';
+
+type WikiPage = { title?: string; extract?: string };
+type WikiResponse = { query?: { pages?: Record<string, WikiPage> } };
+type AiResponse = { text?: string; error?: string };
+
+async function wikipediaContext(name: string, sport: string) {
+  const parameters = new URLSearchParams({
+    action: 'query', format: 'json', origin: '*', generator: 'search',
+    gsrsearch: `"${name}" ${sport} player`, gsrnamespace: '0', gsrlimit: '1',
+    prop: 'extracts', explaintext: '1', exintro: '1', exchars: '3000',
+  });
+  const response = await fetch(`https://en.wikipedia.org/w/api.php?${parameters}`);
+  if (!response.ok) return '';
+  const result = await response.json() as WikiResponse;
+  const page = Object.values(result.query?.pages ?? {})[0];
+  return page?.extract ? `Wikipedia page: ${page.title}\n${page.extract}` : '';
+}
+
+export async function researchPlayer(name: string, sport: string) {
+  const source = await wikipediaContext(name, sport);
+  const prompt = `Create a fact file for "${name}" in ${sport}.
+
+SOURCE CONTEXT:
+${source || 'No matching Wikipedia summary was found.'}
+
+Return: full name; nationality; active or retired; main position/event; career years; current team and joined year if active; former teams with years; trophies and individual awards actually won; key official career statistics. If the name is ambiguous or not a ${sport} player, say so. Mark current details that cannot be confirmed as "Needs current verification".`;
+  const system = 'You are Sportify Research, a careful sports fact-checking assistant. Use the supplied source context as the factual basis. Never invent dates, teams, statistics, trophies, or awards. Do not describe finalist or runner-up finishes as trophies won. Clearly say when information is missing or uncertain. Use short labelled sections and bullet points. Do not use tables.';
+  const { data, error } = await supabase.functions.invoke<AiResponse>('ai', { body: { prompt, system } });
+  if (error) throw error;
+  if (!data?.text) throw new Error(data?.error || 'The AI helper returned no information.');
+  return data.text.trim();
+}

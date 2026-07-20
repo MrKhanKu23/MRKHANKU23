@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { Player, RankedItem, Sport } from '../lib/sportsData';
 import { ProfileModal } from './ProfileModal';
+import { AiPlayerHelper } from './AiPlayerHelper';
 import './FactFileSearch.css';
 
 type Match = { item: RankedItem | Player; type: 'teams' | 'players'; rank?: number };
@@ -30,8 +31,8 @@ export function FactFileSearch({ sport, query }: { sport: Sport; query: string }
     }).slice(0, 4);
   }, [query, sport]);
 
-  if (!matches.length) return <section className="fact-search"><p className="eyebrow">FACT FILE SEARCH</p><h3>No player or team found</h3><p>Try a name, team, nationality, role, trophy, or record.</p></section>;
+  if (!matches.length) return <section className="fact-search"><p className="eyebrow">FACT FILE SEARCH</p><h3>No saved player or team found</h3><p>Ask the AI helper to research this player.</p><AiPlayerHelper query={query} sport={sport.name} /></section>;
   return <section className="fact-search"><p className="eyebrow">FACT FILE SEARCH</p><h3>{matches.length} result{matches.length === 1 ? '' : 's'} found</h3><div className="fact-results">
     {matches.map((match) => <button key={`${match.type}-${match.item.name}`} onClick={() => setSelected(match)}><span style={{ background: sport.accent }}>{match.item.badge}</span><div><small>{match.type === 'players' ? 'PLAYER FACT FILE' : 'TEAM FACT FILE'}</small><strong>{match.item.name}</strong><p>{match.item.detail}</p></div><b>Open →</b></button>)}
-  </div>{selected && <ProfileModal sport={sport} type={selected.type} item={selected.item} rank={selected.rank} onClose={() => setSelected(undefined)} />}</section>;
+  </div><AiPlayerHelper query={query} sport={sport.name} />{selected && <ProfileModal sport={sport} type={selected.type} item={selected.item} rank={selected.rank} onClose={() => setSelected(undefined)} />}</section>;
 }
