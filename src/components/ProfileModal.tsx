@@ -15,7 +15,7 @@ type Props = {
 export function ProfileModal({ sport, type, item, rank, onClose }: Props) {
   const player = type === 'players' ? item as Player : undefined;
   const storedHonours = item.honours ?? [item.stat];
-  const [honours, setHonours] = useState(storedHonours);
+  const [honours, setHonours] = useState(player ? [] : storedHonours);
   const [loadingHonours, setLoadingHonours] = useState(true);
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => { if (event.key === 'Escape') onClose(); };
@@ -25,7 +25,7 @@ export function ProfileModal({ sport, type, item, rank, onClose }: Props) {
   }, [onClose]);
   useEffect(() => {
     let current = true;
-    setHonours(storedHonours); setLoadingHonours(true);
+    setHonours(player ? [] : storedHonours); setLoadingHonours(true);
     loadCompleteHonours(item.name, sport.name, player ? 'player' : 'team', storedHonours).then((results) => {
       if (current) { setHonours(results); setLoadingHonours(false); }
     });
@@ -41,7 +41,7 @@ export function ProfileModal({ sport, type, item, rank, onClose }: Props) {
       </div>
       {player && <div className={`status-pill ${player.status}`}><i />{player.status === 'retired' ? 'Retired' : 'Active player'}</div>}
       <div className="profile-stats">
-        <article className="trophy-list"><span>🏆 COMPLETE TROPHIES, AWARDS & RECORDS</span><ul>{honours.map((honour) => <li key={honour}>{honour}</li>)}</ul>{loadingHonours && <small>Loading the complete honours list…</small>}</article>
+        <article className="trophy-list"><span>🏆 {player ? 'TROPHIES & AWARDS WON' : 'COMPLETE TROPHIES, AWARDS & RECORDS'}</span>{honours.length ? <ul>{honours.map((honour) => <li key={honour}>{honour}</li>)}</ul> : !loadingHonours && <small>No named trophies or awards recorded.</small>}{loadingHonours && <small>Loading the complete honours list…</small>}</article>
         <article><span>ALL-TIME SPORTIFY RANK</span><strong>{rank ? `#${rank}` : 'Extended roster'}</strong></article>
         {player && <article><span>{player.status === 'retired' ? 'CAREER / MOST RECENT TEAM' : 'CURRENT TEAM / ACTIVE YEARS'}</span><strong>{player.status === 'retired' ? 'Retired' : player.currentTeam ?? player.team}</strong><small>{player.status === 'retired' ? `${player.team} · ${player.years}` : player.teamYears ?? player.years?.replace('present', 'current')}</small></article>}
         {!player && <article><span>COMPETITION / REGION</span><strong>{item.detail}</strong></article>}
