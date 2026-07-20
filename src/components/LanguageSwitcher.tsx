@@ -46,6 +46,7 @@ export function LanguageSwitcher() {
     const next: Language = language === 'en' ? 'ru' : 'en';
     setLanguage(next);
     localStorage.setItem('sportify-language', next);
+    window.dispatchEvent(new CustomEvent<Language>('sportify-language-change', { detail: next }));
     if (!selectLanguage(next)) window.setTimeout(() => selectLanguage(next), 500);
   }
 
