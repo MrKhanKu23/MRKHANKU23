@@ -22,6 +22,7 @@ function selectLanguage(language: Language) {
 
 export function LanguageSwitcher() {
   const [language, setLanguage] = useState<Language>(() => localStorage.getItem('sportify-language') === 'ru' ? 'ru' : 'en');
+  const [translating, setTranslating] = useState(() => localStorage.getItem('sportify-language') === 'ru');
 
   useEffect(() => {
     const initialize = () => {
@@ -29,7 +30,10 @@ export function LanguageSwitcher() {
       const host = document.getElementById('sportify-google-translate');
       if (!Constructor || !host || host.childElementCount) return;
       new Constructor({ pageLanguage: 'en', includedLanguages: 'en,ru', autoDisplay: false }, 'sportify-google-translate');
-      window.setTimeout(() => selectLanguage(language), 250);
+      window.setTimeout(() => {
+        selectLanguage(language);
+        window.setTimeout(() => setTranslating(false), 1200);
+      }, 250);
     };
     window.sportifyTranslateReady = initialize;
     initialize();
@@ -42,17 +46,23 @@ export function LanguageSwitcher() {
     }
   }, [language]);
 
-  function changeLanguage() {
+  async function changeLanguage() {
     const next: Language = language === 'en' ? 'ru' : 'en';
-    setLanguage(next);
+    setTranslating(true);
     localStorage.setItem('sportify-language', next);
+    for (let attempt = 0; attempt < 12 && !selectLanguage(next); attempt += 1) {
+      await new Promise((resolve) => window.setTimeout(resolve, 250));
+    }
+    await new Promise((resolve) => window.setTimeout(resolve, 1100));
+    setLanguage(next);
     window.dispatchEvent(new CustomEvent<Language>('sportify-language-change', { detail: next }));
-    if (!selectLanguage(next)) window.setTimeout(() => selectLanguage(next), 500);
+    setTranslating(false);
   }
 
   return <>
     <div id="sportify-google-translate" aria-hidden="true" />
-    <button className="language-switcher notranslate" onClick={changeLanguage} aria-label={language === 'en' ? 'Translate Sportify to Russian' : 'Перевести Sportify на английский'}>
+    {translating && <div className="translation-cover notranslate" role="status"><span className="translation-spinner" />{language === 'en' ? 'Translating Sportify…' : 'Перевод Sportify…'}</div>}
+    <button className="language-switcher notranslate" disabled={translating} onClick={changeLanguage} aria-label={language === 'en' ? 'Translate Sportify to Russian' : 'Перевести Sportify на английский'}>
       <span>{language === 'en' ? 'RU' : 'EN'}</span>{language === 'en' ? ' Русский' : ' English'}
     </button>
   </>;
