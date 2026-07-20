@@ -1,4 +1,12 @@
 const imageCache = new Map<string, string | null>();
+const fortnitePortraits = new Set([
+  'Bugha', 'Aqua', 'Peterbot', 'Pollo', 'Queasy', 'Veno', 'EpikWhale', 'Kami', 'MrSavage', 'Benjyfishy',
+  'Clix', 'Setty', 'Malibuca', 'Mongraal', 'Mitr0', 'Zayt', 'Saf', 'Reet', 'Acorn', 'Cold',
+]);
+
+export function hasVerifiedFortnitePortrait(name: string) {
+  return fortnitePortraits.has(name);
+}
 
 type PageImage = { index?: number; thumbnail?: { source?: string } };
 type PageImageResponse = { query?: { pages?: Record<string, PageImage> } };
@@ -40,6 +48,11 @@ async function requestWikidataImage(name: string) {
 export async function loadPlayerImage(name: string, context = 'athlete', requireContext = false) {
   const cacheKey = `${name}|${context}|${requireContext}`;
   if (imageCache.has(cacheKey)) return imageCache.get(cacheKey) ?? undefined;
+  if (context === 'Fortnite player' && hasVerifiedFortnitePortrait(name)) {
+    const source = `https://specs.gg/assets/include/upload/image.php?name=${encodeURIComponent(name)}`;
+    imageCache.set(cacheKey, source);
+    return source;
+  }
   try {
     let source: string | undefined;
     if (!requireContext) {

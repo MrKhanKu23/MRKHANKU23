@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { Sport } from '../lib/sportsData';
 import { saveQuizScore } from '../lib/sportdexDb';
-import { loadPlayerImage } from '../lib/playerImages';
+import { hasVerifiedFortnitePortrait, loadPlayerImage } from '../lib/playerImages';
 import './SportsQuiz.css';
 
 type Difficulty = 'easy' | 'medium' | 'hard';
@@ -49,7 +49,8 @@ export function SportsQuiz({ sport }: { sport: Sport }) {
   const [finished, setFinished] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
   const [playerImage, setPlayerImage] = useState<string>();
-  const playerPool = sport.quizPlayers ?? sport.players;
+  const availablePlayers = sport.quizPlayers ?? sport.players;
+  const playerPool = sport.id === 'fortnite' ? availablePlayers.filter((player) => hasVerifiedFortnitePortrait(player.name)) : availablePlayers;
   const quizPlayers = useMemo(() => seededShuffle(playerPool, quizSeed), [playerPool, quizSeed]);
   const player = quizPlayers[round % quizPlayers.length];
   const mode = rules[difficulty];
