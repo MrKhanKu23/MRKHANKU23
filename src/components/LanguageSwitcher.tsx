@@ -50,10 +50,16 @@ export function LanguageSwitcher() {
     const next: Language = language === 'en' ? 'ru' : 'en';
     setTranslating(true);
     localStorage.setItem('sportify-language', next);
-    for (let attempt = 0; attempt < 12 && !selectLanguage(next); attempt += 1) {
-      await new Promise((resolve) => window.setTimeout(resolve, 250));
+    if (next === 'en') {
+      document.cookie = 'googtrans=; Max-Age=0; path=/';
+      document.cookie = `googtrans=; Max-Age=0; path=/; domain=${window.location.hostname}`;
+      window.location.reload();
+      return;
     }
-    await new Promise((resolve) => window.setTimeout(resolve, 1100));
+    for (let attempt = 0; attempt < 8 && !selectLanguage(next); attempt += 1) {
+      await new Promise((resolve) => window.setTimeout(resolve, 150));
+    }
+    await new Promise((resolve) => window.setTimeout(resolve, 550));
     setLanguage(next);
     window.dispatchEvent(new CustomEvent<Language>('sportify-language-change', { detail: next }));
     setTranslating(false);
