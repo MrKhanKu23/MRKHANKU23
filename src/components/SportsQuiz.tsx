@@ -68,9 +68,11 @@ export function SportsQuiz({ sport }: { sport: Sport }) {
   useEffect(() => {
     let current = true;
     setPlayerImage(undefined);
-    loadPlayerImage(player.name, `${sport.name} ${player.detail} ${player.team}`).then((source) => { if (current) setPlayerImage(source); });
+    const fortnite = sport.id === 'fortnite';
+    const imageContext = fortnite ? 'Fortnite player' : `${sport.name} ${player.detail} ${player.team}`;
+    loadPlayerImage(player.name, imageContext, fortnite).then((source) => { if (current) setPlayerImage(source); });
     return () => { current = false; };
-  }, [player.detail, player.name, player.team, sport.name]);
+  }, [player.detail, player.name, player.team, sport.id, sport.name]);
 
   function choose(name: string) {
     if (answer) return;

@@ -37,15 +37,18 @@ async function requestWikidataImage(name: string) {
   return filename ? `https://commons.wikimedia.org/wiki/Special:Redirect/file/${encodeURIComponent(filename)}?width=420` : undefined;
 }
 
-export async function loadPlayerImage(name: string, context = 'athlete') {
-  const cacheKey = `${name}|${context}`;
+export async function loadPlayerImage(name: string, context = 'athlete', requireContext = false) {
+  const cacheKey = `${name}|${context}|${requireContext}`;
   if (imageCache.has(cacheKey)) return imageCache.get(cacheKey) ?? undefined;
   try {
-    const direct = new URLSearchParams({
-      action: 'query', format: 'json', origin: '*', redirects: '1', prop: 'pageimages',
-      piprop: 'thumbnail', pithumbsize: '420', pilicense: 'any', titles: name,
-    });
-    let source = await requestImage(direct);
+    let source: string | undefined;
+    if (!requireContext) {
+      const direct = new URLSearchParams({
+        action: 'query', format: 'json', origin: '*', redirects: '1', prop: 'pageimages',
+        piprop: 'thumbnail', pithumbsize: '420', pilicense: 'any', titles: name,
+      });
+      source = await requestImage(direct);
+    }
     if (!source) {
       const search = new URLSearchParams({
         action: 'query', format: 'json', origin: '*', generator: 'search',
