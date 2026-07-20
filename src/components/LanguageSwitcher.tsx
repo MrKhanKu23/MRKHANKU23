@@ -20,6 +20,21 @@ function selectLanguage(language: Language) {
   return true;
 }
 
+function translateEsportsNames() {
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  let node = walker.nextNode();
+  while (node) {
+    const parent = node.parentElement;
+    if (parent && !parent.closest('.notranslate,script,style')) {
+      const translated = (node.nodeValue ?? '')
+        .replace(/Counter-Strike 2/g, 'Контр-Страйк 2')
+        .replace(/Fortnite/g, 'Фортнайт');
+      if (translated !== node.nodeValue) node.nodeValue = translated;
+    }
+    node = walker.nextNode();
+  }
+}
+
 export function LanguageSwitcher() {
   const [language, setLanguage] = useState<Language>(() => localStorage.getItem('sportify-language') === 'ru' ? 'ru' : 'en');
   const [translating, setTranslating] = useState(() => localStorage.getItem('sportify-language') === 'ru');
@@ -46,6 +61,14 @@ export function LanguageSwitcher() {
     }
   }, [language]);
 
+  useEffect(() => {
+    if (language !== 'ru') return;
+    translateEsportsNames();
+    const observer = new MutationObserver(() => translateEsportsNames());
+    observer.observe(document.getElementById('root') ?? document.body, { childList: true, subtree: true, characterData: true });
+    return () => observer.disconnect();
+  }, [language]);
+
   async function changeLanguage() {
     const next: Language = language === 'en' ? 'ru' : 'en';
     setTranslating(true);
@@ -62,6 +85,7 @@ export function LanguageSwitcher() {
     await new Promise((resolve) => window.setTimeout(resolve, 120));
     setLanguage(next);
     window.dispatchEvent(new CustomEvent<Language>('sportify-language-change', { detail: next }));
+    translateEsportsNames();
     setTranslating(false);
   }
 
