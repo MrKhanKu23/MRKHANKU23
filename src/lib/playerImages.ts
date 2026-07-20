@@ -1,6 +1,7 @@
 const imageCache = new Map<string, string | null>();
 const fortnitePortraits: Record<string, string> = {
   Peterbot: 'https://res.cloudinary.com/dv4oaw0wk/image/upload/f_auto,q_85,w_512/v1778624070/fncr/players/597b62cd-6ee4-46f3-808f-6d7e6cca13b9/avatars/2f5c8532-05eb-4364-ad57-57462a335ea2.jpg',
+  Pollo: 'https://prosettings.net/wp-content/uploads/pollofn-220x220-fitcontain-q99-gb283-s1.png',
   Clix: 'https://res.cloudinary.com/dv4oaw0wk/image/upload/f_auto,q_85,w_512/v1780362935/fncr/players/358b5333-0947-4774-a300-a53dddb75211/avatars/94edffec-67ed-40f1-bce4-166797f14537.jpg',
   Bugha: 'https://fncomprankings.com/_next/image?q=85&url=%2Frankings-page-player-images%2FBugha.jpg&w=640',
   Aqua: 'https://fncomprankings.com/_next/image?q=85&url=%2Frankings-page-player-images%2FAqua.jpg&w=640',
