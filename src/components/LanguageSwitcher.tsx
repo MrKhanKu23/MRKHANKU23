@@ -56,10 +56,10 @@ export function LanguageSwitcher() {
       window.location.reload();
       return;
     }
-    for (let attempt = 0; attempt < 8 && !selectLanguage(next); attempt += 1) {
-      await new Promise((resolve) => window.setTimeout(resolve, 150));
+    for (let attempt = 0; attempt < 10 && !selectLanguage(next); attempt += 1) {
+      await new Promise((resolve) => window.setTimeout(resolve, 75));
     }
-    await new Promise((resolve) => window.setTimeout(resolve, 550));
+    await new Promise((resolve) => window.setTimeout(resolve, 120));
     setLanguage(next);
     window.dispatchEvent(new CustomEvent<Language>('sportify-language-change', { detail: next }));
     setTranslating(false);
