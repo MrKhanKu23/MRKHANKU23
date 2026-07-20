@@ -21,7 +21,7 @@ button,a,input{touch-action:manipulation}
   .leaderboards{grid-template-columns:1fr}.leaderboards>div{padding:18px 12px}.leaderboards li{gap:7px;padding:11px 8px}.leaderboards li::before{width:16px}.leaderboards li strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.leaderboards li span{font-size:11px}
   .profile-backdrop{align-items:end;padding:0}.profile-modal{width:100%;max-height:92dvh;border-radius:18px 18px 0 0;padding:25px 16px calc(22px + env(safe-area-inset-bottom))}.profile-close{right:13px;top:12px}
   .account-panel{padding:12px}.account-panel button,.account-panel input{min-height:44px}.account-panel span{margin:0 0 3px}
-  .sport-site-grid a{min-height:112px;padding:18px 14px;gap:12px}.sport-site-grid a>span{font-size:34px}.sport-site-grid h2{font-size:22px}.sport-site-grid p{font-size:12px}
+  .landing-page{padding:24px 12px}.landing-hero{margin-bottom:26px}.sport-site-grid{grid-template-columns:1fr 1fr!important;gap:7px}.sport-site-grid a{display:grid;grid-template-columns:1fr auto;grid-template-rows:auto 1fr;min-width:0;min-height:128px;padding:11px;gap:6px}.sport-site-grid a>span{grid-column:1;font-size:30px}.sport-site-grid a>div{grid-column:1/-1;min-width:0}.sport-site-grid a>b{grid-column:2;grid-row:1;font-size:18px}.sport-site-grid small{font-size:8px;letter-spacing:.7px}.sport-site-grid h2{overflow-wrap:anywhere;margin:3px 0;font-size:16px;line-height:1.05}.sport-site-grid p{display:none}
 }
 
 @media(max-width:380px){
@@ -31,7 +31,7 @@ button,a,input{touch-action:manipulation}
 @media(max-width:600px) and (orientation:portrait){
   .section-heading,.draft-header,.quiz-top{flex-direction:column;align-items:stretch}
   .draft-score{align-self:flex-start}.rank-card{display:grid;grid-template-columns:auto auto minmax(0,1fr)}.rank-card .rank{grid-row:1}.rank-card .badge{grid-row:1}.rank-card .rank-info{grid-row:1}.rank-card>strong{grid-column:3;display:block;text-align:left}
-  .sport-site-grid a{display:grid;grid-template-columns:auto minmax(0,1fr) auto}.fact-results>button{display:grid;grid-template-columns:auto minmax(0,1fr)}
+  .sport-site-grid a{display:grid;grid-template-columns:1fr auto;grid-template-rows:auto 1fr}.fact-results>button{display:grid;grid-template-columns:auto minmax(0,1fr)}
   .leaderboards li{display:grid;grid-template-columns:auto minmax(0,1fr) auto}.leaderboards li::before{grid-row:1}.leaderboards li strong{grid-row:1}.leaderboards li b{grid-row:1}.leaderboards li span{grid-column:2/4}
 }
 
