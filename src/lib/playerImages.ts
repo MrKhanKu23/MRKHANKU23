@@ -1,11 +1,21 @@
 const imageCache = new Map<string, string | null>();
-const fortnitePortraits = new Set([
-  'Bugha', 'Aqua', 'Peterbot', 'Pollo', 'Queasy', 'Veno', 'EpikWhale', 'Kami', 'MrSavage', 'Benjyfishy',
-  'Clix', 'Setty', 'Malibuca', 'Mongraal', 'Mitr0', 'Zayt', 'Saf', 'Reet', 'Acorn', 'Cold',
-]);
+const fortnitePortraits: Record<string, string> = {
+  Peterbot: 'https://res.cloudinary.com/dv4oaw0wk/image/upload/f_auto,q_85,w_512/v1778624070/fncr/players/597b62cd-6ee4-46f3-808f-6d7e6cca13b9/avatars/2f5c8532-05eb-4364-ad57-57462a335ea2.jpg',
+  Clix: 'https://res.cloudinary.com/dv4oaw0wk/image/upload/f_auto,q_85,w_512/v1780362935/fncr/players/358b5333-0947-4774-a300-a53dddb75211/avatars/94edffec-67ed-40f1-bce4-166797f14537.jpg',
+  Bugha: 'https://fncomprankings.com/_next/image?q=85&url=%2Frankings-page-player-images%2FBugha.jpg&w=640',
+  Aqua: 'https://fncomprankings.com/_next/image?q=85&url=%2Frankings-page-player-images%2FAqua.jpg&w=640',
+  Queasy: 'https://fncomprankings.com/_next/image?q=85&url=%2Frankings-page-player-images%2FQueasy.jpg&w=640',
+  Veno: 'https://fncomprankings.com/_next/image?q=85&url=%2Frankings-page-player-images%2FVeno.jpg&w=640',
+  Kami: 'https://fncomprankings.com/_next/image?q=85&url=%2Frankings-page-player-images%2FKami.jpg&w=640',
+  MrSavage: 'https://fncomprankings.com/_next/image?q=85&url=%2Frankings-page-player-images%2FMrSavage.jpg&w=640',
+  Mongraal: 'https://fncomprankings.com/_next/image?q=85&url=%2Frankings-page-player-images%2FMongraal.jpg&w=640',
+  Mitr0: 'https://fncomprankings.com/_next/image?q=85&url=%2Frankings-page-player-images%2FMitr0.jpg&w=640',
+  Zayt: 'https://fncomprankings.com/_next/image?q=85&url=%2Frankings-page-player-images%2FZayt.jpg&w=640',
+  Saf: 'https://fncomprankings.com/_next/image?q=85&url=%2Frankings-page-player-images%2FSaf.jpg&w=640',
+};
 
 export function hasVerifiedFortnitePortrait(name: string) {
-  return fortnitePortraits.has(name);
+  return Boolean(fortnitePortraits[name]);
 }
 
 type PageImage = { index?: number; thumbnail?: { source?: string } };
@@ -49,7 +59,7 @@ export async function loadPlayerImage(name: string, context = 'athlete', require
   const cacheKey = `${name}|${context}|${requireContext}`;
   if (imageCache.has(cacheKey)) return imageCache.get(cacheKey) ?? undefined;
   if (context === 'Fortnite player' && hasVerifiedFortnitePortrait(name)) {
-    const source = `https://specs.gg/assets/include/upload/image.php?name=${encodeURIComponent(name)}`;
+    const source = fortnitePortraits[name];
     imageCache.set(cacheKey, source);
     return source;
   }
