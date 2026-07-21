@@ -34,6 +34,26 @@ function isWonTrophy(value: string) {
   return trophy.test(value) && !notWon.test(value);
 }
 
+function honourKey(value: string) {
+  return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+    .replace(/uefa champions league\s*\/\s*european cup/g, 'uefa champions league')
+    .split(/[:;—–]|\s-\s/)[0]
+    .replace(/european cup/g, 'champions league')
+    .replace(/\b(titles?|wins?|winners?|awards?|medals?)\b/g, '')
+    .replace(/[^a-z0-9]+/g, ' ').trim();
+}
+
+export function dedupeHonours(values: string[]) {
+  const unique = new Map<string, string>();
+  values.forEach((value) => {
+    const key = honourKey(value);
+    if (!key) return;
+    const existing = unique.get(key);
+    if (!existing || value.length > existing.length) unique.set(key, value);
+  });
+  return [...unique.values()];
+}
+
 export async function loadCompleteHonours(name: string, sport: string, kind: 'player' | 'team', known: string[]) {
   const key = `${sport}:${kind}:${name}`;
   const saved = cache.get(key);
@@ -45,11 +65,11 @@ export async function loadCompleteHonours(name: string, sport: string, kind: 'pl
     const parseParams = new URLSearchParams({ action: 'parse', format: 'json', origin: '*', redirects: '1', prop: 'text', page: title });
     const parsed = await wikipedia(parseParams) as ParseResponse;
     const expanded = extractHonours(parsed.parse?.text?.['*'] ?? '');
-    const combined = [...new Set([...known, ...expanded])];
+    const combined = dedupeHonours([...known, ...expanded]);
     const honours = combined.filter(isWonTrophy);
     cache.set(key, honours);
     return honours;
   } catch {
-    return known.filter(isWonTrophy);
+    return dedupeHonours(known.filter(isWonTrophy));
   }
 }

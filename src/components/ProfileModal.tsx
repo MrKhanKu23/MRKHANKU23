@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { Player, RankedItem, Sport } from '../lib/sportsData';
-import { loadCompleteHonours } from '../lib/completeHonours';
+import { dedupeHonours, loadCompleteHonours } from '../lib/completeHonours';
 import { researchFactFile } from '../lib/playerResearch';
 import './ProfileModal.css';
 
@@ -50,7 +50,7 @@ export function ProfileModal({ sport, type, item, rank, onClose }: Props) {
       setHonours(results); setLoadingHonours(false);
       researchFactFile(item.name, sport.name, player ? 'player' : 'team', results).then((research) => {
         if (!current) return;
-        setHonours((existing) => [...new Set([...existing, ...research.trophiesWon])]);
+        setHonours((existing) => dedupeHonours([...existing, ...research.trophiesWon]));
       }).catch(() => undefined).finally(() => { if (current) setAiLoading(false); });
     });
     return () => { current = false; };
