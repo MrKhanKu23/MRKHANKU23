@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import type { Player, RankedItem, Sport } from '../lib/sportsData';
 import { dedupeHonours, loadCompleteHonours } from '../lib/completeHonours';
 import { researchFactFile, researchTeamTopPlayers } from '../lib/playerResearch';
+import { teamCompetition } from '../lib/teamCompetition';
 import './ProfileModal.css';
 
 type Props = {
@@ -88,7 +89,7 @@ export function ProfileModal({ sport, type, item, rank, edition = 'all-time', on
         <article className="trophy-list"><span>🏆 {edition === 'current' ? 'TROPHIES & AWARDS WON SINCE 2020' : 'COMPETITIONS, TROPHIES & AWARDS WON'}</span>{honours.length ? <ul>{honours.map((honour) => <li key={honour}>{honour}</li>)}</ul> : !loadingHonours && !aiLoading && <small>No verified wins found.</small>}{(loadingHonours || aiLoading) && <small>AI is checking the complete wins list…</small>}</article>
         <article><span>{edition === 'current' ? 'CURRENT SPORTIFY RANK' : 'ALL-TIME SPORTIFY RANK'}</span><strong>{rank ? `#${rank}` : 'Extended roster'}</strong>{!player && <div className="team-top-players"><span>{edition === 'current' ? 'CURRENT TOP 3 PLAYERS' : 'ALL-TIME TOP 3 PLAYERS'}</span>{displayedStars.length === 3 ? <ol>{displayedStars.map((star) => <li key={star.name}><b>{star.name}</b><em>#{star.rank}</em></li>)}</ol> : <small>AI is checking the team’s top three…</small>}</div>}</article>
         {player && <article><span>{player.status === 'retired' ? 'CAREER / MOST RECENT TEAM' : 'CURRENT TEAM / ACTIVE YEARS'}</span><strong>{player.status === 'retired' ? 'Retired' : player.currentTeam ?? player.team}</strong><small>{player.status === 'retired' ? `${player.team} · ${player.years}` : player.teamYears ?? player.years?.replace('present', 'current')}</small></article>}
-        {!player && <article><span>COMPETITION / REGION</span><strong>{item.detail}</strong></article>}
+        {!player && <article><span>LEAGUE / COMPETITION</span><strong>{teamCompetition(sport.id, item.name, item.detail)}</strong></article>}
       </div>
       <p className="profile-note">Profiles summarize the all-time record used in this ranking. Active-team information reflects the latest curated Sportify roster.</p>
     </section>
