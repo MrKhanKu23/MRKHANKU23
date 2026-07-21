@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { Player, RankedItem, Sport } from '../lib/sportsData';
 import { loadCompleteHonours } from '../lib/completeHonours';
@@ -13,6 +13,11 @@ type Props = {
   onClose: () => void;
 };
 
+function teamMatches(player: Player, teamName: string) {
+  const team = teamName.toLowerCase();
+  return [player.team, player.currentTeam, player.detail].some((value) => value?.toLowerCase().includes(team));
+}
+
 export function ProfileModal({ sport, type, item, rank, onClose }: Props) {
   const player = type === 'players' ? item as Player : undefined;
   const storedHonours = item.honours ?? [item.stat];
@@ -20,6 +25,18 @@ export function ProfileModal({ sport, type, item, rank, onClose }: Props) {
   const [loadingHonours, setLoadingHonours] = useState(true);
   const [aiResearch, setAiResearch] = useState<FactFileResearch>();
   const [aiLoading, setAiLoading] = useState(true);
+  const teamStars = useMemo(() => {
+    if (player) return [];
+    const pool = sport.draftPlayers ?? sport.quizPlayers ?? sport.players;
+    const ranked = new Map(sport.players.map((candidate, index) => [candidate.name, index]));
+    const unique = pool.filter((candidate, index) => pool.findIndex((entry) => entry.name === candidate.name) === index);
+    return unique.filter((candidate) => teamMatches(candidate, item.name)).sort((first, second) => {
+      const firstRank = ranked.get(first.name);
+      const secondRank = ranked.get(second.name);
+      if (firstRank !== undefined || secondRank !== undefined) return (firstRank ?? 999) - (secondRank ?? 999);
+      return (second.rating ?? 0) - (first.rating ?? 0);
+    }).slice(0, 3);
+  }, [item.name, player, sport]);
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => { if (event.key === 'Escape') onClose(); };
     document.body.classList.add('profile-open');
@@ -51,7 +68,7 @@ export function ProfileModal({ sport, type, item, rank, onClose }: Props) {
       {player && <div className={`status-pill ${player.status}`}><i />{player.status === 'retired' ? 'Retired' : 'Active player'}</div>}
       <div className="profile-stats">
         <article className="trophy-list"><span>🏆 {player ? 'TROPHIES & AWARDS WON' : 'COMPLETE TROPHIES, AWARDS & RECORDS'}</span>{honours.length ? <ul>{honours.map((honour) => <li key={honour}>{honour}</li>)}</ul> : !loadingHonours && <small>No named trophies or awards recorded.</small>}{loadingHonours && <small>Loading the complete honours list…</small>}</article>
-        <article><span>ALL-TIME SPORTIFY RANK</span><strong>{rank ? `#${rank}` : 'Extended roster'}</strong></article>
+        <article><span>ALL-TIME SPORTIFY RANK</span><strong>{rank ? `#${rank}` : 'Extended roster'}</strong>{!player && teamStars.length > 0 && <div className="team-top-players"><span>TOP 3 PLAYERS</span><ol>{teamStars.map((star) => <li key={star.name}>{star.name}</li>)}</ol></div>}</article>
         {player && <article><span>{player.status === 'retired' ? 'CAREER / MOST RECENT TEAM' : 'CURRENT TEAM / ACTIVE YEARS'}</span><strong>{player.status === 'retired' ? 'Retired' : player.currentTeam ?? player.team}</strong><small>{player.status === 'retired' ? `${player.team} · ${player.years}` : player.teamYears ?? player.years?.replace('present', 'current')}</small></article>}
         {!player && <article><span>COMPETITION / REGION</span><strong>{item.detail}</strong></article>}
         <article className="ai-research-card"><span>✦ AI-CHECKED FACT FILE</span>{aiResearch?.summary ? <p>{aiResearch.summary}</p> : <small>{aiLoading ? 'Checking public information and trophies…' : 'No additional verified information found.'}</small>}</article>
