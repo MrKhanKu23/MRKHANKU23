@@ -17,9 +17,9 @@ export function AiPlayerHelper({ query, sport }: { query: string; sport: string 
   }
 
   return <section className="ai-player-helper">
-    <div><p className="eyebrow">AI PLAYER RESEARCH</p><span>Check a player beyond Sportify’s saved fact files.</span></div>
+    <div><p className="eyebrow">AI TROPHY RESEARCH</p><span>Find competitions, trophies and awards this player won.</span></div>
     <button onClick={research} disabled={loading || query.trim().length < 2}>{loading ? 'Checking facts…' : 'Ask AI helper'}</button>
-    {answer && <div className="ai-player-answer"><strong>Sportify AI fact file</strong><p>{answer}</p><small>AI summary grounded with public sports information. Verify live team changes with an official source.</small></div>}
+    {answer && <div className="ai-player-answer"><strong>Verified wins found</strong><p>{answer}</p><small>AI list grounded with public sports information. Unsupported wins are omitted.</small></div>}
     {error && <p className="ai-player-error">{error}</p>}
   </section>;
 }

@@ -29,7 +29,7 @@ function extractHonours(html: string) {
 }
 
 function isWonTrophy(value: string) {
-  const trophy = /champion|championship|cup|league|trophy|medal|award|mvp|ballon|golden|olympic|grand slam|world series|super bowl|cy young|silver slugger|gold glove|rookie of the year|player of the year|open title|masters title|wimbledon|roland-garros|fncs|major title|race win|constructors|drivers/i;
+  const trophy = /champion|championship|cup|copa|league|premiership|serie a|bundesliga|la liga|ligue 1|eredivisie|shield|trophy|medal|award|mvp|ballon|golden|olympic|grand slam|world series|super bowl|cy young|silver slugger|gold glove|rookie of the year|player of the year|open title|masters title|wimbledon|roland-garros|fncs|major title|tournament win|invitational win|grand prix win|race win|constructors|drivers/i;
   const notWon = /runner-up|runners-up|finalist|semi-final|semifinal|second place|third place|record holder|all-time record|appearance/i;
   return trophy.test(value) && !notWon.test(value);
 }
@@ -46,10 +46,10 @@ export async function loadCompleteHonours(name: string, sport: string, kind: 'pl
     const parsed = await wikipedia(parseParams) as ParseResponse;
     const expanded = extractHonours(parsed.parse?.text?.['*'] ?? '');
     const combined = [...new Set([...known, ...expanded])];
-    const honours = kind === 'player' ? combined.filter(isWonTrophy) : combined;
+    const honours = combined.filter(isWonTrophy);
     cache.set(key, honours);
     return honours;
   } catch {
-    return kind === 'player' ? known.filter(isWonTrophy) : known;
+    return known.filter(isWonTrophy);
   }
 }

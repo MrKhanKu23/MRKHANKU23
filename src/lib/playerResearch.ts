@@ -3,7 +3,7 @@ import { supabase } from './supabase';
 type WikiPage = { title?: string; extract?: string };
 type WikiResponse = { query?: { pages?: Record<string, WikiPage> } };
 type AiResponse = { text?: string; error?: string };
-export type FactFileResearch = { summary: string; trophiesWon: string[] };
+export type FactFileResearch = { trophiesWon: string[] };
 
 async function wikipediaContext(name: string, sport: string) {
   const parameters = new URLSearchParams({
@@ -20,13 +20,13 @@ async function wikipediaContext(name: string, sport: string) {
 
 export async function researchPlayer(name: string, sport: string) {
   const source = await wikipediaContext(name, sport);
-  const prompt = `Create a fact file for "${name}" in ${sport}.
+  const prompt = `List every competition, championship, trophy, medal and individual award actually won by "${name}" in ${sport}.
 
 SOURCE CONTEXT:
 ${source || 'No matching Wikipedia summary was found.'}
 
-Return: full name; nationality; active or retired; main position/event; career years; current team and joined year if active; former teams with years; trophies and individual awards actually won; key official career statistics. If the name is ambiguous or not a ${sport} player, say so. Mark current details that cannot be confirmed as "Needs current verification".`;
-  const system = 'You are Sportify Research, a careful sports fact-checking assistant. Use the supplied source context as the factual basis. Never invent dates, teams, statistics, trophies, or awards. Do not describe finalist or runner-up finishes as trophies won. Clearly say when information is missing or uncertain. Use short labelled sections and bullet points. Do not use tables.';
+Return only a bullet list of named wins. Include seasons or years when the source provides them. Exclude biography, teams, statistics, records, appearances, nominations, finalist results and runner-up finishes. If no wins can be verified, say "No verified wins found."`;
+  const system = 'You are Sportify Trophy Research, a careful sports fact-checking assistant. Use only the supplied source context. Never invent a competition, trophy, date or award. List only wins. Do not include explanations or biographical information.';
   const { data, error } = await supabase.functions.invoke<AiResponse>('ai', { body: { prompt, system } });
   if (error) throw error;
   if (!data?.text) throw new Error(data?.error || 'The AI helper returned no information.');
@@ -35,9 +35,8 @@ Return: full name; nationality; active or retired; main position/event; career y
 
 function parseFactFile(text: string): FactFileResearch {
   const cleaned = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
-  const value = JSON.parse(cleaned) as { summary?: unknown; trophiesWon?: unknown };
+  const value = JSON.parse(cleaned) as { trophiesWon?: unknown };
   return {
-    summary: typeof value.summary === 'string' ? value.summary.trim() : '',
     trophiesWon: Array.isArray(value.trophiesWon)
       ? value.trophiesWon.filter((item): item is string => typeof item === 'string' && item.trim().length > 2).map((item) => item.trim())
       : [],
@@ -55,10 +54,10 @@ COLLECTED HONOURS:
 ${knownHonours.length ? knownHonours.join('\n') : 'No honours collected yet.'}
 
 Return only valid JSON in this exact shape:
-{"summary":"2-3 concise factual sentences about identity, career/status and team or competition","trophiesWon":["exact trophy or individual award actually won"]}
+{"trophiesWon":["exact competition, trophy, medal or individual award actually won, including season/year when supported"]}
 
 Keep only championships, cups, medals, titles and individual awards actually won. Exclude records, appearances, finalist results, runner-up finishes and explanations.`;
-  const system = 'You are Sportify Fact Checker. Use only the supplied public source and collected honours. Never add an unsupported fact or trophy. If evidence is missing, omit it. Current team claims must be marked as needing verification unless the source explicitly confirms them. Output valid JSON only, without markdown.';
+  const system = 'You are Sportify Trophy Fact Checker. Use only the supplied public source and collected honours. Include every supported competition, championship, trophy, medal and individual award actually won. Never add an unsupported win. Exclude records, appearances, nominations, finalist results, runner-up finishes and explanations. Preserve seasons, years and counts when supplied. Output valid JSON only, without markdown.';
   const { data, error } = await supabase.functions.invoke<AiResponse>('ai', { body: { prompt, system } });
   if (error) throw error;
   if (!data?.text) throw new Error(data?.error || 'The AI helper returned no information.');
