@@ -19,6 +19,7 @@ export type Sport = {
   players: Player[];
   quizPlayers?: Player[];
   draftPlayers?: Player[];
+  rankingOrders?: { allTimeTeams: string[]; allTimePlayers: string[]; currentTeams: string[]; currentPlayers: string[] };
 };
 
 const footballTeams: RankedItem[] = [

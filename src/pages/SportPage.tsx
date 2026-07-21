@@ -18,12 +18,17 @@ export function SportPage({ sport }: { sport: Sport }) {
   const organisations = sport.id === 'fortnite' || sport.id === 'counter-strike-2';
   const editionSport = useMemo(() => {
     if (edition === 'all-time') return sport;
-    const ranked = currentPlayers[sport.id] ?? (sport.quizPlayers ?? sport.players).filter((player) => player.status === 'active').slice(0, 10);
+    const localRanked = currentPlayers[sport.id] ?? (sport.quizPlayers ?? sport.players).filter((player) => player.status === 'active').slice(0, 10);
+    const rankedByName = new Map(localRanked.map((player) => [player.name, player]));
+    const ranked = sport.rankingOrders?.currentPlayers.map((name) => rankedByName.get(name)).filter((player) => player !== undefined) ?? localRanked;
     const additionalActive = (sport.quizPlayers ?? sport.players).filter((player) => player.status === 'active');
     const pool = [...(currentPlayerPools[sport.id] ?? ranked), ...additionalActive].filter(
       (player, index, players) => players.findIndex((candidate) => candidate.name === player.name) === index,
     );
-    return { ...sport, teams: orderCurrentTeams(sport.teams, sport.id), players: ranked.slice(0, 10), quizPlayers: pool, draftPlayers: pool };
+    const localTeams = orderCurrentTeams(sport.teams, sport.id);
+    const teamsByName = new Map(localTeams.map((team) => [team.name, team]));
+    const rankedTeams = sport.rankingOrders?.currentTeams.map((name) => teamsByName.get(name)).filter((team) => team !== undefined) ?? localTeams;
+    return { ...sport, teams: rankedTeams, players: ranked.slice(0, 10), quizPlayers: pool, draftPlayers: pool };
   }, [edition, sport]);
   const currentGameUnavailable = edition === 'current' && (editionSport.quizPlayers?.length ?? 0) < 3;
 

@@ -2,18 +2,28 @@ import { supabase } from './supabase';
 import type { Player, Sport } from './sportsData';
 
 export async function loadSportsCatalog(fallback: Sport[]) {
-  const { data, error } = await supabase.from('sports_catalog').select('payload').order('sport_id');
+  const [{ data, error }, rankingsResult] = await Promise.all([
+    supabase.from('sports_catalog').select('payload').order('sport_id'),
+    supabase.from('sport_rankings').select('sport_id,all_time_teams,all_time_players,current_teams,current_players'),
+  ]);
   if (error || !data?.length) return fallback;
   const byId = new Map(data.map((row) => [(row.payload as Sport).id, row.payload as Sport]));
+  const rankings = new Map((rankingsResult.data ?? []).map((row) => [row.sport_id, row]));
   return fallback.map((sport) => {
     const stored = byId.get(sport.id);
-    if (!stored) return sport;
+    const order = rankings.get(sport.id);
+    const rankingOrders = order ? {
+      allTimeTeams: order.all_time_teams as string[], allTimePlayers: order.all_time_players as string[],
+      currentTeams: order.current_teams as string[], currentPlayers: order.current_players as string[],
+    } : undefined;
+    if (!stored) return { ...sport, rankingOrders };
     const localPlayers = new Map(sport.players.map((player) => [player.name, player]));
     return {
       ...stored,
       players: stored.players.map((player) => ({ ...player, ...localPlayers.get(player.name) })),
       quizPlayers: sport.quizPlayers,
       draftPlayers: sport.draftPlayers,
+      rankingOrders,
     };
   });
 }
