@@ -34,24 +34,64 @@ function isWonTrophy(value: string) {
   return trophy.test(value) && !notWon.test(value);
 }
 
-function honourKey(value: string) {
+function normalizedHonour(value: string) {
   return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
     .replace(/uefa champions league\s*\/\s*european cup/g, 'uefa champions league')
-    .split(/[:;—–]|\s-\s/)[0]
+    .replace(/nba (?:world )?champions?(?:hips?)?/g, 'nba championship')
+    .replace(/\bchampions\b/g, 'championship')
     .replace(/european cup/g, 'champions league')
-    .replace(/\b(titles?|wins?|winners?|awards?|medals?)\b/g, '')
+    .replace(/\b(titles?|wins?|winners?|awards?|medals?)\b/g, '');
+}
+
+function honourKey(value: string) {
+  return normalizedHonour(value)
+    .replace(/\b(?:19|20)\d{2}(?:\s*[–-]\s*\d{2,4})?\b/g, '')
+    .replace(/\b\d+\s*[x×]\b|\b[x×]\s*\d+\b|\(\s*\d+\s*\)/g, '')
+    .split(/[:;—–]|\s-\s/)[0]
+    .replace(/\b\d+\b/g, '')
     .replace(/[^a-z0-9]+/g, ' ').trim();
 }
 
+function honourYears(value: string) {
+  return value.match(/\b(?:19|20)\d{2}(?:\s*[–-]\s*\d{2,4})?\b/g) ?? [];
+}
+
+function statedCount(value: string) {
+  const match = value.match(/(?:\b(\d+)\s*[x×]\b|\b[x×]\s*(\d+)\b|\(\s*(\d+)\s*\)|\b(\d+)\s+(?=[A-Za-z].*(?:championship|cup|league|title|medal|award)))/i);
+  return match ? Number(match[1] ?? match[2] ?? match[3] ?? match[4]) : 0;
+}
+
+function honourName(value: string) {
+  return value.split(/[:;—–]|\s-\s/)[0]
+    .replace(/\b(?:19|20)\d{2}(?:\s*[–-]\s*\d{2,4})?\b/g, '')
+    .replace(/^\s*\d+\s+(?=[A-Za-z])/, '')
+    .replace(/\b\d+\s*[x×]\b|\b[x×]\s*\d+\b|\(\s*\d+\s*\)/gi, '')
+    .replace(/\s+/g, ' ').replace(/[,:;\s-]+$/, '').trim();
+}
+
 export function dedupeHonours(values: string[]) {
-  const unique = new Map<string, string>();
+  const grouped = new Map<string, { name: string; years: string[]; count: number; original: string }>();
   values.forEach((value) => {
     const key = honourKey(value);
     if (!key) return;
-    const existing = unique.get(key);
-    if (!existing || value.length > existing.length) unique.set(key, value);
+    const years = honourYears(value);
+    const count = statedCount(value);
+    const existing = grouped.get(key);
+    if (!existing) {
+      grouped.set(key, { name: honourName(value), years, count, original: value });
+      return;
+    }
+    existing.years = [...new Set([...existing.years, ...years])];
+    existing.count = Math.max(existing.count, count);
+    if (honourName(value).length > existing.name.length) existing.name = honourName(value);
+    if (value.length > existing.original.length) existing.original = value;
   });
-  return [...unique.values()];
+  return [...grouped.values()].map(({ name, years, count, original }) => {
+    const wins = Math.max(count, years.length);
+    if (years.length) return `${name} — ${wins} (${years.join(', ')})`;
+    if (count > 1) return `${name} — ${count}`;
+    return original;
+  });
 }
 
 export async function loadCompleteHonours(name: string, sport: string, kind: 'player' | 'team', known: string[]) {
