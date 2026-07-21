@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { Player, RankedItem, Sport } from '../lib/sportsData';
 import { dedupeHonours, loadCompleteHonours } from '../lib/completeHonours';
-import { researchFactFile } from '../lib/playerResearch';
+import { researchFactFile, researchTeamTopPlayers } from '../lib/playerResearch';
 import './ProfileModal.css';
 
 type Props = {
@@ -42,8 +42,11 @@ export function ProfileModal({ sport, type, item, rank, edition = 'all-time', on
   }, [edition, item.name, player, sport]);
   const displayedStars = useMemo(() => {
     const known = new Set(teamStars.map((star) => star.name.toLowerCase()));
-    const additions = researchedStars.filter((name) => !known.has(name.toLowerCase()))
-      .map((name, index) => ({ name, rank: sport.players.length + index + 1 }));
+    const additions = researchedStars.filter((name) => {
+      const key = name.toLowerCase();
+      if (known.has(key)) return false;
+      known.add(key); return true;
+    }).map((name, index) => ({ name, rank: sport.players.length + index + 1 }));
     return [...teamStars, ...additions].slice(0, 3);
   }, [researchedStars, sport.players.length, teamStars]);
   useEffect(() => {
@@ -57,6 +60,9 @@ export function ProfileModal({ sport, type, item, rank, edition = 'all-time', on
     const minimumYear = edition === 'current' ? 2020 : undefined;
     setResearchedStars([]);
     setHonours(minimumYear ? dedupeHonours(storedHonours, minimumYear) : player ? [] : storedHonours); setLoadingHonours(true); setAiLoading(true);
+    if (!player) researchTeamTopPlayers(item.name, sport.name, edition === 'current').then((names) => {
+      if (current && names.length === 3) setResearchedStars(names);
+    }).catch(() => undefined);
     loadCompleteHonours(item.name, sport.name, player ? 'player' : 'team', storedHonours).then((results) => {
       if (!current) return;
       const visibleResults = dedupeHonours(results, minimumYear);
@@ -64,7 +70,7 @@ export function ProfileModal({ sport, type, item, rank, edition = 'all-time', on
       researchFactFile(item.name, sport.name, player ? 'player' : 'team', visibleResults, minimumYear).then((research) => {
         if (!current) return;
         setHonours((existing) => dedupeHonours([...existing, ...research.trophiesWon], minimumYear));
-        if (!player) setResearchedStars(research.topPlayers);
+        if (!player && research.topPlayers.length === 3) setResearchedStars(research.topPlayers);
       }).catch(() => undefined).finally(() => { if (current) setAiLoading(false); });
     });
     return () => { current = false; };

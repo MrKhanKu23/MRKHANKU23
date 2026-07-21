@@ -5,6 +5,19 @@ type WikiResponse = { query?: { pages?: Record<string, WikiPage> } };
 type AiResponse = { text?: string; error?: string };
 export type FactFileResearch = { trophiesWon: string[]; topPlayers: string[] };
 
+export async function researchTeamTopPlayers(name: string, sport: string, current: boolean) {
+  const prompt = `Name exactly three ${current ? 'best current active' : 'best all-time'} players for the ${sport} team or organisation "${name}". Every player must currently represent the team in Current Edition, or have represented it in All-Time Edition. Return only JSON: {"topPlayers":["name","name","name"]}`;
+  const system = 'You are Sportify Team Research. Return exactly three correctly associated, distinct player names. Never include explanations or an unrelated player. Output valid JSON only.';
+  const { data, error } = await supabase.functions.invoke<AiResponse>('ai', { body: { prompt, system } });
+  if (error) throw error;
+  if (!data?.text) throw new Error(data?.error || 'The AI helper returned no information.');
+  const cleaned = data.text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+  const parsed = JSON.parse(cleaned) as { topPlayers?: unknown };
+  if (!Array.isArray(parsed.topPlayers)) throw new Error('No team players returned.');
+  return parsed.topPlayers.filter((value): value is string => typeof value === 'string' && value.trim().length > 2)
+    .map((value) => value.trim()).filter((value, index, values) => values.findIndex((candidate) => candidate.toLowerCase() === value.toLowerCase()) === index).slice(0, 3);
+}
+
 async function wikipediaContext(name: string, sport: string, kind: 'player' | 'team' = 'player') {
   const parameters = new URLSearchParams({
     action: 'query', format: 'json', origin: '*', generator: 'search',
