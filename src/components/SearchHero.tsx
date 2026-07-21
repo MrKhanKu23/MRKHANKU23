@@ -12,7 +12,7 @@ export function SearchHero({ sport, query, edition, onQuery, onEdition }: Props)
       <p className="kicker">YOUR SPORTS KNOWLEDGE HUB</p>
       <h1>Know the game.<br /><em>Own the stats.</em></h1>
       <p>Search a sport. Meet the teams. Learn the stars. Then prove what you know.</p>
-      <div className="search-fact-wrap"><label className="search"><span>⌕</span><input value={query} onChange={(event) => onQuery(event.target.value)} placeholder={`Search ${sport.name.toLowerCase()} teams or players...`} /></label>{query.trim() && <FactFileSearch sport={sport} query={query} />}</div>
+      <div className="search-fact-wrap"><label className="search"><span>⌕</span><input value={query} onChange={(event) => onQuery(event.target.value)} placeholder={`Search ${sport.name.toLowerCase()} teams or players...`} /></label>{query.trim() && <FactFileSearch sport={sport} query={query} edition={edition} />}</div>
     </div>
     <div className="sport-scene" aria-hidden="true"><span>{sport.icon}</span></div>
     <div className="hero-number">10</div>
