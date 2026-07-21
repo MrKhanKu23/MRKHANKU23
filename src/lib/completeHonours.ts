@@ -46,7 +46,7 @@ function normalizedHonour(value: string) {
 function honourKey(value: string) {
   return normalizedHonour(value)
     .replace(/\b(?:19|20)\d{2}(?:\s*[–-]\s*\d{2,4})?\b/g, '')
-    .replace(/\b\d+\s*[x×]\b|\b[x×]\s*\d+\b|\(\s*\d+\s*\)/g, '')
+    .replace(/\b\d+\s*[x×]\b|\b[x×]\s*\d+\b|[({]\s*\d+\s*[)}]/g, '')
     .split(/[:;—–]|\s-\s/)[0]
     .replace(/\b\d+\b/g, '')
     .replace(/[^a-z0-9]+/g, ' ').trim();
@@ -64,7 +64,7 @@ function finalYear(value: string) {
 }
 
 function statedCount(value: string) {
-  const match = value.match(/(?:\b(\d+)\s*[x×]\b|\b[x×]\s*(\d+)\b|\(\s*(\d+)\s*\)|\b(\d+)\s+(?=[A-Za-z].*(?:championship|cup|league|title|medal|award)))/i);
+  const match = value.match(/(?:\b(\d+)\s*[x×]\b|\b[x×]\s*(\d+)\b|[({]\s*(\d+)\s*[)}]|\b(\d+)\s+(?=[A-Za-z].*(?:championship|cup|league|title|medal|award)))/i);
   return match ? Number(match[1] ?? match[2] ?? match[3] ?? match[4]) : 0;
 }
 
@@ -72,7 +72,7 @@ function honourName(value: string) {
   return value.split(/[:;—–]|\s-\s/)[0]
     .replace(/\b(?:19|20)\d{2}(?:\s*[–-]\s*\d{2,4})?\b/g, '')
     .replace(/^\s*\d+\s+(?=[A-Za-z])/, '')
-    .replace(/\b\d+\s*[x×]\b|\b[x×]\s*\d+\b|\(\s*\d+\s*\)/gi, '')
+    .replace(/\b\d+\s*[x×]\b|\b[x×]\s*\d+\b|[({]\s*\d+\s*[)}]/gi, '')
     .replace(/\s+/g, ' ').replace(/[,:;\s-]+$/, '').trim();
 }
 
@@ -96,8 +96,8 @@ export function dedupeHonours(values: string[], minimumYear?: number) {
   });
   return [...grouped.values()].map(({ name, years, count, original }) => {
     const wins = Math.max(count, years.length);
-    if (years.length) return `${name} — ${wins} (${years.join(', ')})`;
-    if (count > 1) return `${name} — ${count}`;
+    if (years.length) return `${name} — {${wins}} (${years.join(', ')})`;
+    if (count > 1) return `${name} — {${count}}`;
     return original;
   });
 }
