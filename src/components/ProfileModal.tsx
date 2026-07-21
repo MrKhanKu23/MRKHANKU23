@@ -26,6 +26,7 @@ export function ProfileModal({ sport, type, item, rank, edition = 'all-time', on
   const [honours, setHonours] = useState(player ? [] : storedHonours);
   const [loadingHonours, setLoadingHonours] = useState(true);
   const [aiLoading, setAiLoading] = useState(true);
+  const [researchedStars, setResearchedStars] = useState<string[]>([]);
   const teamStars = useMemo(() => {
     if (player) return [];
     const pool = sport.draftPlayers ?? sport.quizPlayers ?? sport.players;
@@ -37,8 +38,14 @@ export function ProfileModal({ sport, type, item, rank, edition = 'all-time', on
     const ranks = new Map(fullRanking.map((candidate, index) => [candidate.name, index + 1]));
     return unique.filter((candidate) => teamMatches(candidate, item.name, edition === 'current') && (edition !== 'current' || candidate.status === 'active'))
       .sort((first, second) => (ranks.get(first.name) ?? 999) - (ranks.get(second.name) ?? 999))
-      .slice(0, 3).map((candidate) => ({ player: candidate, rank: ranks.get(candidate.name) }));
+      .slice(0, 3).map((candidate) => ({ name: candidate.name, rank: ranks.get(candidate.name) }));
   }, [edition, item.name, player, sport]);
+  const displayedStars = useMemo(() => {
+    const known = new Set(teamStars.map((star) => star.name.toLowerCase()));
+    const additions = researchedStars.filter((name) => !known.has(name.toLowerCase()))
+      .map((name, index) => ({ name, rank: sport.players.length + index + 1 }));
+    return [...teamStars, ...additions].slice(0, 3);
+  }, [researchedStars, sport.players.length, teamStars]);
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => { if (event.key === 'Escape') onClose(); };
     document.body.classList.add('profile-open');
@@ -48,6 +55,7 @@ export function ProfileModal({ sport, type, item, rank, edition = 'all-time', on
   useEffect(() => {
     let current = true;
     const minimumYear = edition === 'current' ? 2020 : undefined;
+    setResearchedStars([]);
     setHonours(minimumYear ? dedupeHonours(storedHonours, minimumYear) : player ? [] : storedHonours); setLoadingHonours(true); setAiLoading(true);
     loadCompleteHonours(item.name, sport.name, player ? 'player' : 'team', storedHonours).then((results) => {
       if (!current) return;
@@ -56,6 +64,7 @@ export function ProfileModal({ sport, type, item, rank, edition = 'all-time', on
       researchFactFile(item.name, sport.name, player ? 'player' : 'team', visibleResults, minimumYear).then((research) => {
         if (!current) return;
         setHonours((existing) => dedupeHonours([...existing, ...research.trophiesWon], minimumYear));
+        if (!player) setResearchedStars(research.topPlayers);
       }).catch(() => undefined).finally(() => { if (current) setAiLoading(false); });
     });
     return () => { current = false; };
@@ -71,7 +80,7 @@ export function ProfileModal({ sport, type, item, rank, edition = 'all-time', on
       {player && <div className={`status-pill ${player.status}`}><i />{player.status === 'retired' ? 'Retired' : 'Active player'}</div>}
       <div className="profile-stats">
         <article className="trophy-list"><span>🏆 {edition === 'current' ? 'TROPHIES & AWARDS WON SINCE 2020' : 'COMPETITIONS, TROPHIES & AWARDS WON'}</span>{honours.length ? <ul>{honours.map((honour) => <li key={honour}>{honour}</li>)}</ul> : !loadingHonours && !aiLoading && <small>No verified wins found.</small>}{(loadingHonours || aiLoading) && <small>AI is checking the complete wins list…</small>}</article>
-        <article><span>{edition === 'current' ? 'CURRENT SPORTIFY RANK' : 'ALL-TIME SPORTIFY RANK'}</span><strong>{rank ? `#${rank}` : 'Extended roster'}</strong>{!player && teamStars.length > 0 && <div className="team-top-players"><span>{edition === 'current' ? 'CURRENT TOP PLAYERS' : 'TOP 3 PLAYERS'}</span><ol>{teamStars.map((star) => <li key={star.player.name}><b>{star.player.name}</b><em>#{star.rank}</em></li>)}</ol></div>}</article>
+        <article><span>{edition === 'current' ? 'CURRENT SPORTIFY RANK' : 'ALL-TIME SPORTIFY RANK'}</span><strong>{rank ? `#${rank}` : 'Extended roster'}</strong>{!player && <div className="team-top-players"><span>{edition === 'current' ? 'CURRENT TOP 3 PLAYERS' : 'ALL-TIME TOP 3 PLAYERS'}</span>{displayedStars.length === 3 ? <ol>{displayedStars.map((star) => <li key={star.name}><b>{star.name}</b><em>#{star.rank}</em></li>)}</ol> : <small>AI is checking the team’s top three…</small>}</div>}</article>
         {player && <article><span>{player.status === 'retired' ? 'CAREER / MOST RECENT TEAM' : 'CURRENT TEAM / ACTIVE YEARS'}</span><strong>{player.status === 'retired' ? 'Retired' : player.currentTeam ?? player.team}</strong><small>{player.status === 'retired' ? `${player.team} · ${player.years}` : player.teamYears ?? player.years?.replace('present', 'current')}</small></article>}
         {!player && <article><span>COMPETITION / REGION</span><strong>{item.detail}</strong></article>}
       </div>

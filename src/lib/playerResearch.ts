@@ -3,12 +3,12 @@ import { supabase } from './supabase';
 type WikiPage = { title?: string; extract?: string };
 type WikiResponse = { query?: { pages?: Record<string, WikiPage> } };
 type AiResponse = { text?: string; error?: string };
-export type FactFileResearch = { trophiesWon: string[] };
+export type FactFileResearch = { trophiesWon: string[]; topPlayers: string[] };
 
-async function wikipediaContext(name: string, sport: string) {
+async function wikipediaContext(name: string, sport: string, kind: 'player' | 'team' = 'player') {
   const parameters = new URLSearchParams({
     action: 'query', format: 'json', origin: '*', generator: 'search',
-    gsrsearch: `"${name}" ${sport} player`, gsrnamespace: '0', gsrlimit: '1',
+    gsrsearch: `"${name}" ${sport} ${kind}`, gsrnamespace: '0', gsrlimit: '1',
     prop: 'extracts', explaintext: '1', exintro: '1', exchars: '3000',
   });
   const response = await fetch(`https://en.wikipedia.org/w/api.php?${parameters}`);
@@ -35,16 +35,19 @@ Return only a bullet list of named wins. Include seasons or years when the sourc
 
 function parseFactFile(text: string): FactFileResearch {
   const cleaned = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
-  const value = JSON.parse(cleaned) as { trophiesWon?: unknown };
+  const value = JSON.parse(cleaned) as { trophiesWon?: unknown; topPlayers?: unknown };
   return {
     trophiesWon: Array.isArray(value.trophiesWon)
       ? value.trophiesWon.filter((item): item is string => typeof item === 'string' && item.trim().length > 2).map((item) => item.trim())
+      : [],
+    topPlayers: Array.isArray(value.topPlayers)
+      ? value.topPlayers.filter((item): item is string => typeof item === 'string' && item.trim().length > 2).map((item) => item.trim()).slice(0, 3)
       : [],
   };
 }
 
 export async function researchFactFile(name: string, sport: string, kind: 'player' | 'team', knownHonours: string[], minimumYear?: number) {
-  const source = await wikipediaContext(name, sport);
+  const source = await wikipediaContext(name, sport, kind);
   const prompt = `Research this ${kind}: "${name}" (${sport}).
 
 PUBLIC SOURCE:
@@ -54,11 +57,11 @@ COLLECTED HONOURS:
 ${knownHonours.length ? knownHonours.join('\n') : 'No honours collected yet.'}
 
 Return only valid JSON in this exact shape:
-{"trophiesWon":["exact competition, trophy, medal or individual award actually won, including season/year when supported"]}
+{"trophiesWon":["exact competition, trophy, medal or individual award actually won, including season/year when supported"],"topPlayers":["player name"]}
 
-Keep only championships, cups, medals, titles and individual awards actually won. Group repeat wins of the same trophy into one array item with all supported seasons, years or the total count. Never list the same trophy twice. Exclude records, appearances, finalist results, runner-up finishes and explanations.`;
+Keep only championships, cups, medals, titles and individual awards actually won. Group repeat wins of the same trophy into one array item with all supported seasons, years or the total count. Never list the same trophy twice. Exclude records, appearances, finalist results, runner-up finishes and explanations. ${kind === 'team' ? `Return exactly three ${minimumYear ? 'best current' : 'best all-time'} players who represent or represented this team in topPlayers.` : 'Return an empty topPlayers array.'}`;
   const cutoff = minimumYear ? ` Include only wins from ${minimumYear} onward, and always include the winning year or season.` : '';
-  const system = `You are Sportify Trophy Fact Checker. Use only the supplied public source and collected honours. Include every supported competition, championship, trophy, medal and individual award actually won.${cutoff} Group every repeated trophy into one item containing all supported seasons, years or its total count; never return duplicate trophies. Never add an unsupported win. Exclude records, appearances, nominations, finalist results, runner-up finishes and explanations. Output valid JSON only, without markdown.`;
+  const system = `You are Sportify Trophy Fact Checker. Use the supplied public source and reliable sports knowledge. Include every supported competition, championship, trophy, medal and individual award actually won.${cutoff} Group every repeated trophy into one item containing all supported seasons, years or its total count; never return duplicate trophies. For team profiles, supply exactly three correctly associated ${minimumYear ? 'current' : 'all-time'} star players. Never add an unsupported win or unrelated player. Exclude records, appearances, nominations, finalist results, runner-up finishes and explanations. Output valid JSON only, without markdown.`;
   const { data, error } = await supabase.functions.invoke<AiResponse>('ai', { body: { prompt, system } });
   if (error) throw error;
   if (!data?.text) throw new Error(data?.error || 'The AI helper returned no information.');
