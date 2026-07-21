@@ -27,14 +27,15 @@ export function ProfileModal({ sport, type, item, rank, onClose }: Props) {
   const teamStars = useMemo(() => {
     if (player) return [];
     const pool = sport.draftPlayers ?? sport.quizPlayers ?? sport.players;
-    const ranked = new Map(sport.players.map((candidate, index) => [candidate.name, index]));
     const unique = pool.filter((candidate, index) => pool.findIndex((entry) => entry.name === candidate.name) === index);
-    return unique.filter((candidate) => teamMatches(candidate, item.name)).sort((first, second) => {
-      const firstRank = ranked.get(first.name);
-      const secondRank = ranked.get(second.name);
-      if (firstRank !== undefined || secondRank !== undefined) return (firstRank ?? 999) - (secondRank ?? 999);
-      return (second.rating ?? 0) - (first.rating ?? 0);
-    }).slice(0, 3);
+    const topNames = new Set(sport.players.map((candidate) => candidate.name));
+    const extended = unique.filter((candidate) => !topNames.has(candidate.name))
+      .sort((first, second) => (second.rating ?? 0) - (first.rating ?? 0));
+    const fullRanking = [...sport.players, ...extended];
+    const ranks = new Map(fullRanking.map((candidate, index) => [candidate.name, index + 1]));
+    return unique.filter((candidate) => teamMatches(candidate, item.name))
+      .sort((first, second) => (ranks.get(first.name) ?? 999) - (ranks.get(second.name) ?? 999))
+      .slice(0, 3).map((candidate) => ({ player: candidate, rank: ranks.get(candidate.name) }));
   }, [item.name, player, sport]);
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => { if (event.key === 'Escape') onClose(); };
@@ -66,7 +67,7 @@ export function ProfileModal({ sport, type, item, rank, onClose }: Props) {
       {player && <div className={`status-pill ${player.status}`}><i />{player.status === 'retired' ? 'Retired' : 'Active player'}</div>}
       <div className="profile-stats">
         <article className="trophy-list"><span>🏆 COMPETITIONS, TROPHIES & AWARDS WON</span>{honours.length ? <ul>{honours.map((honour) => <li key={honour}>{honour}</li>)}</ul> : !loadingHonours && !aiLoading && <small>No verified wins found.</small>}{(loadingHonours || aiLoading) && <small>AI is checking the complete wins list…</small>}</article>
-        <article><span>ALL-TIME SPORTIFY RANK</span><strong>{rank ? `#${rank}` : 'Extended roster'}</strong>{!player && teamStars.length > 0 && <div className="team-top-players"><span>TOP 3 PLAYERS</span><ol>{teamStars.map((star) => <li key={star.name}>{star.name}</li>)}</ol></div>}</article>
+        <article><span>ALL-TIME SPORTIFY RANK</span><strong>{rank ? `#${rank}` : 'Extended roster'}</strong>{!player && teamStars.length > 0 && <div className="team-top-players"><span>TOP 3 PLAYERS</span><ol>{teamStars.map((star) => <li key={star.player.name}><b>{star.player.name}</b><em>#{star.rank}</em></li>)}</ol></div>}</article>
         {player && <article><span>{player.status === 'retired' ? 'CAREER / MOST RECENT TEAM' : 'CURRENT TEAM / ACTIVE YEARS'}</span><strong>{player.status === 'retired' ? 'Retired' : player.currentTeam ?? player.team}</strong><small>{player.status === 'retired' ? `${player.team} · ${player.years}` : player.teamYears ?? player.years?.replace('present', 'current')}</small></article>}
         {!player && <article><span>COMPETITION / REGION</span><strong>{item.detail}</strong></article>}
       </div>
