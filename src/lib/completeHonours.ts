@@ -56,6 +56,13 @@ function honourYears(value: string) {
   return value.match(/\b(?:19|20)\d{2}(?:\s*[–-]\s*\d{2,4})?\b/g) ?? [];
 }
 
+function finalYear(value: string) {
+  const parts = value.split(/[–-]/).map(Number);
+  if (parts.length === 1) return parts[0];
+  if (parts[1] >= 1000) return parts[1];
+  return Math.floor(parts[0] / 100) * 100 + parts[1];
+}
+
 function statedCount(value: string) {
   const match = value.match(/(?:\b(\d+)\s*[x×]\b|\b[x×]\s*(\d+)\b|\(\s*(\d+)\s*\)|\b(\d+)\s+(?=[A-Za-z].*(?:championship|cup|league|title|medal|award)))/i);
   return match ? Number(match[1] ?? match[2] ?? match[3] ?? match[4]) : 0;
@@ -69,13 +76,14 @@ function honourName(value: string) {
     .replace(/\s+/g, ' ').replace(/[,:;\s-]+$/, '').trim();
 }
 
-export function dedupeHonours(values: string[]) {
+export function dedupeHonours(values: string[], minimumYear?: number) {
   const grouped = new Map<string, { name: string; years: string[]; count: number; original: string }>();
   values.forEach((value) => {
     const key = honourKey(value);
     if (!key) return;
-    const years = honourYears(value);
-    const count = statedCount(value);
+    const years = honourYears(value).filter((year) => minimumYear === undefined || finalYear(year) >= minimumYear);
+    if (minimumYear !== undefined && years.length === 0) return;
+    const count = minimumYear === undefined ? statedCount(value) : 0;
     const existing = grouped.get(key);
     if (!existing) {
       grouped.set(key, { name: honourName(value), years, count, original: value });

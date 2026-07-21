@@ -47,28 +47,30 @@ export function ProfileModal({ sport, type, item, rank, edition = 'all-time', on
   }, [onClose]);
   useEffect(() => {
     let current = true;
-    setHonours(player ? [] : storedHonours); setLoadingHonours(true); setAiLoading(true);
+    const minimumYear = edition === 'current' ? 2020 : undefined;
+    setHonours(minimumYear ? dedupeHonours(storedHonours, minimumYear) : player ? [] : storedHonours); setLoadingHonours(true); setAiLoading(true);
     loadCompleteHonours(item.name, sport.name, player ? 'player' : 'team', storedHonours).then((results) => {
       if (!current) return;
-      setHonours(results); setLoadingHonours(false);
-      researchFactFile(item.name, sport.name, player ? 'player' : 'team', results).then((research) => {
+      const visibleResults = dedupeHonours(results, minimumYear);
+      setHonours(visibleResults); setLoadingHonours(false);
+      researchFactFile(item.name, sport.name, player ? 'player' : 'team', visibleResults, minimumYear).then((research) => {
         if (!current) return;
-        setHonours((existing) => dedupeHonours([...existing, ...research.trophiesWon]));
+        setHonours((existing) => dedupeHonours([...existing, ...research.trophiesWon], minimumYear));
       }).catch(() => undefined).finally(() => { if (current) setAiLoading(false); });
     });
     return () => { current = false; };
-  }, [item.name, sport.name]);
+  }, [edition, item.name, sport.name]);
 
   return createPortal(<div className="profile-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
     <section className="profile-modal" role="dialog" aria-modal="true" aria-label={`${item.name} profile`}>
       <button className="profile-close" onClick={onClose} aria-label="Close profile">×</button>
       <div className="profile-identity">
         <div className="profile-badge" style={{ background: sport.accent }}>{item.badge}</div>
-        <div><p className="eyebrow">{sport.icon} {sport.name} · {rank ? `#${rank} ALL-TIME` : 'FACT FILE'}</p><h2>{item.name}</h2><p>{item.detail}</p></div>
+        <div><p className="eyebrow">{sport.icon} {sport.name} · {rank ? `#${rank} ${edition === 'current' ? 'CURRENT' : 'ALL-TIME'}` : 'FACT FILE'}</p><h2>{item.name}</h2><p>{item.detail}</p></div>
       </div>
       {player && <div className={`status-pill ${player.status}`}><i />{player.status === 'retired' ? 'Retired' : 'Active player'}</div>}
       <div className="profile-stats">
-        <article className="trophy-list"><span>🏆 COMPETITIONS, TROPHIES & AWARDS WON</span>{honours.length ? <ul>{honours.map((honour) => <li key={honour}>{honour}</li>)}</ul> : !loadingHonours && !aiLoading && <small>No verified wins found.</small>}{(loadingHonours || aiLoading) && <small>AI is checking the complete wins list…</small>}</article>
+        <article className="trophy-list"><span>🏆 {edition === 'current' ? 'TROPHIES & AWARDS WON SINCE 2020' : 'COMPETITIONS, TROPHIES & AWARDS WON'}</span>{honours.length ? <ul>{honours.map((honour) => <li key={honour}>{honour}</li>)}</ul> : !loadingHonours && !aiLoading && <small>No verified wins found.</small>}{(loadingHonours || aiLoading) && <small>AI is checking the complete wins list…</small>}</article>
         <article><span>{edition === 'current' ? 'CURRENT SPORTIFY RANK' : 'ALL-TIME SPORTIFY RANK'}</span><strong>{rank ? `#${rank}` : 'Extended roster'}</strong>{!player && teamStars.length > 0 && <div className="team-top-players"><span>{edition === 'current' ? 'CURRENT TOP PLAYERS' : 'TOP 3 PLAYERS'}</span><ol>{teamStars.map((star) => <li key={star.player.name}><b>{star.player.name}</b><em>#{star.rank}</em></li>)}</ol></div>}</article>
         {player && <article><span>{player.status === 'retired' ? 'CAREER / MOST RECENT TEAM' : 'CURRENT TEAM / ACTIVE YEARS'}</span><strong>{player.status === 'retired' ? 'Retired' : player.currentTeam ?? player.team}</strong><small>{player.status === 'retired' ? `${player.team} · ${player.years}` : player.teamYears ?? player.years?.replace('present', 'current')}</small></article>}
         {!player && <article><span>COMPETITION / REGION</span><strong>{item.detail}</strong></article>}

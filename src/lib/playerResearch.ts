@@ -43,7 +43,7 @@ function parseFactFile(text: string): FactFileResearch {
   };
 }
 
-export async function researchFactFile(name: string, sport: string, kind: 'player' | 'team', knownHonours: string[]) {
+export async function researchFactFile(name: string, sport: string, kind: 'player' | 'team', knownHonours: string[], minimumYear?: number) {
   const source = await wikipediaContext(name, sport);
   const prompt = `Research this ${kind}: "${name}" (${sport}).
 
@@ -57,7 +57,8 @@ Return only valid JSON in this exact shape:
 {"trophiesWon":["exact competition, trophy, medal or individual award actually won, including season/year when supported"]}
 
 Keep only championships, cups, medals, titles and individual awards actually won. Group repeat wins of the same trophy into one array item with all supported seasons, years or the total count. Never list the same trophy twice. Exclude records, appearances, finalist results, runner-up finishes and explanations.`;
-  const system = 'You are Sportify Trophy Fact Checker. Use only the supplied public source and collected honours. Include every supported competition, championship, trophy, medal and individual award actually won. Group every repeated trophy into one item containing all supported seasons, years or its total count; never return duplicate trophies. Never add an unsupported win. Exclude records, appearances, nominations, finalist results, runner-up finishes and explanations. Output valid JSON only, without markdown.';
+  const cutoff = minimumYear ? ` Include only wins from ${minimumYear} onward, and always include the winning year or season.` : '';
+  const system = `You are Sportify Trophy Fact Checker. Use only the supplied public source and collected honours. Include every supported competition, championship, trophy, medal and individual award actually won.${cutoff} Group every repeated trophy into one item containing all supported seasons, years or its total count; never return duplicate trophies. Never add an unsupported win. Exclude records, appearances, nominations, finalist results, runner-up finishes and explanations. Output valid JSON only, without markdown.`;
   const { data, error } = await supabase.functions.invoke<AiResponse>('ai', { body: { prompt, system } });
   if (error) throw error;
   if (!data?.text) throw new Error(data?.error || 'The AI helper returned no information.');
